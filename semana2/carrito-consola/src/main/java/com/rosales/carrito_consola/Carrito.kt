@@ -89,6 +89,14 @@ fun calcularDescuento(total: Double): Double {
 }
 
 
+fun Carrito.buscarProducto(nombre: String): Producto? {
+    return getProductos().find { it.nombre == nombre }
+}
+
+fun Carrito.eliminarProducto(nombre: String) {
+    (getProductos() as MutableList<Producto>).removeIf { it.nombre == nombre }
+}
+
 fun main() {
     println("=========================================")
     println(" CARRITO DE COMPRAS - TIENDA TECSUP (POO) ")
@@ -133,4 +141,22 @@ fun main() {
         println(String.format("Descuento aplicado: S/ %.2f", descuento))
     }
     println(String.format("TOTAL CON DESCUENTO: S/ %8.2f", totalConDescuento))
+
+
+    val encontrado = carrito.buscarProducto("Laptop HP")
+    if (encontrado != null) {
+        println("Producto encontrado: ${encontrado.nombre}")
+    } else {
+        println("Producto no encontrado")
+    }
+
+    println()
+    println("--- Despues de eliminar un producto ---")
+    carrito.eliminarProducto("Mouse Logitech")
+    carrito.mostrarDetalle()
+
+    val subtotalNuevo = carrito.calcularSubtotal()
+    println(String.format("Subtotal actualizado: S/ %8.2f", subtotalNuevo))
+
+
 }
