@@ -64,7 +64,16 @@ fun calcularTotal(subtotal: Double, igv: Double): Double {
     return subtotal + igv
 }
 
-
+fun Carrito.mostrarDetalle() {
+    println("--------- DETALLE DEL CARRITO ---------")
+    var i = 1
+    for (p in getProductos()) {
+        println(String.format("%d. %-30s x%d S/ %8.2f",
+            i, p.mostrarInfo(), p.cantidad, p.calcularImporte()))
+        i++
+    }
+    println("---------------------------------------")
+}
 fun main() {
     println("=========================================")
     println(" CARRITO DE COMPRAS - TIENDA TECSUP (POO) ")
@@ -80,6 +89,11 @@ fun main() {
     carrito.agregarProducto(ProductoElectronico("Mouse Logitech", 45.5, 2, 6))
     carrito.agregarProducto(ProductoElectronico("Laptop Mac", 5000.0, 4, 12))
     carrito.agregarProducto(ProductoMobiliario("Mesa", 20.0, 10, "Madera"))
+
+
+    carrito.mostrarDetalle()
+    println("Cantidad de productos: ${carrito.getProductos().size}")
+
 
     println("Cantidad de productos: ${carrito.getProductos().size}")
 
