@@ -48,7 +48,9 @@ fun calcularDescuento(total: Double): Double {
 }
 
 
-
+fun buscarProducto(productos: List<Producto>, nombre: String): Producto? {
+    return productos.find { it.nombre == nombre }
+}
 
 
 fun main(){
@@ -92,6 +94,13 @@ fun main(){
         println(String.format("Descuento aplicado: S/ %.2f", descuento))
     }
     println(String.format("TOTAL CON DESCUENTO: S/ %8.2f", totalConDescuento))
+
+    val encontrado = buscarProducto(carrito, "Magaly")
+    if (encontrado != null) {
+        println("Producto encontrado: ${encontrado.nombre}")
+    } else {
+        println("Producto no encontrado")
+    }
 }
 
 
