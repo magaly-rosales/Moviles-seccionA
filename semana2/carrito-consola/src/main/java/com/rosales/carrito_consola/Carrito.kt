@@ -37,8 +37,33 @@ class ProductoMobiliario(
         "$nombre (Mobiliario, material: $material)"
 }
 
+class Carrito {
+    private val productos = mutableListOf<Producto>()
+
+    fun agregarProducto(p: Producto) {
+        productos.add(p)
+        println("Producto agregado: ${p.nombre}")
+    }
+
+    fun getProductos(): List<Producto> = productos
+}
+
+
 fun main() {
     println("=========================================")
     println(" CARRITO DE COMPRAS - TIENDA TECSUP (POO) ")
     println("=========================================")
+
+    val nombreCliente = "Magaly Rosales"
+    val carrito = Carrito()
+
+    println("Cliente: $nombreCliente")
+    println()
+
+    carrito.agregarProducto(ProductoElectronico("Laptop HP", 2500.0, 1, 12))
+    carrito.agregarProducto(ProductoElectronico("Mouse Logitech", 45.5, 2, 6))
+    carrito.agregarProducto(ProductoElectronico("Laptop Mac", 5000.0, 4, 12))
+    carrito.agregarProducto(ProductoMobiliario("Mesa", 20.0, 10, "Madera"))
+
+    println("Cantidad de productos: ${carrito.getProductos().size}")
 }
