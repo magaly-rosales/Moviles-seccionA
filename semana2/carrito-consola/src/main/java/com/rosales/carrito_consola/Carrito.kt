@@ -101,6 +101,14 @@ fun main(){
     } else {
         println("Producto no encontrado")
     }
+
+
+    println()
+    println("--- Después de eliminar un producto ---")
+    carrito.removeIf { it.nombre == "Mouse Logitech" }
+    mostrarDetalle(carrito)
+    val subtotalNuevo = calcularSubtotal(carrito)
+    println(String.format("Subtotal actualizado: S/ %8.2f", subtotalNuevo))
 }
 
 
