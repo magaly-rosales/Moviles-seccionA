@@ -5,6 +5,7 @@ data class Producto(
     val precio: Double,
     var cantidad: Int
 )
+// Calcula el subtotal sumando precio x cantidad de cada producto
 fun calcularSubtotal(productos: List<Producto>): Double {
     var subtotal = 0.0
     for (p in productos) {
@@ -12,10 +13,12 @@ fun calcularSubtotal(productos: List<Producto>): Double {
     }
     return subtotal
 }
+//Calcular el IGV subtotal x el porcentaje impuesto que se aplica que es el 18%
 fun calcularIGV(subtotal: Double): Double {
     val igv = subtotal * 0.18
     return igv
 }
+// Calcular el total que es la suma de subtotal + el IGV
 fun calcularTotal(subtotal: Double, igv: Double): Double {
     val totalapagar = subtotal + igv
     return totalapagar
