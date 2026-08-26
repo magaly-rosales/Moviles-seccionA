@@ -48,6 +48,22 @@ class Carrito {
     fun getProductos(): List<Producto> = productos
 }
 
+fun Carrito.calcularSubtotal(): Double {
+    var subtotal = 0.0
+    for (p in getProductos()) {
+        subtotal += p.calcularImporte()
+    }
+    return subtotal
+}
+
+fun calcularIGV(subtotal: Double): Double {
+    return subtotal * 0.18
+}
+
+fun calcularTotal(subtotal: Double, igv: Double): Double {
+    return subtotal + igv
+}
+
 
 fun main() {
     println("=========================================")
@@ -66,4 +82,13 @@ fun main() {
     carrito.agregarProducto(ProductoMobiliario("Mesa", 20.0, 10, "Madera"))
 
     println("Cantidad de productos: ${carrito.getProductos().size}")
+
+
+    val subtotal = carrito.calcularSubtotal()
+    val igv = calcularIGV(subtotal)
+    val total = calcularTotal(subtotal, igv)
+
+    println(String.format("Subtotal: S/ %8.2f", subtotal))
+    println(String.format("IGV: S/ %8.2f", igv))
+    println(String.format("TOTAL A PAGAR: S/ %8.2f", total))
 }
