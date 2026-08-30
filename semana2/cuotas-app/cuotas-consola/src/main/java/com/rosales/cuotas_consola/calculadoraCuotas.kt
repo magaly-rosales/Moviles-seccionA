@@ -1,5 +1,6 @@
 package com.rosales.cuotas_app
-
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 data class Producto(
     val nombre: String,
     val precio: Double,
@@ -20,6 +21,26 @@ fun calcularMontoAPagar(montoInicial: Double, tasaInteres: Double): Double {
 fun calcularPagoMensual(montoAPagar: Double, numCuotas: Int): Double {
     return montoAPagar / numCuotas
 }
+fun mostrarCronograma(montoAPagar: Double, pagoMensual: Double, numCuotas: Int) {
+    println()
+    println("--------- CRONOGRAMA DE PAGOS ---------")
+    println(String.format("%-4s %-12s %10s %12s", "N", "Fecha", "Pago", "Saldo"))
+
+    var saldo = montoAPagar
+    var fecha = LocalDate.now()
+    val formato = DateTimeFormatter.ofPattern("dd/MM/yyyy")
+
+    for (i in 1..numCuotas) {
+        fecha = fecha.plusMonths(1)
+        saldo -= pagoMensual
+        if (saldo < 0.01) saldo = 0.0
+
+        println(String.format("%-4d %-12s S/ %6.2f S/ %8.2f", i, fecha.format(formato), pagoMensual, saldo))
+    }
+
+    println("----------------------------------------")
+}
+
 
 fun main() {
     println("=========================================")
@@ -85,4 +106,5 @@ fun main() {
     println(String.format("%-24s S/ %8.2f", "Interes:", interes))
     println(String.format("%-24s S/ %8.2f", "Monto a Pagar:", montoAPagar))
     println(String.format("%-24s S/ %8.2f", "Pago Mensual:", pagoMensual))
+    mostrarCronograma(montoAPagar, pagoMensual, numCuotas)
 }
