@@ -40,21 +40,58 @@ fun mostrarCronograma(montoAPagar: Double, pagoMensual: Double, numCuotas: Int) 
 
     println("----------------------------------------")
 }
+fun leerNombre(): String {
+    var nombre: String
+    while (true) {
+        print("Nombre del producto: ")
+        nombre = readln()
+        if (nombre.isNotBlank()) {
+            return nombre
+        }
+        println("El nombre no puede estar vacio. Intentelo nuevamente.")
+    }
+}
 
+fun leerPrecio(): Double {
+    while (true) {
+        print("Precio: S/ ")
+        val entrada = readln()
+        val precio = entrada.toDoubleOrNull()
+
+        if (precio == null) {
+            println("Debe ingresar un numero valido. Intentelo nuevamente.")
+        } else if (precio <= 0) {
+            println("El precio debe ser mayor a 0. Intentelo nuevamente.")
+        } else {
+            return precio
+        }
+    }
+}
+
+fun leerCantidad(): Int {
+    while (true) {
+        print("Cantidad: ")
+        val entrada = readln()
+        val cantidad = entrada.toIntOrNull()
+
+        if (cantidad == null) {
+            println("Debe ingresar un numero entero valido. Intentelo nuevamente.")
+        } else if (cantidad <= 0) {
+            println("La cantidad debe ser mayor a 0. Intentelo nuevamente.")
+        } else {
+            return cantidad
+        }
+    }
+}
 
 fun main() {
     println("=========================================")
     println("   CALCULADORA DE CUOTAS - TIENDA TECSUP")
     println("=========================================")
 
-    print("Nombre del producto: ")
-    val nombreProducto = readln()
-
-    print("Precio: S/ ")
-    val precio = readln().toDouble()
-
-    print("Cantidad: ")
-    val cantidad = readln().toInt()
+    val nombreProducto = leerNombre()
+    val precio = leerPrecio()
+    val cantidad = leerCantidad()
 
     val producto = Producto(nombreProducto, precio, cantidad)
     val montoInicial = producto.precio * producto.cantidad
