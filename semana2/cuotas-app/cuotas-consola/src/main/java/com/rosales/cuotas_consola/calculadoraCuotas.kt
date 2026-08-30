@@ -13,6 +13,14 @@ fun calcularInteres(numCuotas: Int): Double {
         else -> 0.0
     }
 }
+fun calcularMontoAPagar(montoInicial: Double, tasaInteres: Double): Double {
+    return montoInicial + (montoInicial * tasaInteres)
+}
+
+fun calcularPagoMensual(montoAPagar: Double, numCuotas: Int): Double {
+    return montoAPagar / numCuotas
+}
+
 fun main() {
     println("=========================================")
     println("   CALCULADORA DE CUOTAS - TIENDA TECSUP")
@@ -60,9 +68,21 @@ fun main() {
     if (salir) return
 
     val tasaInteres = calcularInteres(numCuotas)
+    val montoAPagar = calcularMontoAPagar(montoInicial, tasaInteres)
+    val interes = montoAPagar - montoInicial
+    val pagoMensual = calcularPagoMensual(montoAPagar, numCuotas)
 
     println()
-    println("Monto Inicial: S/ ${"%.2f".format(montoInicial)}")
-    println("Numero de cuotas seleccionadas: $numCuotas")
-    println("Tasa de interes: ${(tasaInteres * 100).toInt()}%")
+    println("========================================")
+    println("           RESUMEN DE COMPRA")
+    println("========================================")
+    println(String.format("%-24s %s", "Producto:", producto.nombre))
+    println(String.format("%-24s S/ %8.2f", "Precio unitario:", producto.precio))
+    println(String.format("%-24s %d", "Cantidad:", producto.cantidad))
+    println(String.format("%-24s S/ %8.2f", "Monto Inicial:", montoInicial))
+    println(String.format("%-24s %d", "Numero de cuotas:", numCuotas))
+    println(String.format("%-24s %d%%", "Tasa de interes:", (tasaInteres * 100).toInt()))
+    println(String.format("%-24s S/ %8.2f", "Interes:", interes))
+    println(String.format("%-24s S/ %8.2f", "Monto a Pagar:", montoAPagar))
+    println(String.format("%-24s S/ %8.2f", "Pago Mensual:", pagoMensual))
 }
