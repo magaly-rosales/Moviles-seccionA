@@ -24,4 +24,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "cuotas-app"
 include(":app")
- 
+include(":cuotas-consola")
