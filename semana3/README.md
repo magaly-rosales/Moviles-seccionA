@@ -16,7 +16,7 @@ una Card con el resumen y el importe calculado (precio × cantidad).
 ![Pantalla vacía](capturas/nada.png)
 
 ### Producto registrado
-![Producto registrado](capturas/Captura de pantalla 2026-09-02 192149.png)
+![Producto registrado](capturas/contenido.png)
 ## Reflexión: ¿qué pasa sin `remember`?
 
 Al declarar las variables sin remember y al correr la app no se ve ningún cambio al escribir en los campos de texto  en
