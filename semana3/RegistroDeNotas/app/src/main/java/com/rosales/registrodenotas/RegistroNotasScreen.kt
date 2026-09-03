@@ -15,7 +15,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-
+import kotlin.math.roundToInt
 
 data class Curso(val nombre: String, val peso: Float)
 
@@ -153,5 +153,35 @@ private fun CursoSliderRow(curso: Curso, valor: Float, onValorChange: (Float) ->
             steps = 19,
             colors = SliderDefaults.colors(thumbColor = MoradoPrimario, activeTrackColor = MoradoPrimario)
         )
+    }
+}
+
+fun calcularPromedioPonderado(nota1: Float, nota2: Float, nota3: Float, nota4: Float): Float {
+    return nota1 * CURSOS[0].peso +
+            nota2 * CURSOS[1].peso +
+            nota3 * CURSOS[2].peso +
+            nota4 * CURSOS[3].peso
+}
+
+fun calcularPromedioFinal(promedioPonderado: Float, redondear: Boolean): Float {
+    return if (redondear) {
+        promedioPonderado.roundToInt().toFloat()
+    } else {
+        promedioPonderado
+    }
+}
+val VerdeOscuro = Color(0xFF1B5E20)
+val Verde = Color(0xFF43A047)
+val Ambar = Color(0xFFFFA000)
+val Rojo = Color(0xFFE53935)
+
+data class Observacion(val texto: String, val color: Color)
+
+fun obtenerObservacion(promedioFinal: Float): Observacion {
+    return when {
+        promedioFinal >= 17f -> Observacion("EXCELENTE", VerdeOscuro)
+        promedioFinal >= 13f -> Observacion("APROBADO", Verde)
+        promedioFinal >= 10f -> Observacion("EN RECUPERACIÓN", Ambar)
+        else -> Observacion("DESAPROBADO", Rojo)
     }
 }
