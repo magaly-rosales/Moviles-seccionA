@@ -1,0 +1,102 @@
+package com.tuapp.registronotas
+
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+
+data class Curso(val nombre: String, val peso: Float)
+
+val CURSOS = listOf(
+    Curso("Fundamentos de Programación", 0.20f),
+    Curso("Programación Orientada a Objetos", 0.25f),
+    Curso("Programación en Móviles", 0.30f),
+    Curso("Base de Datos", 0.25f)
+)
+
+val MoradoPrimario = Color(0xFF5E35B1)
+val MoradoOscuro = Color(0xFF4527A0)
+val FondoDegradadoInicio = Color(0xFFF5F0FA)
+val FondoDegradadoFin = Color(0xFFEDE4F5)
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun RegistroNotasScreen() {
+    var nota1 by remember { mutableStateOf(0f) }
+    var nota2 by remember { mutableStateOf(0f) }
+    var nota3 by remember { mutableStateOf(0f) }
+    var nota4 by remember { mutableStateOf(0f) }
+
+    var redondear by remember { mutableStateOf(false) }
+    var confirmado by remember { mutableStateOf(false) }
+    var mostrarResultado by remember { mutableStateOf(false) }
+
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("Registro de Notas", fontWeight = FontWeight.Bold) },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MoradoPrimario,
+                    titleContentColor = Color.White
+                )
+            )
+        }
+    ) { padding ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding)
+                .background(
+                    Brush.verticalGradient(listOf(FondoDegradadoInicio, FondoDegradadoFin))
+                )
+                .verticalScroll(rememberScrollState())
+                .padding(20.dp)
+        ) {
+            Text(
+                "Notas del ciclo",
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Bold
+            )
+            Text(
+                "Desliza para asignar cada nota (0 a 20)",
+                fontSize = 13.sp,
+                color = Color.Gray
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+            CURSOS.forEach { curso ->
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 8.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text("${curso.nombre} (${(curso.peso * 100).toInt()}%)")
+                    Text("0")
+                }
+            }
+
+            Spacer(modifier = Modifier.weight(1f))
+
+            Text(
+                "Desarrollado por: (tu nombre completo)",
+                fontSize = 11.sp,
+                color = Color.Gray,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 24.dp),
+                textAlign = androidx.compose.ui.text.style.TextAlign.Center
+            )
+        }
+    }
+}
