@@ -16,6 +16,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlin.math.roundToInt
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.ui.text.style.TextAlign
 
 data class Curso(val nombre: String, val peso: Float)
 
@@ -27,6 +30,7 @@ val CURSOS = listOf(
 )
 
 val MoradoPrimario = Color(0xFF5E35B1)
+val VerdeConfirmacion = Color(0xFF2E7D32)
 val MoradoOscuro = Color(0xFF4527A0)
 val GrisDeshabilitado = Color(0xFFBFBFC4)
 val FondoDegradadoInicio = Color(0xFFF5F0FA)
@@ -44,6 +48,10 @@ fun RegistroNotasScreen() {
     var redondear by remember { mutableStateOf(false) }
     var confirmado by remember { mutableStateOf(false) }
     var mostrarResultado by remember { mutableStateOf(false) }
+
+    val promedioPonderado = calcularPromedioPonderado(nota1, nota2, nota3, nota4)
+    val promedioFinal = calcularPromedioFinal(promedioPonderado, redondear)
+    val observacion = obtenerObservacion(promedioFinal)
 
     Scaffold(
         topBar = {
@@ -69,10 +77,10 @@ fun RegistroNotasScreen() {
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            CursoSliderRow(CURSOS[0], nota1) { nota1 = it }
-            CursoSliderRow(CURSOS[1], nota2) { nota2 = it }
-            CursoSliderRow(CURSOS[2], nota3) { nota3 = it }
-            CursoSliderRow(CURSOS[3], nota4) { nota4 = it }
+            CursoSliderRow(CURSOS[0], nota1) { nota1 = it; mostrarResultado = false }
+            CursoSliderRow(CURSOS[1], nota2) { nota2 = it; mostrarResultado = false }
+            CursoSliderRow(CURSOS[2], nota3) { nota3 = it; mostrarResultado = false }
+            CursoSliderRow(CURSOS[3], nota4) { nota4 = it; mostrarResultado = false }
 
             Spacer(modifier = Modifier.height(8.dp))
 
@@ -117,6 +125,58 @@ fun RegistroNotasScreen() {
             ) {
                 Text("CALCULAR PROMEDIO", fontWeight = FontWeight.Bold)
             }
+            Spacer(modifier = Modifier.height(16.dp))
+
+            if (!mostrarResultado) {
+                Text(
+                    "Asigna las notas y confirma para calcular",
+                    color = Color.Gray,
+                    fontSize = 13.sp,
+                    modifier = Modifier.fillMaxWidth(),
+                    textAlign = TextAlign.Center
+                )
+            } else {
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = CardDefaults.cardColors(containerColor = Color.White),
+                    shape = RoundedCornerShape(12.dp),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+                ) {
+                    Column(modifier = Modifier.padding(16.dp)) {
+                        Text("Promedio ponderado: ${"%.2f".format(promedioPonderado)}", fontSize = 14.sp)
+
+                        Spacer(modifier = Modifier.height(4.dp))
+
+                        Text(
+                            "Promedio final: ${if (redondear) promedioFinal.toInt().toString() else "%.2f".format(promedioFinal)}",
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 16.sp,
+                            color = MoradoOscuro
+                        )
+                        if (redondear) {
+                            Text("(redondeado)", fontSize = 11.sp, color = Color.Gray)
+                        }
+
+                        Spacer(modifier = Modifier.height(8.dp))
+
+                        Box(
+                            modifier = Modifier
+                                .background(observacion.color, RoundedCornerShape(16.dp))
+                                .padding(horizontal = 14.dp, vertical = 6.dp)
+                        ) {
+                            Text(observacion.texto, color = Color.White, fontWeight = FontWeight.Bold, fontSize = 12.sp)
+                        }
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(Icons.Filled.CheckCircle, contentDescription = null, tint = VerdeConfirmacion)
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Text("Promedio calculado correctamente", color = VerdeConfirmacion, fontSize = 13.sp)
+                }
+            }
 
 
 
@@ -127,7 +187,7 @@ fun RegistroNotasScreen() {
                 fontSize = 11.sp,
                 color = Color.Gray,
                 modifier = Modifier.fillMaxWidth().padding(top = 24.dp),
-                textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                textAlign = TextAlign.Center
             )
         }
     }
