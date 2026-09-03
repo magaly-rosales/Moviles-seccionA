@@ -53,6 +53,7 @@ fun PantallaRegistro(modifier: Modifier = Modifier) {
     var cantidad by remember { mutableStateOf("") }
     var mostrarResumen by remember { mutableStateOf(false) }
     var error by remember { mutableStateOf(false) }
+    var mensajeError by remember { mutableStateOf("") }
 
     Column(
         modifier = modifier
@@ -96,8 +97,14 @@ fun PantallaRegistro(modifier: Modifier = Modifier) {
         Spacer(modifier = Modifier.height(24.dp))
         Button(
             onClick = {
-                if (nombre.isBlank() || precio.isBlank() || cantidad.isBlank()) {
+                val camposFaltantes = mutableListOf<String>()
+                if (nombre.isBlank()) camposFaltantes.add("Nombre")
+                if (precio.isBlank()) camposFaltantes.add("Precio")
+                if (cantidad.isBlank()) camposFaltantes.add("Cantidad")
+
+                if (camposFaltantes.isNotEmpty()) {
                     error = true
+                    mensajeError = "Falta completar: " + camposFaltantes.joinToString(", ")
                     mostrarResumen = false
                 } else {
                     error = false
@@ -124,8 +131,8 @@ fun PantallaRegistro(modifier: Modifier = Modifier) {
         Spacer(modifier = Modifier.height(24.dp))
         if (error) {
             Text(
-                text = "Error: Todos los campos son obligatorios",
-                color = Color.Red,
+                text = mensajeError,
+                color = MaterialTheme.colorScheme.error,
                 modifier = Modifier.padding(bottom = 16.dp)
             )
         }
