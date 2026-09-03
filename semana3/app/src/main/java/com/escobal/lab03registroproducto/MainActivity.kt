@@ -47,10 +47,10 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun PantallaRegistro(modifier: Modifier = Modifier) {
-    var nombre =""
-    var precio =""
-    var cantidad =""
-    var mostrarResumen = false
+    var nombre by remember { mutableStateOf("") }
+    var precio by remember { mutableStateOf("") }
+    var cantidad by remember { mutableStateOf("") }
+    var mostrarResumen by remember { mutableStateOf(false) }
 
     Column(
         modifier = modifier
