@@ -125,6 +125,19 @@ fun RegistroNotasScreen() {
             ) {
                 Text("CALCULAR PROMEDIO", fontWeight = FontWeight.Bold)
             }
+            Spacer(modifier = Modifier.height(8.dp))
+
+            OutlinedButton(
+                onClick = {
+                    nota1 = 0f; nota2 = 0f; nota3 = 0f; nota4 = 0f
+                    redondear = false
+                    confirmado = false
+                    mostrarResultado = false
+                },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("LIMPIAR")
+            }
             Spacer(modifier = Modifier.height(16.dp))
 
             if (!mostrarResultado) {
@@ -155,6 +168,19 @@ fun RegistroNotasScreen() {
                         )
                         if (redondear) {
                             Text("(redondeado)", fontSize = 11.sp, color = Color.Gray)
+                        }
+                        Spacer(modifier = Modifier.height(8.dp))
+                        HorizontalDivider()
+                        Spacer(modifier = Modifier.height(8.dp))
+
+                        val notas = listOf(nota1, nota2, nota3, nota4)
+                        CURSOS.forEachIndexed { i, curso ->
+                            val aporte = notas[i] * curso.peso
+                            Text(
+                                "${curso.nombre.substringBefore(" ")}: ${notas[i].toInt()} × ${(curso.peso * 100).toInt()}% = ${"%.2f".format(aporte)}",
+                                fontSize = 12.sp,
+                                color = Color.DarkGray
+                            )
                         }
 
                         Spacer(modifier = Modifier.height(8.dp))
@@ -202,8 +228,11 @@ private fun CursoSliderRow(curso: Curso, valor: Float, onValorChange: (Float) ->
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text("${curso.nombre} (${(curso.peso * 100).toInt()}%)", fontWeight = FontWeight.Medium, fontSize = 14.sp)
-            Box(modifier = Modifier.background(BadgeFondo, CircleShape).padding(horizontal = 12.dp, vertical = 4.dp)) {
-                Text(valor.toInt().toString(), color = MoradoOscuro, fontWeight = FontWeight.Bold)
+
+            val colorBadge = if (valor < 13f) Rojo else Verde
+
+            Box(modifier = Modifier.background(colorBadge.copy(alpha = 0.15f), CircleShape).padding(horizontal = 12.dp, vertical = 4.dp)) {
+                Text(valor.toInt().toString(), color = colorBadge, fontWeight = FontWeight.Bold)
             }
         }
         Slider(
