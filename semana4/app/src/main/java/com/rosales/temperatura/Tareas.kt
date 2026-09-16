@@ -4,6 +4,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.listSaver
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextDecoration
@@ -12,6 +14,15 @@ import androidx.compose.ui.unit.dp
 data class Tarea(
     val texto: String,
     var completada: Boolean = false
+)
+
+val TareaSaver = listSaver<List<Tarea>, Any>(
+    save = { lista -> lista.flatMap { listOf(it.texto, it.completada) } },
+    restore = { guardado ->
+        guardado.chunked(2).map {
+            Tarea(texto = it[0] as String, completada = it[1] as Boolean)
+        }
+    }
 )
 
 @Composable
@@ -38,7 +49,7 @@ fun TareaItem(
 
 @Composable
 fun ListaTareasScreen() {
-    var tareas by remember { mutableStateOf(listOf<Tarea>()) }
+    var tareas by rememberSaveable(stateSaver = TareaSaver) { mutableStateOf(listOf<Tarea>()) }
     var textoNuevaTarea by remember { mutableStateOf("") }
 
     Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
