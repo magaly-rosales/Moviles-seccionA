@@ -19,6 +19,8 @@ fun Temperature() {
             Button(onClick = { temperatura++ }) { Text("Subir") }
             Spacer(modifier = Modifier.width(8.dp))
             Button(onClick = { temperatura-- }) { Text("Bajar") }
+            Spacer(modifier = Modifier.width(8.dp))
+            Button(onClick = { temperatura = 20 }) { Text("Resetear") }
         }
     }
 }
