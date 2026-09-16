@@ -3,6 +3,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
@@ -15,7 +16,12 @@ fun Temperature() {
         temperatura < 10 -> Color.Blue
         else -> Color.Black
     }
-    Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
+
+    Column(
+        modifier = Modifier.fillMaxSize().padding(16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
         Text(text = "$temperatura°C", color = colorTexto)
 
         Spacer(modifier = Modifier.height(16.dp))
