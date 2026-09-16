@@ -1,15 +1,16 @@
 package com.rosales.temperatura
+
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.runtime.saveable.listSaver
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
+import androidx.compose.foundation.lazy.items
 
 data class Tarea(
     val texto: String,
@@ -31,7 +32,12 @@ fun TareaItem(
     onCompletadaChange: (Boolean) -> Unit,
     onEliminar: () -> Unit
 ) {
-    Row(verticalAlignment = Alignment.CenterVertically) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 4.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
         Checkbox(
             checked = tarea.completada,
             onCheckedChange = onCompletadaChange
@@ -52,17 +58,24 @@ fun ListaTareasScreen() {
     var tareas by rememberSaveable(stateSaver = TareaSaver) { mutableStateOf(listOf<Tarea>()) }
     var textoNuevaTarea by remember { mutableStateOf("") }
 
-    Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
-        Text(text = "Mis Tareas", style = MaterialTheme.typography.headlineSmall)
-
-        Spacer(modifier = Modifier.height(16.dp))
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp)
+    ) {
+        Text(
+            text = "Mis Tareas",
+            style = MaterialTheme.typography.headlineSmall
+        )
+        Spacer(modifier = Modifier.height(8.dp))
         Text(text = "Total: ${tareas.size} | Completadas: ${tareas.count { it.completada }}")
         Spacer(modifier = Modifier.height(16.dp))
-        Row {
+        Row(verticalAlignment = Alignment.CenterVertically) {
             OutlinedTextField(
                 value = textoNuevaTarea,
                 onValueChange = { textoNuevaTarea = it },
-                label = { Text("Nueva tarea") }
+                label = { Text("Nueva tarea") },
+                modifier = Modifier.weight(1f)
             )
             Spacer(modifier = Modifier.width(8.dp))
             Button(onClick = {
@@ -74,9 +87,7 @@ fun ListaTareasScreen() {
                 Text("Agregar")
             }
         }
-
         Spacer(modifier = Modifier.height(16.dp))
-
         LazyColumn {
             items(tareas) { tarea ->
                 TareaItem(
