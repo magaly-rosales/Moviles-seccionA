@@ -1,5 +1,6 @@
 package com.rosales.temperatura
 import androidx.compose.foundation.layout.*
+import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -11,5 +12,13 @@ fun Temperature() {
 
     Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
         Text(text = "$temperatura°C")
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Row {
+            Button(onClick = { temperatura++ }) { Text("Subir") }
+            Spacer(modifier = Modifier.width(8.dp))
+            Button(onClick = { temperatura-- }) { Text("Bajar") }
+        }
     }
 }
