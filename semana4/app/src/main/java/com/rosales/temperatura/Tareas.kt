@@ -1,5 +1,7 @@
 package com.rosales.temperatura
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -59,6 +61,24 @@ fun ListaTareasScreen() {
                 }
             }) {
                 Text("Agregar")
+            }
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        LazyColumn {
+            items(tareas) { tarea ->
+                TareaItem(
+                    tarea = tarea,
+                    onCompletadaChange = { nuevoValor ->
+                        tareas = tareas.map {
+                            if (it == tarea) it.copy(completada = nuevoValor) else it
+                        }
+                    },
+                    onEliminar = {
+                        tareas = tareas.filter { it != tarea }
+                    }
+                )
             }
         }
     }
