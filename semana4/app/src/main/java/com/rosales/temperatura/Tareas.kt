@@ -17,7 +17,8 @@ fun ListaTareasScreen() {
         Text(text = "Mis Tareas", style = MaterialTheme.typography.headlineSmall)
 
         Spacer(modifier = Modifier.height(16.dp))
-
+        Text(text = "Total: ${tareas.size} | Completadas: ${tareas.count { it.completada }}")
+        Spacer(modifier = Modifier.height(16.dp))
         Row {
             OutlinedTextField(
                 value = textoNuevaTarea,
