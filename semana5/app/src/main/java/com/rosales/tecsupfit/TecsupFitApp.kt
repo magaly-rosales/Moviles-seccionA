@@ -100,12 +100,15 @@ fun TecsupFitApp() {
                     NavigationBarItem(
                         selected = currentRoute == route,
                         onClick = {
-                            navController.navigate(route) {
-                                popUpTo(navController.graph.findStartDestination().id) {
-                                    saveState = true
+                            if (currentRoute != route) {
+                                navController.navigate(route) {
+                                    popUpTo(navController.graph.findStartDestination().id) {
+                                        saveState = true
+                                    }
+                                    launchSingleTop = true
+                                    // restoreState solo para pestañas secundarias, para evitar bloqueos con la pantalla raíz 'Inicio'
+                                    restoreState = route != Screen.Inicio.route
                                 }
-                                launchSingleTop = true
-                                restoreState = true
                             }
                         },
                         icon = { Icon(icon, contentDescription = label) },

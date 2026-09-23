@@ -12,10 +12,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import com.rosales.tecsupfit.model.ClaseGimnasio
 import com.rosales.tecsupfit.navigation.Screen
 
+// Pantalla de confirmación de reserva de clase
 @Composable
 fun ConfirmacionScreen(
     clase: ClaseGimnasio,
@@ -47,8 +49,9 @@ fun ConfirmacionScreen(
 
         Button(
             onClick = {
+                // Navegar a la pantalla de Reservas limpiando el flujo intermedio hasta la pantalla raíz
                 navController.navigate(Screen.Reservas.route) {
-                    popUpTo(Screen.Inicio.route) {
+                    popUpTo(navController.graph.findStartDestination().id) {
                         inclusive = false
                     }
                     launchSingleTop = true
