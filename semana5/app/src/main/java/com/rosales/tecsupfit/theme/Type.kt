@@ -1,4 +1,4 @@
-package com.rosales.tecsupfit.ui.theme
+package com.rosales.tecsupfit.theme
 
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle

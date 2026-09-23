@@ -1,4 +1,4 @@
-package com.rosales.tecsupfit.ui.theme
+package com.rosales.tecsupfit.theme
 
 import androidx.compose.ui.graphics.Color
 
