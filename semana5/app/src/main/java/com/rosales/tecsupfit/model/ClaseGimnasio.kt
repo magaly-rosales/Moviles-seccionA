@@ -52,3 +52,12 @@ val listaClases = listOf(
         periodo = Periodo.ESTA_SEMANA
     )
 )
+data class Reserva(
+    val clase: ClaseGimnasio,
+    val estado: String // "Confirmada" o "Completada"
+)
+
+val listaReservas = listOf(
+    Reserva(clase = listaClases[1], estado = "Confirmada"),
+    Reserva(clase = listaClases[0], estado = "Completada")
+)

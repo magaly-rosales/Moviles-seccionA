@@ -47,7 +47,12 @@ fun ConfirmacionScreen(
 
         Button(
             onClick = {
-                navController.navigate(Screen.Reservas.route)
+                navController.navigate(Screen.Reservas.route) {
+                    popUpTo(Screen.Inicio.route) {
+                        inclusive = false
+                    }
+                    launchSingleTop = true
+                }
             },
             modifier = Modifier.fillMaxWidth()
         ) {
