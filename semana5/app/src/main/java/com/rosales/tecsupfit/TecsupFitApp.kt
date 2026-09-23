@@ -17,10 +17,15 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.rosales.tecsupfit.model.Reserva
+import com.rosales.tecsupfit.model.listaClases
+import com.rosales.tecsupfit.model.listaReservas
 import com.rosales.tecsupfit.navigation.AppNavigation
 import com.rosales.tecsupfit.navigation.Screen
 
@@ -30,6 +35,27 @@ fun TecsupFitApp() {
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
+
+    // Estado global elevado: lista de clases de gimnasio (mutable para descontar/devolver cupos)
+    val clases = remember { mutableStateListOf(*listaClases.toTypedArray()) }
+
+    // Estado global elevado: lista de reservas del usuario (mutable para agregar/eliminar reservas)
+    val reservas = remember { mutableStateListOf(*listaReservas.toTypedArray()) }
+
+    // Función para procesar la reserva de un cupo en una clase
+    fun reservarClase(claseId: Int) {
+        val index = clases.indexOfFirst { it.id == claseId }
+        if (index != -1 && clases[index].cuposDisponibles > 0) {
+            // Descontar 1 cupo de la clase seleccionada
+            val claseActualizada = clases[index].copy(
+                cuposDisponibles = clases[index].cuposDisponibles - 1
+            )
+            clases[index] = claseActualizada
+
+            // Agregar la nueva reserva con estado "Confirmada" al inicio de la lista
+            reservas.add(0, Reserva(clase = claseActualizada, estado = "Confirmada"))
+        }
+    }
 
     val itemsBottomBar = listOf(
         Triple(Screen.Inicio.route, "Inicio", Icons.Filled.Home),
@@ -91,7 +117,10 @@ fun TecsupFitApp() {
     ) { innerPadding ->
         AppNavigation(
             navController = navController,
-            paddingValues = innerPadding
+            paddingValues = innerPadding,
+            clases = clases,
+            reservas = reservas,
+            onReservarClase = { claseId -> reservarClase(claseId) }
         )
     }
 }

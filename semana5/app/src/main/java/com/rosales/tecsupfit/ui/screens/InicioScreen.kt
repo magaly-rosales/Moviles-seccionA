@@ -20,15 +20,21 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import com.rosales.tecsupfit.model.ClaseGimnasio
 import com.rosales.tecsupfit.model.Periodo
-import com.rosales.tecsupfit.model.listaClases
 import com.rosales.tecsupfit.navigation.Screen
 
+// Pantalla de inicio que muestra la lista de clases dinámicas según el período seleccionado
 @Composable
-fun InicioScreen(navController: NavHostController) {
+fun InicioScreen(
+    navController: NavHostController,
+    clases: List<ClaseGimnasio>
+) {
+    // Estado para filtrar las clases por período (HOY o ESTA_SEMANA)
     var periodoSeleccionado by remember { mutableStateOf(Periodo.HOY) }
 
-    val clasesFiltradas = listaClases.filter { it.periodo == periodoSeleccionado }
+    // Filtrar las clases dinámicas recibidas desde el estado elevado
+    val clasesFiltradas = clases.filter { it.periodo == periodoSeleccionado }
 
     Column(
         modifier = Modifier
@@ -41,6 +47,7 @@ fun InicioScreen(navController: NavHostController) {
             modifier = Modifier.padding(bottom = 12.dp)
         )
 
+        // Filtro de períodos
         LazyRow(
             horizontalArrangement = Arrangement.spacedBy(8.dp),
             modifier = Modifier.padding(bottom = 16.dp)
@@ -56,6 +63,7 @@ fun InicioScreen(navController: NavHostController) {
             }
         }
 
+        // Lista de tarjetas con las clases filtradas
         LazyColumn(
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
@@ -74,7 +82,7 @@ fun InicioScreen(navController: NavHostController) {
                             style = MaterialTheme.typography.titleSmall
                         )
                         Text(
-                            text = clase.horario,
+                            text = "${clase.horario} · Cupos: ${clase.cuposDisponibles}/${clase.cuposTotales}",
                             style = MaterialTheme.typography.bodyMedium
                         )
                     }
