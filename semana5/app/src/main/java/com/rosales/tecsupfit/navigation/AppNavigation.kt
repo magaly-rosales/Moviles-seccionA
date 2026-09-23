@@ -41,8 +41,15 @@ fun AppNavigation(
             }
         }
 
-        composable(Screen.Confirmacion.route) {
-            ConfirmacionScreen(navController = navController)
+        composable(
+            route = Screen.Confirmacion.route,
+            arguments = listOf(navArgument("claseId") { type = NavType.IntType })
+        ) { backStackEntry ->
+            val claseId = backStackEntry.arguments?.getInt("claseId") ?: 0
+            val clase = listaClases.find { it.id == claseId }
+            if (clase != null) {
+                ConfirmacionScreen(clase = clase, navController = navController)
+            }
         }
 
         composable(Screen.Reservas.route) {
