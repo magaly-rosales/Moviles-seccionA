@@ -14,11 +14,14 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -28,6 +31,7 @@ import com.rosales.tecsupfit.model.listaClases
 import com.rosales.tecsupfit.model.listaReservas
 import com.rosales.tecsupfit.navigation.AppNavigation
 import com.rosales.tecsupfit.navigation.Screen
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -35,6 +39,10 @@ fun TecsupFitApp() {
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
+
+    // Host state y CoroutineScope para mostrar los mensajitos de Snackbar
+    val snackbarHostState = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
 
     // Estado global elevado: lista de clases de gimnasio (mutable para descontar/devolver cupos)
     val clases = remember { mutableStateListOf(*listaClases.toTypedArray()) }
@@ -54,6 +62,25 @@ fun TecsupFitApp() {
 
             // Agregar la nueva reserva con estado "Confirmada" al inicio de la lista
             reservas.add(0, Reserva(clase = claseActualizada, estado = "Confirmada"))
+        }
+    }
+
+    // Función para cancelar una reserva existente, devolver el cupo y notificar vía Snackbar
+    fun cancelarReserva(reserva: Reserva) {
+        // 1. Eliminar la reserva de la lista
+        reservas.remove(reserva)
+
+        // 2. Devolver 1 cupo a la clase correspondiente
+        val index = clases.indexOfFirst { it.id == reserva.clase.id }
+        if (index != -1) {
+            clases[index] = clases[index].copy(
+                cuposDisponibles = clases[index].cuposDisponibles + 1
+            )
+        }
+
+        // 3. Mostrar Snackbar en la parte inferior de la pantalla
+        scope.launch {
+            snackbarHostState.showSnackbar("Reserva cancelada")
         }
     }
 
@@ -79,6 +106,7 @@ fun TecsupFitApp() {
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
+        snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
         topBar = {
             CenterAlignedTopAppBar(
                 title = { Text(tituloPantalla) },
@@ -106,7 +134,6 @@ fun TecsupFitApp() {
                                         saveState = true
                                     }
                                     launchSingleTop = true
-                                    // restoreState solo para pestañas secundarias, para evitar bloqueos con la pantalla raíz 'Inicio'
                                     restoreState = route != Screen.Inicio.route
                                 }
                             }
@@ -123,7 +150,8 @@ fun TecsupFitApp() {
             paddingValues = innerPadding,
             clases = clases,
             reservas = reservas,
-            onReservarClase = { claseId -> reservarClase(claseId) }
+            onReservarClase = { claseId -> reservarClase(claseId) },
+            onCancelarReserva = { reserva -> cancelarReserva(reserva) }
         )
     }
 }

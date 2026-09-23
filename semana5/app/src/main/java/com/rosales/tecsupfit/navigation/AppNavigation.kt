@@ -17,14 +17,15 @@ import com.rosales.tecsupfit.ui.screens.PerfilScreen
 import com.rosales.tecsupfit.ui.screens.ReservasScreen
 import com.rosales.tecsupfit.ui.screens.RutinasScreen
 
-// Control de navegación principal de la aplicación con paso de estados por parámetros
+// Control de navegación principal con paso de estados y funciones por parámetros
 @Composable
 fun AppNavigation(
     navController: NavHostController,
     paddingValues: PaddingValues,
     clases: List<ClaseGimnasio>,
     reservas: List<Reserva>,
-    onReservarClase: (Int) -> Unit
+    onReservarClase: (Int) -> Unit,
+    onCancelarReserva: (Reserva) -> Unit
 ) {
     NavHost(
         navController = navController,
@@ -71,11 +72,12 @@ fun AppNavigation(
             }
         }
 
-        // Pantalla de Reservas
+        // Pantalla de Reservas del usuario
         composable(Screen.Reservas.route) {
             ReservasScreen(
                 navController = navController,
-                reservas = reservas
+                reservas = reservas,
+                onCancelarReserva = onCancelarReserva
             )
         }
 
