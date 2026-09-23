@@ -1,5 +1,6 @@
 package com.rosales.tecsupfit
 
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -7,22 +8,27 @@ import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.FitnessCenter
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person
-import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
@@ -31,6 +37,9 @@ import com.rosales.tecsupfit.model.listaClases
 import com.rosales.tecsupfit.model.listaReservas
 import com.rosales.tecsupfit.navigation.AppNavigation
 import com.rosales.tecsupfit.navigation.Screen
+import com.rosales.tecsupfit.theme.FondoBlanco
+import com.rosales.tecsupfit.theme.VerdeClaro
+import com.rosales.tecsupfit.theme.VerdeOscuro
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -40,45 +49,35 @@ fun TecsupFitApp() {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
 
-    // Host state y CoroutineScope para mostrar los mensajitos de Snackbar
+    // Host state y CoroutineScope para Snackbar
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
 
-    // Estado global elevado: lista de clases de gimnasio (mutable para descontar/devolver cupos)
+    // Estado global elevado de clases y reservas
     val clases = remember { mutableStateListOf(*listaClases.toTypedArray()) }
-
-    // Estado global elevado: lista de reservas del usuario (mutable para agregar/eliminar reservas)
     val reservas = remember { mutableStateListOf(*listaReservas.toTypedArray()) }
 
-    // Función para procesar la reserva de un cupo en una clase
+    // Función para procesar reserva de cupo
     fun reservarClase(claseId: Int) {
         val index = clases.indexOfFirst { it.id == claseId }
         if (index != -1 && clases[index].cuposDisponibles > 0) {
-            // Descontar 1 cupo de la clase seleccionada
             val claseActualizada = clases[index].copy(
                 cuposDisponibles = clases[index].cuposDisponibles - 1
             )
             clases[index] = claseActualizada
-
-            // Agregar la nueva reserva con estado "Confirmada" al inicio de la lista
             reservas.add(0, Reserva(clase = claseActualizada, estado = "Confirmada"))
         }
     }
 
-    // Función para cancelar una reserva existente, devolver el cupo y notificar vía Snackbar
+    // Función para cancelar reserva
     fun cancelarReserva(reserva: Reserva) {
-        // 1. Eliminar la reserva de la lista
         reservas.remove(reserva)
-
-        // 2. Devolver 1 cupo a la clase correspondiente
         val index = clases.indexOfFirst { it.id == reserva.clase.id }
         if (index != -1) {
             clases[index] = clases[index].copy(
                 cuposDisponibles = clases[index].cuposDisponibles + 1
             )
         }
-
-        // 3. Mostrar Snackbar en la parte inferior de la pantalla
         scope.launch {
             snackbarHostState.showSnackbar("Reserva cancelada")
         }
@@ -91,56 +90,96 @@ fun TecsupFitApp() {
         Triple(Screen.Perfil.route, "Perfil", Icons.Filled.Person)
     )
 
+    val esInicio = currentRoute == Screen.Inicio.route || currentRoute == null
     val esDetalle = currentRoute?.startsWith("detalle") == true
     val esConfirmacion = currentRoute?.startsWith("confirmacion") == true
-    val muestraBackButton = esDetalle || esConfirmacion
-
-    val tituloPantalla = when {
-        esDetalle -> "Detalle de clase"
-        esConfirmacion -> "Confirmación"
-        currentRoute == Screen.Reservas.route -> "Mis reservas"
-        currentRoute == Screen.Rutinas.route -> "Rutinas"
-        currentRoute == Screen.Perfil.route -> "Perfil"
-        else -> "TecsupFit"
-    }
+    val muestraTopBar = !esConfirmacion
+    val muestraBottomBar = !esDetalle && !esConfirmacion
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
+        containerColor = FondoBlanco,
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
         topBar = {
-            CenterAlignedTopAppBar(
-                title = { Text(tituloPantalla) },
-                navigationIcon = {
-                    if (muestraBackButton) {
-                        IconButton(onClick = { navController.popBackStack() }) {
-                            Icon(
-                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                                contentDescription = "Volver"
+            if (muestraTopBar) {
+                TopAppBar(
+                    title = {
+                        if (esInicio) {
+                            Column {
+                                Text(
+                                    text = "TECSUP Fit",
+                                    style = MaterialTheme.typography.titleLarge,
+                                    fontWeight = FontWeight.Bold,
+                                    color = Color.White
+                                )
+                                Text(
+                                    text = "Hola, Magaly",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = Color.White.copy(alpha = 0.9f)
+                                )
+                            }
+                        } else {
+                            val titulo = when {
+                                esDetalle -> "Detalle de clase"
+                                currentRoute == Screen.Reservas.route -> "Mis reservas"
+                                currentRoute == Screen.Rutinas.route -> "Rutinas"
+                                currentRoute == Screen.Perfil.route -> "Perfil"
+                                else -> "TECSUP Fit"
+                            }
+                            Text(
+                                text = titulo,
+                                fontWeight = FontWeight.Bold,
+                                color = Color.Black
                             )
                         }
-                    }
-                }
-            )
+                    },
+                    navigationIcon = {
+                        if (esDetalle) {
+                            IconButton(onClick = { navController.popBackStack() }) {
+                                Icon(
+                                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                    contentDescription = "Volver",
+                                    tint = Color.Black
+                                )
+                            }
+                        }
+                    },
+                    colors = TopAppBarDefaults.topAppBarColors(
+                        containerColor = if (esInicio) VerdeOscuro else FondoBlanco
+                    )
+                )
+            }
         },
         bottomBar = {
-            NavigationBar {
-                itemsBottomBar.forEach { (route, label, icon) ->
-                    NavigationBarItem(
-                        selected = currentRoute == route,
-                        onClick = {
-                            if (currentRoute != route) {
-                                navController.navigate(route) {
-                                    popUpTo(navController.graph.findStartDestination().id) {
-                                        saveState = true
+            if (muestraBottomBar) {
+                NavigationBar(
+                    containerColor = FondoBlanco
+                ) {
+                    itemsBottomBar.forEach { (route, label, icon) ->
+                        NavigationBarItem(
+                            selected = currentRoute == route,
+                            onClick = {
+                                if (currentRoute != route) {
+                                    navController.navigate(route) {
+                                        popUpTo(navController.graph.findStartDestination().id) {
+                                            saveState = true
+                                        }
+                                        launchSingleTop = true
+                                        restoreState = route != Screen.Inicio.route
                                     }
-                                    launchSingleTop = true
-                                    restoreState = route != Screen.Inicio.route
                                 }
-                            }
-                        },
-                        icon = { Icon(icon, contentDescription = label) },
-                        label = { Text(label) }
-                    )
+                            },
+                            icon = { Icon(icon, contentDescription = label) },
+                            label = { Text(label) },
+                            colors = NavigationBarItemDefaults.colors(
+                                selectedIconColor = VerdeOscuro,
+                                selectedTextColor = VerdeOscuro,
+                                indicatorColor = VerdeClaro,
+                                unselectedIconColor = Color.Gray,
+                                unselectedTextColor = Color.Gray
+                            )
+                        )
+                    }
                 }
             }
         }
