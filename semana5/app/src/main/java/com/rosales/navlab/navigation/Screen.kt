@@ -5,8 +5,11 @@ package com.rosales.navlab.navigation
 // Al ser sealed, el compilador conoce todas las rutas posibles en tiempo de compilación.
 sealed class Screen(val route: String) {
 
+    // Pantalla de Login - inicio de la app
+    object Login : Screen("login")
+
     // Desarrollado por: Magaly Rosales
-    // Pantalla de inicio - punto de entrada de la app
+    // Pantalla de inicio
     object Home : Screen("home")
 
     // Pantalla que muestra la lista de elementos
