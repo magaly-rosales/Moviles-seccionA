@@ -23,7 +23,7 @@ fun PerfilScreen(navController: NavHostController) {
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
-            text = "Diego Ramos",
+            text = "Magaly Rosales",
             style = MaterialTheme.typography.titleLarge,
             modifier = Modifier.padding(top = 24.dp, bottom = 4.dp)
         )

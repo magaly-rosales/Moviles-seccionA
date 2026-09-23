@@ -54,7 +54,7 @@ val listaClases = listOf(
 )
 data class Reserva(
     val clase: ClaseGimnasio,
-    val estado: String // "Confirmada" o "Completada"
+    val estado: String
 )
 
 val listaReservas = listOf(
