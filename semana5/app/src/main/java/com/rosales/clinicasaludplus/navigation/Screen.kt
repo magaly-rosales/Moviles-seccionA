@@ -2,13 +2,20 @@ package com.rosales.clinicasaludplus.navigation
 
 sealed class Screen(val route: String) {
     object Inicio : Screen("inicio")
+
     object PerfilMedico : Screen("perfil_medico/{medicoId}") {
         fun createRoute(medicoId: Int) = "perfil_medico/$medicoId"
     }
+
     object AgendarCita : Screen("agendar_cita/{medicoId}") {
         fun createRoute(medicoId: Int) = "agendar_cita/$medicoId"
     }
-    object Confirmacion : Screen("confirmacion")
+
+    object Confirmacion : Screen("confirmacion/{medicoId}/{fecha}/{hora}") {
+        fun createRoute(medicoId: Int, fecha: String, hora: String) =
+            "confirmacion/$medicoId/$fecha/$hora"
+    }
+
     object MisCitas : Screen("mis_citas")
     object HistorialMedico : Screen("historial_medico")
 }

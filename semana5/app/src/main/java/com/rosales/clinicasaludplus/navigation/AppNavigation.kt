@@ -7,6 +7,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.rosales.clinicasaludplus.model.listaMedicos
+import com.rosales.clinicasaludplus.ui.screens.AgendarCitaScreen
 import com.rosales.clinicasaludplus.ui.screens.InicioScreen
 import com.rosales.clinicasaludplus.ui.screens.PerfilMedicoScreen
 
@@ -26,5 +27,16 @@ fun AppNavigation(navController: NavHostController) {
                 PerfilMedicoScreen(navController = navController, medico = medico)
             }
         }
+        composable(
+            route = Screen.AgendarCita.route,
+            arguments = listOf(navArgument("medicoId") { type = NavType.IntType })
+        ) { backStackEntry ->
+            val medicoId = backStackEntry.arguments?.getInt("medicoId") ?: 0
+            val medico = listaMedicos.find { it.id == medicoId }
+            if (medico != null) {
+                AgendarCitaScreen(navController = navController, medico = medico)
+            }
+        }
+
     }
 }
