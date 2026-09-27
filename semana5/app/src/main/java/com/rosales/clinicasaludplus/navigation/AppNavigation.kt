@@ -9,10 +9,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.rosales.clinicasaludplus.model.Cita
 import com.rosales.clinicasaludplus.model.listaMedicos
-import com.rosales.clinicasaludplus.ui.screens.AgendarCitaScreen
-import com.rosales.clinicasaludplus.ui.screens.ConfirmacionScreen
-import com.rosales.clinicasaludplus.ui.screens.InicioScreen
-import com.rosales.clinicasaludplus.ui.screens.PerfilMedicoScreen
+import com.rosales.clinicasaludplus.ui.screens.*
 
 @Composable
 fun AppNavigation(navController: NavHostController, citas: SnapshotStateList<Cita>) {
@@ -62,6 +59,14 @@ fun AppNavigation(navController: NavHostController, citas: SnapshotStateList<Cit
                 )
             }
         }
-
+        composable(Screen.MisCitas.route) {
+            MisCitasScreen(citas = citas)
+        }
+        composable(Screen.HistorialMedico.route) {
+            HistorialMedicoScreen()
+        }
+        composable(Screen.PerfilPaciente.route) {
+            PerfilPacienteScreen()
+        }
     }
 }
