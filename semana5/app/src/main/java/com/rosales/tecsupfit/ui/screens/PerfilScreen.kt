@@ -20,53 +20,111 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.rosales.tecsupfit.theme.GrisTarjetas
 import com.rosales.tecsupfit.theme.VerdeOscuro
 
+// Pantalla de perfil con avatar circular, iniciales "MR" y estadísticas
 @Composable
 fun PerfilScreen(navController: NavHostController) {
     Column(
-        modifier = Modifier.fillMaxSize().padding(24.dp),
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Spacer(Modifier.height(24.dp))
-        // Avatar con iniciales
+        Spacer(modifier = Modifier.height(24.dp))
+
+        // Avatar circular verde oscuro con iniciales "MR" en blanco
         Box(
-            modifier = Modifier.size(90.dp).background(VerdeOscuro, CircleShape),
+            modifier = Modifier
+                .size(90.dp)
+                .clip(CircleShape)
+                .background(VerdeOscuro),
             contentAlignment = Alignment.Center
         ) {
-            Text("MR", color = Color.White, fontSize = 30.sp, fontWeight = FontWeight.Bold)
+            Text(
+                text = "MR",
+                color = Color.White,
+                style = MaterialTheme.typography.headlineMedium,
+                fontWeight = FontWeight.Bold
+            )
         }
-        Spacer(Modifier.height(12.dp))
-        Text("Magaly Rosales", fontSize = 20.sp, fontWeight = FontWeight.Bold)
-        Text("Plan Premium", color = Color.Gray)
-        Spacer(Modifier.height(24.dp))
-        // Dos tarjetas de estadísticas
-        Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-            TarjetaStat("14", "Clases", Modifier.weight(1f))
-            TarjetaStat("3", "Racha", Modifier.weight(1f))
-        }
-    }
-}
 
-@Composable
-fun TarjetaStat(numero: String, etiqueta: String, modifier: Modifier = Modifier) {
-    Card(
-        modifier = modifier,
-        shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = GrisTarjetas)
-    ) {
-        Column(
-            modifier = Modifier.fillMaxWidth().padding(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
+        // Nombre del usuario
+        Text(
+            text = "Magaly Rosales",
+            style = MaterialTheme.typography.titleLarge,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.padding(top = 16.dp, bottom = 4.dp)
+        )
+
+        // Plan
+        Text(
+            text = "Plan Premium",
+            style = MaterialTheme.typography.bodyMedium,
+            color = Color.Gray,
+            modifier = Modifier.padding(bottom = 28.dp)
+        )
+
+        // Tarjetas de estadísticas (Clases / Racha)
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            Text(numero, fontSize = 28.sp, fontWeight = FontWeight.Bold, color = VerdeOscuro)
-            Text(etiqueta, color = Color.Gray, fontSize = 13.sp)
+            // Tarjeta Clases
+            Card(
+                modifier = Modifier.weight(1f),
+                shape = RoundedCornerShape(16.dp),
+                colors = CardDefaults.cardColors(containerColor = GrisTarjetas)
+            ) {
+                Column(
+                    modifier = Modifier.padding(20.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(
+                        text = "14",
+                        style = MaterialTheme.typography.headlineMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = VerdeOscuro
+                    )
+                    Text(
+                        text = "Clases",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = Color.Gray,
+                        modifier = Modifier.padding(top = 4.dp)
+                    )
+                }
+            }
+
+            // Tarjeta Racha
+            Card(
+                modifier = Modifier.weight(1f),
+                shape = RoundedCornerShape(16.dp),
+                colors = CardDefaults.cardColors(containerColor = GrisTarjetas)
+            ) {
+                Column(
+                    modifier = Modifier.padding(20.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(
+                        text = "3",
+                        style = MaterialTheme.typography.headlineMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = VerdeOscuro
+                    )
+                    Text(
+                        text = "Racha",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = Color.Gray,
+                        modifier = Modifier.padding(top = 4.dp)
+                    )
+                }
+            }
         }
     }
 }
