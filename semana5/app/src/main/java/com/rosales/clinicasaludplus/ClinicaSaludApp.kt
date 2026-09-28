@@ -83,7 +83,7 @@ fun ClinicaSaludApp() {
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
-                            text = "JP",
+                            text = "MR",
                             color = MoradoPrincipal,
                             fontWeight = FontWeight.Bold,
                             fontSize = 22.sp
@@ -91,7 +91,7 @@ fun ClinicaSaludApp() {
                     }
                     Spacer(Modifier.height(12.dp))
                     Text(
-                        text = "Juan Pérez",
+                        text = "Magaly Rosales",
                         fontWeight = FontWeight.Bold,
                         fontSize = 18.sp
                     )
@@ -167,7 +167,7 @@ fun ClinicaSaludApp() {
                                     fontSize = 20.sp
                                 )
                                 Text(
-                                    text = "Hola, Juan",
+                                    text = "Hola, Magaly",
                                     color = Color.White.copy(alpha = 0.85f),
                                     fontSize = 13.sp
                                 )

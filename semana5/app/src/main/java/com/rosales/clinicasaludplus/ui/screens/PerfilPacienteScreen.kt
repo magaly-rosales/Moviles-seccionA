@@ -35,7 +35,7 @@ fun PerfilPacienteScreen() {
             contentAlignment = Alignment.Center
         ) {
             Text(
-                text = "JP",
+                text = "MR",
                 color = MoradoPrincipal,
                 fontSize = 32.sp,
                 fontWeight = FontWeight.Bold
@@ -46,7 +46,7 @@ fun PerfilPacienteScreen() {
 
         // Nombre del paciente y rol
         Text(
-            text = "Juan Pérez",
+            text = "Magaly Rosales",
             fontSize = 20.sp,
             fontWeight = FontWeight.Bold
         )
