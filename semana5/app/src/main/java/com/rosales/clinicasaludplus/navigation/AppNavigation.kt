@@ -11,12 +11,20 @@ import com.rosales.clinicasaludplus.model.Cita
 import com.rosales.clinicasaludplus.model.listaMedicos
 import com.rosales.clinicasaludplus.ui.screens.*
 
+// Grafo de navegación principal de la aplicación
 @Composable
-fun AppNavigation(navController: NavHostController, citas: SnapshotStateList<Cita>) {
+fun AppNavigation(
+    navController: NavHostController,
+    citas: SnapshotStateList<Cita>,
+    onShowSnackbar: (String) -> Unit
+) {
     NavHost(navController = navController, startDestination = Screen.Inicio.route) {
+        // Pantalla de Inicio
         composable(Screen.Inicio.route) {
             InicioScreen(navController = navController)
         }
+
+        // Pantalla de Perfil del Médico
         composable(
             route = Screen.PerfilMedico.route,
             arguments = listOf(navArgument("medicoId") { type = NavType.IntType })
@@ -27,6 +35,8 @@ fun AppNavigation(navController: NavHostController, citas: SnapshotStateList<Cit
                 PerfilMedicoScreen(navController = navController, medico = medico)
             }
         }
+
+        // Pantalla para Agendar Cita
         composable(
             route = Screen.AgendarCita.route,
             arguments = listOf(navArgument("medicoId") { type = NavType.IntType })
@@ -34,9 +44,16 @@ fun AppNavigation(navController: NavHostController, citas: SnapshotStateList<Cit
             val medicoId = backStackEntry.arguments?.getInt("medicoId") ?: 0
             val medico = listaMedicos.find { it.id == medicoId }
             if (medico != null) {
-                AgendarCitaScreen(navController = navController, medico = medico)
+                AgendarCitaScreen(
+                    navController = navController,
+                    medico = medico,
+                    citas = citas,
+                    onShowSnackbar = onShowSnackbar
+                )
             }
         }
+
+        // Pantalla de Confirmación de Cita
         composable(
             route = Screen.Confirmacion.route,
             arguments = listOf(
@@ -59,12 +76,21 @@ fun AppNavigation(navController: NavHostController, citas: SnapshotStateList<Cit
                 )
             }
         }
+
+        // Pantalla Mis Citas
         composable(Screen.MisCitas.route) {
-            MisCitasScreen(citas = citas)
+            MisCitasScreen(
+                citas = citas,
+                onShowSnackbar = onShowSnackbar
+            )
         }
+
+        // Pantalla Historial Médico
         composable(Screen.HistorialMedico.route) {
             HistorialMedicoScreen()
         }
+
+        // Pantalla Perfil del Paciente
         composable(Screen.PerfilPaciente.route) {
             PerfilPacienteScreen()
         }
