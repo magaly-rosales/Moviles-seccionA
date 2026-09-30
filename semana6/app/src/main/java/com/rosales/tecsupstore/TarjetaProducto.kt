@@ -17,9 +17,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.Flag
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 @Composable
@@ -46,14 +50,18 @@ fun TarjetaProducto(producto: Producto) {
                 ) {
                     DropdownMenuItem(
                         text = { Text("Favoritos") },
+                        leadingIcon = { Icon(Icons.Default.Favorite, contentDescription = null) },
                         onClick = { expanded = false }
                     )
                     DropdownMenuItem(
                         text = { Text("Compartir") },
+                        leadingIcon = { Icon(Icons.Default.Share, contentDescription = null) },
                         onClick = { expanded = false }
                     )
+                    HorizontalDivider()
                     DropdownMenuItem(
                         text = { Text("Reportar") },
+                        leadingIcon = { Icon(Icons.Default.Flag, contentDescription = null) },
                         onClick = { expanded = false }
                     )
                 }
