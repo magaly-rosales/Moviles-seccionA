@@ -18,8 +18,17 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 
+
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.draw.clip
 @Composable
-fun AppDrawer(onItemClick: (String) -> Unit) {
+fun AppDrawer(rutaActual: String?, onItemClick: (String) -> Unit) {
     val destinos = listOf(
         Triple("inicio", "Inicio", Icons.Default.Home),
         Triple("pedidos", "Mis pedidos", Icons.Default.ShoppingCart),
@@ -28,19 +37,37 @@ fun AppDrawer(onItemClick: (String) -> Unit) {
     )
 
     ModalDrawerSheet {
-        Spacer(modifier = Modifier.height(24.dp))
-        Text(
-            text = "TECSUP Store",
-            style = MaterialTheme.typography.titleLarge,
-            modifier = Modifier.padding(horizontal = 28.dp)
-        )
-        Spacer(modifier = Modifier.height(16.dp))
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(MaterialTheme.colorScheme.primaryContainer)
+                .padding(24.dp)
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(64.dp)
+                    .clip(CircleShape)
+                    .background(MaterialTheme.colorScheme.primary),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = "UT",
+                    color = MaterialTheme.colorScheme.onPrimary,
+                    style = MaterialTheme.typography.titleLarge
+                )
+            }
+            Spacer(modifier = Modifier.height(12.dp))
+            Text("Usuario TECSUP", style = MaterialTheme.typography.titleMedium)
+            Text("magaly@tecsup.edu.pe", style = MaterialTheme.typography.bodySmall)
+        }
+
+        Spacer(modifier = Modifier.height(8.dp))
 
         destinos.forEach { (ruta, titulo, icono) ->
             NavigationDrawerItem(
                 label = { Text(titulo) },
                 icon = { Icon(icono, contentDescription = null) },
-                selected = false,
+                selected = rutaActual == ruta,
                 onClick = { onItemClick(ruta) },
                 modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
             )
