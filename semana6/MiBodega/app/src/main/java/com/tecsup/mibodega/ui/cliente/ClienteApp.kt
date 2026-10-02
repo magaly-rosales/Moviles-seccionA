@@ -18,7 +18,8 @@ import com.tecsup.mibodega.ui.cliente.screens.carrito.CarritoScreen
 import com.tecsup.mibodega.ui.cliente.screens.detalle.DetalleProductoScreen
 import com.tecsup.mibodega.ui.cliente.screens.inicio.InicioScreen
 import com.tecsup.mibodega.ui.cliente.screens.registro.RegistroScreen
-
+import com.tecsup.mibodega.ui.cliente.screens.confirmacion.ConfirmacionScreen
+import com.tecsup.mibodega.ui.cliente.screens.entrega.DatosEntregaScreen
 /**
  * "Director de orquesta" de la app cliente:
  * - Tiene el NavHost con las rutas de cada pantalla.
@@ -33,6 +34,8 @@ private object Rutas {
     const val INICIO = "inicio"
     const val DETALLE = "detalle/{productoId}"
     const val CARRITO = "carrito"
+    const val ENTREGA = "entrega"
+    const val CONFIRMACION = "confirmacion"
 
     fun detalle(productoId: Int) = "detalle/$productoId"
 }
@@ -97,7 +100,16 @@ fun ClienteApp() {
                 }
             )
         }
+        composable(Rutas.ENTREGA) {
+            DatosEntregaScreen(
+                onVolver = { navController.popBackStack() },
+                onConfirmar = { navController.navigate(Rutas.CONFIRMACION) }
+            )
+        }
 
+        composable(Rutas.CONFIRMACION) {
+            ConfirmacionScreen()
+        }
         composable(Rutas.CARRITO) {
             CarritoScreen(
                 carrito = carrito,
@@ -119,7 +131,7 @@ fun ClienteApp() {
                 onEliminar = { producto ->
                     carrito = carrito.filterNot { it.producto.id == producto.id }
                 },
-                onContinuarPedido = { /* TODO: navegar a DatosEntregaScreen */ }
+                onContinuarPedido = { navController.navigate(Rutas.ENTREGA) }
             )
         }
     }
