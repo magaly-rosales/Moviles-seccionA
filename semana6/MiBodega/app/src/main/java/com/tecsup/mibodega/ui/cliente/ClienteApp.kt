@@ -103,12 +103,23 @@ fun ClienteApp() {
         composable(Rutas.ENTREGA) {
             DatosEntregaScreen(
                 onVolver = { navController.popBackStack() },
-                onConfirmar = { navController.navigate(Rutas.CONFIRMACION) }
+                onConfirmar = {
+                    carrito = emptyList()
+                    navController.navigate(Rutas.CONFIRMACION) {
+                        popUpTo(Rutas.INICIO)
+                    }
+                }
             )
         }
 
         composable(Rutas.CONFIRMACION) {
-            ConfirmacionScreen()
+            ConfirmacionScreen(
+                onVolverInicio = {
+                    navController.navigate(Rutas.INICIO) {
+                        popUpTo(Rutas.INICIO) { inclusive = true }
+                    }
+                }
+            )
         }
         composable(Rutas.CARRITO) {
             CarritoScreen(
