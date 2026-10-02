@@ -45,6 +45,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.tecsup.mibodega.ui.cliente.modelo.ItemCarrito
 import com.tecsup.mibodega.ui.cliente.modelo.Producto
+import com.tecsup.mibodega.ui.cliente.modelo.TipoEntrega
 import com.tecsup.mibodega.ui.cliente.modelo.listaProductosFake
 import com.tecsup.mibodega.ui.componentes.BotonPrimario
 import com.tecsup.mibodega.ui.componentes.SelectorCantidad
@@ -52,17 +53,7 @@ import com.tecsup.mibodega.ui.theme.BodegaTheme
 import com.tecsup.mibodega.ui.theme.GrisClaro
 import com.tecsup.mibodega.ui.theme.VerdeBodega
 
-private const val COSTO_DELIVERY = 4.00
 
-private enum class TipoEntrega { DELIVERY, RECOJO }
-
-/**
- * Pantalla 5: Mi carrito (mockup "Cliente").
- * No guarda el carrito: viene de ClienteApp y cualquier cambio
- * (sumar, restar, eliminar) se avisa hacia arriba con callbacks.
- * Solo guarda qué producto se está por eliminar (para el diálogo)
- * y el tipo de entrega elegido (delivery o recojo).
- */
 @Composable
 fun CarritoScreen(
     carrito: List<ItemCarrito>,
@@ -70,13 +61,13 @@ fun CarritoScreen(
     onIncrementar: (Producto) -> Unit,
     onDecrementar: (Producto) -> Unit,
     onEliminar: (Producto) -> Unit,
-    onContinuarPedido: () -> Unit
+    onContinuarPedido: (TipoEntrega) -> Unit
 ) {
     var productoAEliminar by remember { mutableStateOf<Producto?>(null) }
     var tipoEntrega by remember { mutableStateOf(TipoEntrega.DELIVERY) }
 
     val subtotal = carrito.sumOf { it.producto.precio * it.cantidad }
-    val delivery = if (carrito.isEmpty() || tipoEntrega == TipoEntrega.RECOJO) 0.0 else COSTO_DELIVERY
+    val delivery = if (carrito.isEmpty()) 0.0 else tipoEntrega.costo
     val total = subtotal + delivery
 
     Column(
@@ -117,7 +108,7 @@ fun CarritoScreen(
             delivery = delivery,
             total = total,
             habilitado = carrito.isNotEmpty(),
-            onContinuarPedido = onContinuarPedido
+            onContinuarPedido = { onContinuarPedido(tipoEntrega) }
         )
     }
 
@@ -260,7 +251,7 @@ private fun SelectorTipoEntrega(
             fontWeight = FontWeight.Bold
         )
         OpcionEntrega(
-            texto = "Delivery (+ S/ %.2f)".format(COSTO_DELIVERY),
+            texto = "Delivery (+ S/ %.2f)".format(TipoEntrega.DELIVERY.costo),
             seleccionada = seleccionado == TipoEntrega.DELIVERY,
             onClick = { onSeleccionar(TipoEntrega.DELIVERY) }
         )

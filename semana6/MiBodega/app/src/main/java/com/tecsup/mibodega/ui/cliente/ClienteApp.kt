@@ -11,7 +11,9 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.tecsup.mibodega.ui.cliente.modelo.ItemCarrito
+import com.tecsup.mibodega.ui.cliente.modelo.Pedido
 import com.tecsup.mibodega.ui.cliente.modelo.Producto
+import com.tecsup.mibodega.ui.cliente.modelo.TipoEntrega
 import com.tecsup.mibodega.ui.cliente.modelo.listaProductosFake
 import com.tecsup.mibodega.ui.cliente.screens.bienvenida.BienvenidaScreen
 import com.tecsup.mibodega.ui.cliente.screens.carrito.CarritoScreen
@@ -25,7 +27,9 @@ import com.tecsup.mibodega.ui.cliente.screens.pedidos.PedidosScreen
 import com.tecsup.mibodega.ui.cliente.screens.perfil.PerfilScreen
 import com.tecsup.mibodega.ui.cliente.screens.registro.RegistroScreen
 import com.tecsup.mibodega.ui.componentes.DestinoBarra
-
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 private object Rutas {
     const val BIENVENIDA = "bienvenida"
@@ -46,13 +50,20 @@ private object Rutas {
 @Composable
 fun ClienteApp() {
     val navController = rememberNavController()
+
+    // El estado compartido vive aquí arriba, no en ninguna Screen.
     var carrito by remember { mutableStateOf<List<ItemCarrito>>(emptyList()) }
     var favoritos by remember { mutableStateOf<Set<Int>>(emptySet()) }
+    var pedidos by remember { mutableStateOf<List<Pedido>>(emptyList()) }
+    var tipoEntrega by remember { mutableStateOf(TipoEntrega.DELIVERY) }
 
+    // Si el producto ya es favorito lo quita; si no, lo agrega.
     val alternarFavorito: (Producto) -> Unit = { producto ->
         favoritos = if (producto.id in favoritos) favoritos - producto.id else favoritos + producto.id
     }
 
+    // Navegación de la barra inferior: Inicio es la base de la pila,
+    // así que al cambiar de pestaña no se acumulan pantallas.
     val navegarDestino: (DestinoBarra) -> Unit = { destino ->
         val ruta = when (destino) {
             DestinoBarra.INICIO -> Rutas.INICIO
@@ -132,7 +143,10 @@ fun ClienteApp() {
         }
 
         composable(Rutas.PEDIDOS) {
-            PedidosScreen(onNavegar = navegarDestino)
+            PedidosScreen(
+                pedidos = pedidos,
+                onNavegar = navegarDestino
+            )
         }
 
         composable(Rutas.PERFIL) {
@@ -179,7 +193,10 @@ fun ClienteApp() {
                 onEliminar = { producto ->
                     carrito = carrito.filterNot { it.producto.id == producto.id }
                 },
-                onContinuarPedido = { navController.navigate(Rutas.ENTREGA) }
+                onContinuarPedido = { tipoElegido ->
+                    tipoEntrega = tipoElegido
+                    navController.navigate(Rutas.ENTREGA)
+                }
             )
         }
 
@@ -187,7 +204,19 @@ fun ClienteApp() {
             DatosEntregaScreen(
                 onVolver = { navController.popBackStack() },
                 onConfirmar = {
+                    val subtotal = carrito.sumOf { it.producto.precio * it.cantidad }
+                    val nuevoPedido = Pedido(
+                        numero = pedidos.size + 1,
+                        fecha = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault()).format(Date()),
+                        items = carrito,
+                        tipoEntrega = tipoEntrega,
+                        total = subtotal + tipoEntrega.costo
+                    )
+
+                    pedidos = listOf(nuevoPedido) + pedidos
+
                     carrito = emptyList()
+
                     navController.navigate(Rutas.CONFIRMACION) {
                         popUpTo(Rutas.INICIO)
                     }
