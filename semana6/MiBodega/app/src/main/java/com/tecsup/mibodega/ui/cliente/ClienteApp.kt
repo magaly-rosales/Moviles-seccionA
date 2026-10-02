@@ -20,6 +20,7 @@ import com.tecsup.mibodega.ui.cliente.screens.inicio.InicioScreen
 import com.tecsup.mibodega.ui.cliente.screens.registro.RegistroScreen
 import com.tecsup.mibodega.ui.cliente.screens.confirmacion.ConfirmacionScreen
 import com.tecsup.mibodega.ui.cliente.screens.entrega.DatosEntregaScreen
+import com.tecsup.mibodega.ui.cliente.screens.login.LoginScreen
 /**
  * "Director de orquesta" de la app cliente:
  * - Tiene el NavHost con las rutas de cada pantalla.
@@ -31,6 +32,7 @@ import com.tecsup.mibodega.ui.cliente.screens.entrega.DatosEntregaScreen
 private object Rutas {
     const val BIENVENIDA = "bienvenida"
     const val REGISTRO = "registro"
+    const val LOGIN = "login"
     const val INICIO = "inicio"
     const val DETALLE = "detalle/{productoId}"
     const val CARRITO = "carrito"
@@ -54,7 +56,7 @@ fun ClienteApp() {
         composable(Rutas.BIENVENIDA) {
             BienvenidaScreen(
                 onRegistrarse = { navController.navigate(Rutas.REGISTRO) },
-                onIniciarSesion = { /* TODO: pantalla de login, aún no está en el mockup */ },
+                onIniciarSesion = { navController.navigate(Rutas.LOGIN) },
                 onTerminos = { /* TODO: abrir términos y condiciones */ }
             )
         }
@@ -64,6 +66,16 @@ fun ClienteApp() {
                 onVolver = { navController.popBackStack() },
                 onCrearCuenta = { nombre, telefono, direccion, referencia ->
                     // TODO: guardar estos datos cuando exista el registro real
+                    navController.navigate(Rutas.INICIO) {
+                        popUpTo(Rutas.BIENVENIDA) { inclusive = true }
+                    }
+                }
+            )
+        }
+        composable(Rutas.LOGIN) {
+            LoginScreen(
+                onVolver = { navController.popBackStack() },
+                onLoginExitoso = {
                     navController.navigate(Rutas.INICIO) {
                         popUpTo(Rutas.BIENVENIDA) { inclusive = true }
                     }

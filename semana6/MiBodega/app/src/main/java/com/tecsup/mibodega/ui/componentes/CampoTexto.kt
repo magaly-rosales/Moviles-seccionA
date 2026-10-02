@@ -13,7 +13,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
-
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 /**
  * Input con label arriba (fuera del recuadro), como en los mockups
  * de Registro y Datos de entrega. Se usa en: Registro, Datos de entrega.
@@ -28,7 +29,8 @@ fun CampoTexto(
     modifier: Modifier = Modifier,
     placeholder: String? = null,
     teclado: KeyboardType = KeyboardType.Text,
-    isError: Boolean = false
+    isError: Boolean = false,
+    esContrasena: Boolean = false
 
 ) {
     Column(modifier = modifier.fillMaxWidth()) {
@@ -46,6 +48,9 @@ fun CampoTexto(
             placeholder = placeholder?.let { { Text(it) } },
             singleLine = true,
             isError = isError,
+            visualTransformation = if (esContrasena) PasswordVisualTransformation() else VisualTransformation.None,
+
+
             supportingText = if (isError) { { Text("Este campo es obligatorio") } } else null,
             shape = RoundedCornerShape(10.dp),
             keyboardOptions = KeyboardOptions(keyboardType = teclado),
