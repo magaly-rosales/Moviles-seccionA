@@ -17,6 +17,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -49,15 +50,30 @@ fun PantallaPedidos() {
 }
 
 @Composable
-fun PantallaFavoritos() {
-    Column(
-        modifier = Modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Text("Aún no tienes favoritos", style = MaterialTheme.typography.titleMedium)
-        Spacer(modifier = Modifier.height(8.dp))
-        Text("Márcalos desde el menú ⋮ de cada producto", style = MaterialTheme.typography.bodyMedium)
+fun PantallaFavoritos(favoritos: SnapshotStateList<Int>) {
+    val productosFavoritos = productosEjemplo.filter { it.id in favoritos }
+
+    if (productosFavoritos.isEmpty()) {
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text("Aún no tienes favoritos", style = MaterialTheme.typography.titleMedium)
+            Spacer(modifier = Modifier.height(8.dp))
+            Text("Márcalos desde el menú ⋮ de cada producto", style = MaterialTheme.typography.bodyMedium)
+        }
+    } else {
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            items(productosFavoritos) { producto ->
+                TarjetaProducto(producto = producto, favoritos = favoritos)
+            }
+        }
     }
 }
 
@@ -74,18 +90,18 @@ fun PantallaPerfil() {
             modifier = Modifier
                 .size(96.dp)
                 .clip(CircleShape)
-                .background(MaterialTheme.colorScheme.primary),
+                .background(MaterialTheme.colorScheme.primaryContainer),
             contentAlignment = Alignment.Center
         ) {
             Text(
-                text = "UT",
-                color = MaterialTheme.colorScheme.onPrimary,
+                text = "MR",
+                color = MaterialTheme.colorScheme.primary,
                 style = MaterialTheme.typography.headlineMedium
             )
         }
         Spacer(modifier = Modifier.height(16.dp))
-        Text("Usuario TECSUP", style = MaterialTheme.typography.titleLarge)
-        Text("magaly@tecsup.edu.pe", style = MaterialTheme.typography.bodyMedium)
+        Text("Maria Rojas", style = MaterialTheme.typography.titleLarge)
+        Text("maria@tecsup.edu.pe", style = MaterialTheme.typography.bodyMedium)
         Spacer(modifier = Modifier.height(8.dp))
         Text("Diseño y Desarrollo de Software - 4to ciclo", style = MaterialTheme.typography.bodySmall)
     }

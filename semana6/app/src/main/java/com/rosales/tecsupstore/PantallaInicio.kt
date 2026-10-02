@@ -16,11 +16,12 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun PantallaInicio() {
+fun PantallaInicio(favoritos: SnapshotStateList<Int>) {
     var categoriaSeleccionada by remember { mutableStateOf("Todos") }
 
     val categorias = listOf("Todos") + productosEjemplo.map { it.categoria }.distinct()
@@ -50,7 +51,7 @@ fun PantallaInicio() {
 
         LazyColumn(verticalArrangement = Arrangement.spacedBy(12.dp)) {
             items(listaFiltrada) { producto ->
-                TarjetaProducto(producto)
+                TarjetaProducto(producto = producto, favoritos = favoritos)
             }
         }
     }

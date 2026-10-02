@@ -2,6 +2,10 @@ package com.rosales.tecsupstore.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
+val PurplePrimary = Color(0xFF5A1A8B)
+val PurpleSecondary = Color(0xFF7B2CBF)
+val LilaContainer = Color(0xFFF2E7FE)
+
 val Purple80 = Color(0xFFD0BCFF)
 val PurpleGrey80 = Color(0xFFCCC2DC)
 val Pink80 = Color(0xFFEFB8C8)
