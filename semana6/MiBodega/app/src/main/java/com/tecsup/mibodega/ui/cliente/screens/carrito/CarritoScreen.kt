@@ -21,15 +21,22 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.ShoppingBasket
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.tecsup.mibodega.ui.cliente.modelo.ItemCarrito
@@ -45,8 +52,9 @@ private const val COSTO_DELIVERY = 4.00
 
 /**
  * Pantalla 5: Mi carrito (mockup "Cliente").
- * No guarda estado propio: el carrito viene de ClienteApp y cualquier
- * cambio (sumar, restar, eliminar) se avisa hacia arriba con callbacks.
+ * No guarda el carrito: viene de ClienteApp y cualquier cambio
+ * (sumar, restar, eliminar) se avisa hacia arriba con callbacks.
+ * Solo guarda qué producto se está por eliminar, para el diálogo.
  */
 @Composable
 fun CarritoScreen(
@@ -57,8 +65,11 @@ fun CarritoScreen(
     onEliminar: (Producto) -> Unit,
     onContinuarPedido: () -> Unit
 ) {
+    var productoAEliminar by remember { mutableStateOf<Producto?>(null) }
+
     val subtotal = carrito.sumOf { it.producto.precio * it.cantidad }
-    val total = subtotal + COSTO_DELIVERY
+    val delivery = if (carrito.isEmpty()) 0.0 else COSTO_DELIVERY
+    val total = subtotal + delivery
 
     Column(
         modifier = Modifier
@@ -67,28 +78,50 @@ fun CarritoScreen(
     ) {
         EncabezadoCarrito(onVolver = onVolver)
 
-        LazyColumn(
-            modifier = Modifier
-                .weight(1f)
-                .padding(horizontal = 20.dp),
-            contentPadding = PaddingValues(vertical = 8.dp)
-        ) {
-            items(carrito, key = { it.producto.id }) { item ->
-                FilaCarrito(
-                    item = item,
-                    onIncrementar = { onIncrementar(item.producto) },
-                    onDecrementar = { onDecrementar(item.producto) },
-                    onEliminar = { onEliminar(item.producto) }
-                )
-                HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
+        if (carrito.isEmpty()) {
+            CarritoVacio(modifier = Modifier.weight(1f))
+        } else {
+            LazyColumn(
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(horizontal = 20.dp),
+                contentPadding = PaddingValues(vertical = 8.dp)
+            ) {
+                items(carrito, key = { it.producto.id }) { item ->
+                    FilaCarrito(
+                        item = item,
+                        onIncrementar = { onIncrementar(item.producto) },
+                        onDecrementar = { onDecrementar(item.producto) },
+                        onEliminar = { productoAEliminar = item.producto }
+                    )
+                    HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
+                }
             }
         }
 
         ResumenYBoton(
             subtotal = subtotal,
-            delivery = COSTO_DELIVERY,
+            delivery = delivery,
             total = total,
+            habilitado = carrito.isNotEmpty(),
             onContinuarPedido = onContinuarPedido
+        )
+    }
+
+    productoAEliminar?.let { producto ->
+        AlertDialog(
+            onDismissRequest = { productoAEliminar = null },
+            title = { Text("Eliminar producto") },
+            text = { Text("¿Quieres quitar ${producto.nombre} del carrito?") },
+            confirmButton = {
+                TextButton(onClick = {
+                    onEliminar(producto)
+                    productoAEliminar = null
+                }) { Text("Eliminar") }
+            },
+            dismissButton = {
+                TextButton(onClick = { productoAEliminar = null }) { Text("Cancelar") }
+            }
         )
     }
 }
@@ -110,6 +143,37 @@ private fun EncabezadoCarrito(onVolver: () -> Unit) {
             text = "Mi carrito",
             style = MaterialTheme.typography.titleLarge,
             fontWeight = FontWeight.Bold
+        )
+    }
+}
+
+@Composable
+private fun CarritoVacio(modifier: Modifier = Modifier) {
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(24.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        Icon(
+            imageVector = Icons.Default.ShoppingBasket,
+            contentDescription = null,
+            tint = VerdeBodega,
+            modifier = Modifier.size(72.dp)
+        )
+        Spacer(Modifier.height(16.dp))
+        Text(
+            text = "Tu carrito está vacío",
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.Bold
+        )
+        Spacer(Modifier.height(4.dp))
+        Text(
+            text = "Agrega productos desde el inicio para verlos aquí.",
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            textAlign = TextAlign.Center
         )
     }
 }
@@ -176,6 +240,7 @@ private fun ResumenYBoton(
     subtotal: Double,
     delivery: Double,
     total: Double,
+    habilitado: Boolean,
     onContinuarPedido: () -> Unit
 ) {
     Column(modifier = Modifier.padding(horizontal = 20.dp, vertical = 12.dp)) {
@@ -203,7 +268,8 @@ private fun ResumenYBoton(
 
         BotonPrimario(
             texto = "Continuar pedido",
-            onClick = onContinuarPedido
+            onClick = onContinuarPedido,
+            habilitado = habilitado
         )
     }
 }
@@ -240,4 +306,3 @@ private fun CarritoPreview() {
         )
     }
 }
-
