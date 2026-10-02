@@ -52,6 +52,7 @@ fun RegistroScreen(
     var telefono by remember { mutableStateOf("") }
     var direccion by remember { mutableStateOf("") }
     var referencia by remember { mutableStateOf("") }
+    var intentoEnviar by remember { mutableStateOf(false) }
 
     Column(
         modifier = Modifier
@@ -85,7 +86,8 @@ fun RegistroScreen(
             etiqueta = "Nombre completo",
             valor = nombre,
             onValorCambia = { nombre = it },
-            placeholder = "Juan Pérez"
+            placeholder = "Juan Pérez",
+            isError = intentoEnviar && nombre.isBlank()
         )
         Spacer(Modifier.height(16.dp))
 
@@ -94,7 +96,8 @@ fun RegistroScreen(
             valor = telefono,
             onValorCambia = { telefono = it },
             placeholder = "987 654 321",
-            teclado = KeyboardType.Phone
+            teclado = KeyboardType.Phone,
+            isError = intentoEnviar && telefono.isBlank()
         )
         Spacer(Modifier.height(16.dp))
 
@@ -102,7 +105,8 @@ fun RegistroScreen(
             etiqueta = "Dirección de entrega",
             valor = direccion,
             onValorCambia = { direccion = it },
-            placeholder = "Av. Los Olivos 123"
+            placeholder = "Av. Los Olivos 123",
+            isError = intentoEnviar && direccion.isBlank()
         )
         Spacer(Modifier.height(16.dp))
 
@@ -110,14 +114,20 @@ fun RegistroScreen(
             etiqueta = "Referencia",
             valor = referencia,
             onValorCambia = { referencia = it },
-            placeholder = "Frente al parque"
+            placeholder = "Frente al parque",
+            isError = intentoEnviar && referencia.isBlank()
         )
 
         Spacer(Modifier.height(28.dp))
 
         BotonPrimario(
             texto = "Crear cuenta",
-            onClick = { onCrearCuenta(nombre, telefono, direccion, referencia) }
+            onClick = {
+                intentoEnviar = true
+                val completo = nombre.isNotBlank() && telefono.isNotBlank() &&
+                        direccion.isNotBlank() && referencia.isNotBlank()
+                if (completo) onCrearCuenta(nombre, telefono, direccion, referencia)
+            }
         )
 
         Spacer(Modifier.height(24.dp))
