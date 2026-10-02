@@ -100,8 +100,8 @@ fun PantallaPerfil() {
             )
         }
         Spacer(modifier = Modifier.height(16.dp))
-        Text("Maria Rojas", style = MaterialTheme.typography.titleLarge)
-        Text("maria@tecsup.edu.pe", style = MaterialTheme.typography.bodyMedium)
+        Text("Magaly Rosales", style = MaterialTheme.typography.titleLarge)
+        Text("magaly@tecsup.edu.pe", style = MaterialTheme.typography.bodyMedium)
         Spacer(modifier = Modifier.height(8.dp))
         Text("Diseño y Desarrollo de Software - 4to ciclo", style = MaterialTheme.typography.bodySmall)
     }
