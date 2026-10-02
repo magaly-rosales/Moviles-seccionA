@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
@@ -26,6 +27,8 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.RadioButton
+import androidx.compose.material3.RadioButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -35,6 +38,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -50,11 +54,14 @@ import com.tecsup.mibodega.ui.theme.VerdeBodega
 
 private const val COSTO_DELIVERY = 4.00
 
+private enum class TipoEntrega { DELIVERY, RECOJO }
+
 /**
  * Pantalla 5: Mi carrito (mockup "Cliente").
  * No guarda el carrito: viene de ClienteApp y cualquier cambio
  * (sumar, restar, eliminar) se avisa hacia arriba con callbacks.
- * Solo guarda qué producto se está por eliminar, para el diálogo.
+ * Solo guarda qué producto se está por eliminar (para el diálogo)
+ * y el tipo de entrega elegido (delivery o recojo).
  */
 @Composable
 fun CarritoScreen(
@@ -66,9 +73,10 @@ fun CarritoScreen(
     onContinuarPedido: () -> Unit
 ) {
     var productoAEliminar by remember { mutableStateOf<Producto?>(null) }
+    var tipoEntrega by remember { mutableStateOf(TipoEntrega.DELIVERY) }
 
     val subtotal = carrito.sumOf { it.producto.precio * it.cantidad }
-    val delivery = if (carrito.isEmpty()) 0.0 else COSTO_DELIVERY
+    val delivery = if (carrito.isEmpty() || tipoEntrega == TipoEntrega.RECOJO) 0.0 else COSTO_DELIVERY
     val total = subtotal + delivery
 
     Column(
@@ -97,6 +105,11 @@ fun CarritoScreen(
                     HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
                 }
             }
+
+            SelectorTipoEntrega(
+                seleccionado = tipoEntrega,
+                onSeleccionar = { tipoEntrega = it }
+            )
         }
 
         ResumenYBoton(
@@ -232,6 +245,57 @@ private fun FilaCarrito(
                 tint = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
+    }
+}
+
+@Composable
+private fun SelectorTipoEntrega(
+    seleccionado: TipoEntrega,
+    onSeleccionar: (TipoEntrega) -> Unit
+) {
+    Column(modifier = Modifier.padding(horizontal = 20.dp, vertical = 8.dp)) {
+        Text(
+            text = "Tipo de entrega",
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.Bold
+        )
+        OpcionEntrega(
+            texto = "Delivery (+ S/ %.2f)".format(COSTO_DELIVERY),
+            seleccionada = seleccionado == TipoEntrega.DELIVERY,
+            onClick = { onSeleccionar(TipoEntrega.DELIVERY) }
+        )
+        OpcionEntrega(
+            texto = "Recojo en tienda (gratis)",
+            seleccionada = seleccionado == TipoEntrega.RECOJO,
+            onClick = { onSeleccionar(TipoEntrega.RECOJO) }
+        )
+    }
+}
+
+@Composable
+private fun OpcionEntrega(
+    texto: String,
+    seleccionada: Boolean,
+    onClick: () -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .selectable(
+                selected = seleccionada,
+                onClick = onClick,
+                role = Role.RadioButton
+            )
+            .padding(vertical = 4.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        RadioButton(
+            selected = seleccionada,
+            onClick = null,
+            colors = RadioButtonDefaults.colors(selectedColor = VerdeBodega)
+        )
+        Spacer(Modifier.width(8.dp))
+        Text(text = texto, style = MaterialTheme.typography.bodyMedium)
     }
 }
 
