@@ -3,6 +3,7 @@ package com.tecsup.mibodega.ui.cliente.screens.inicio
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -16,10 +17,13 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -28,12 +32,14 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -47,6 +53,11 @@ import com.tecsup.mibodega.ui.componentes.ProductoCard
 import com.tecsup.mibodega.ui.theme.BodegaTheme
 import com.tecsup.mibodega.ui.theme.GrisClaro
 import com.tecsup.mibodega.ui.theme.VerdeBodega
+private enum class OrdenPrecio(val etiqueta: String, val corta: String) {
+    SIN_ORDEN("Sin ordenar", "Ordenar"),
+    MENOR_MAYOR("Precio: menor a mayor", "Precio ↑"),
+    MAYOR_MENOR("Precio: mayor a menor", "Precio ↓")
+}
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -63,11 +74,19 @@ fun InicioScreen(
 ) {
     var categoriaSeleccionada by remember { mutableStateOf(listaCategorias.first()) }
     var textoBusqueda by remember { mutableStateOf("") }
+    var orden by remember { mutableStateOf(OrdenPrecio.SIN_ORDEN) }
+    var menuOrdenAbierto by remember { mutableStateOf(false) }
+
 
     val productosFiltrados = productos.filter { producto ->
         val coincideCategoria = categoriaSeleccionada == "Todos" || producto.categoria == categoriaSeleccionada
         val coincideBusqueda = producto.nombre.contains(textoBusqueda, ignoreCase = true)
         coincideCategoria && coincideBusqueda
+    }
+    val productosAMostrar = when (orden) {
+        OrdenPrecio.SIN_ORDEN -> productosFiltrados
+        OrdenPrecio.MENOR_MAYOR -> productosFiltrados.sortedBy { it.precio }
+        OrdenPrecio.MAYOR_MENOR -> productosFiltrados.sortedByDescending { it.precio }
     }
 
     Scaffold(
@@ -117,11 +136,44 @@ fun InicioScreen(
                 )
             )
 
-            Text(
-                text = "Productos destacados",
-                style = MaterialTheme.typography.titleMedium,
-                modifier = Modifier.padding(top = 20.dp, bottom = 4.dp)
-            )
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 12.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "Productos destacados",
+                    style = MaterialTheme.typography.titleMedium
+                )
+
+
+                Box {
+                    TextButton(onClick = { menuOrdenAbierto = true }) {
+                        Text(orden.corta, color = VerdeBodega)
+                        Icon(
+                            imageVector = Icons.Default.ArrowDropDown,
+                            contentDescription = "Ordenar por precio",
+                            tint = VerdeBodega
+                        )
+                    }
+                    DropdownMenu(
+                        expanded = menuOrdenAbierto,
+                        onDismissRequest = { menuOrdenAbierto = false }
+                    ) {
+                        OrdenPrecio.entries.forEach { opcion ->
+                            DropdownMenuItem(
+                                text = { Text(opcion.etiqueta) },
+                                onClick = {
+                                    orden = opcion
+                                    menuOrdenAbierto = false
+                                }
+                            )
+                        }
+                    }
+                }
+            }
 
             LazyRow(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -143,7 +195,7 @@ fun InicioScreen(
                 contentPadding = PaddingValues(vertical = 12.dp),
                 modifier = Modifier.fillMaxSize()
             ) {
-                items(productosFiltrados) { producto ->
+                items(productosAMostrar, key = { it.id }) { producto ->
                     ProductoCard(
                         producto = producto,
                         esFavorito = producto.id in favoritos,
@@ -156,8 +208,6 @@ fun InicioScreen(
         }
     }
 }
-
-
 @Composable
 private fun ChipCategoria(
     texto: String,
