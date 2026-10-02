@@ -26,14 +26,7 @@ import com.tecsup.mibodega.ui.cliente.screens.perfil.PerfilScreen
 import com.tecsup.mibodega.ui.cliente.screens.registro.RegistroScreen
 import com.tecsup.mibodega.ui.componentes.DestinoBarra
 
-/**
- * "Director de orquesta" de la app cliente:
- * - Tiene el NavHost con las rutas de cada pantalla.
- * - Tiene el estado del carrito (List<ItemCarrito>), que se reparte
- *   hacia abajo a Inicio, Detalle, Carrito y Entrega.
- * Ninguna Screen navega sola ni modifica el carrito directamente:
- * todas reciben funciones (lambdas) desde aquí (state hoisting).
- */
+
 private object Rutas {
     const val BIENVENIDA = "bienvenida"
     const val REGISTRO = "registro"
@@ -53,12 +46,13 @@ private object Rutas {
 @Composable
 fun ClienteApp() {
     val navController = rememberNavController()
-
-    // El carrito vive aquí arriba, no en ninguna Screen.
     var carrito by remember { mutableStateOf<List<ItemCarrito>>(emptyList()) }
+    var favoritos by remember { mutableStateOf<Set<Int>>(emptySet()) }
 
-    // Navegación de la barra inferior: Inicio es la base de la pila,
-    // así que al cambiar de pestaña no se acumulan pantallas.
+    val alternarFavorito: (Producto) -> Unit = { producto ->
+        favoritos = if (producto.id in favoritos) favoritos - producto.id else favoritos + producto.id
+    }
+
     val navegarDestino: (DestinoBarra) -> Unit = { destino ->
         val ruta = when (destino) {
             DestinoBarra.INICIO -> Rutas.INICIO
@@ -110,6 +104,7 @@ fun ClienteApp() {
         composable(Rutas.INICIO) {
             InicioScreen(
                 cantidadCarrito = carrito.sumOf { it.cantidad },
+                favoritos = favoritos,
                 onVerCarrito = { navController.navigate(Rutas.CARRITO) },
                 onProductoClick = { producto ->
                     navController.navigate(Rutas.detalle(producto.id))
@@ -117,12 +112,23 @@ fun ClienteApp() {
                 onAgregarProducto = { producto ->
                     carrito = agregarOSumarProducto(carrito, producto, 1)
                 },
+                onFavorito = alternarFavorito,
                 onNavegar = navegarDestino
             )
         }
 
         composable(Rutas.FAVORITOS) {
-            FavoritosScreen(onNavegar = navegarDestino)
+            FavoritosScreen(
+                favoritos = listaProductosFake.filter { it.id in favoritos },
+                onProductoClick = { producto ->
+                    navController.navigate(Rutas.detalle(producto.id))
+                },
+                onAgregarProducto = { producto ->
+                    carrito = agregarOSumarProducto(carrito, producto, 1)
+                },
+                onFavorito = alternarFavorito,
+                onNavegar = navegarDestino
+            )
         }
 
         composable(Rutas.PEDIDOS) {
@@ -142,7 +148,9 @@ fun ClienteApp() {
 
             DetalleProductoScreen(
                 producto = producto,
+                esFavorito = producto.id in favoritos,
                 onVolver = { navController.popBackStack() },
+                onFavorito = { alternarFavorito(producto) },
                 onAgregarAlCarrito = { productoSeleccionado, cantidad ->
                     carrito = agregarOSumarProducto(carrito, productoSeleccionado, cantidad)
                     navController.popBackStack()
@@ -198,6 +206,7 @@ fun ClienteApp() {
         }
     }
 }
+
 
 private fun agregarOSumarProducto(
     carrito: List<ItemCarrito>,

@@ -54,9 +54,11 @@ import com.tecsup.mibodega.ui.theme.VerdeBodega
 fun InicioScreen(
     productos: List<Producto> = listaProductosFake,
     cantidadCarrito: Int,
+    favoritos: Set<Int>,
     onVerCarrito: () -> Unit,
     onProductoClick: (Producto) -> Unit,
     onAgregarProducto: (Producto) -> Unit,
+    onFavorito: (Producto) -> Unit,
     onNavegar: (DestinoBarra) -> Unit
 ) {
     var categoriaSeleccionada by remember { mutableStateOf(listaCategorias.first()) }
@@ -144,8 +146,10 @@ fun InicioScreen(
                 items(productosFiltrados) { producto ->
                     ProductoCard(
                         producto = producto,
+                        esFavorito = producto.id in favoritos,
                         onClick = { onProductoClick(producto) },
-                        onAgregar = { onAgregarProducto(producto) }
+                        onAgregar = { onAgregarProducto(producto) },
+                        onFavorito = { onFavorito(producto) }
                     )
                 }
             }
@@ -179,9 +183,11 @@ private fun InicioPreview() {
     BodegaTheme {
         InicioScreen(
             cantidadCarrito = 3,
+            favoritos = emptySet(),
             onVerCarrito = {},
             onProductoClick = {},
             onAgregarProducto = {},
+            onFavorito = {},
             onNavegar = {}
         )
     }

@@ -13,9 +13,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.ShoppingBasket
 import androidx.compose.material3.Icon
@@ -41,16 +41,13 @@ import com.tecsup.mibodega.ui.theme.GrisClaro
 import com.tecsup.mibodega.ui.theme.RojoPrecio
 import com.tecsup.mibodega.ui.theme.VerdeBodega
 
-/**
- * Pantalla 4: Detalle del producto (mockup "Cliente").
- * Guarda su propia cantidad seleccionada (remember) mientras el usuario
- * decide cuánto quiere; solo al tocar "Agregar al carrito" le avisa
- * a ClienteApp cuánto agregar.
- */
+
 @Composable
 fun DetalleProductoScreen(
     producto: Producto,
+    esFavorito: Boolean,
     onVolver: () -> Unit,
+    onFavorito: () -> Unit,
     onAgregarAlCarrito: (Producto, Int) -> Unit
 ) {
     var cantidad by remember { mutableStateOf(1) }
@@ -60,7 +57,11 @@ fun DetalleProductoScreen(
             .fillMaxSize()
             .safeDrawingPadding()
     ) {
-        EncabezadoDetalle(onVolver = onVolver)
+        EncabezadoDetalle(
+            esFavorito = esFavorito,
+            onVolver = onVolver,
+            onFavorito = onFavorito
+        )
 
         ImagenProducto()
 
@@ -113,7 +114,11 @@ fun DetalleProductoScreen(
 }
 
 @Composable
-private fun EncabezadoDetalle(onVolver: () -> Unit) {
+private fun EncabezadoDetalle(
+    esFavorito: Boolean,
+    onVolver: () -> Unit,
+    onFavorito: () -> Unit
+) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -124,8 +129,12 @@ private fun EncabezadoDetalle(onVolver: () -> Unit) {
         IconButton(onClick = onVolver) {
             Icon(Icons.Default.ArrowBack, contentDescription = "Volver")
         }
-        IconButton(onClick = { /* TODO: guardar como favorito */ }) {
-            Icon(Icons.Default.FavoriteBorder, contentDescription = "Favorito")
+        IconButton(onClick = onFavorito) {
+            Icon(
+                imageVector = if (esFavorito) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
+                contentDescription = if (esFavorito) "Quitar de favoritos" else "Agregar a favoritos",
+                tint = if (esFavorito) RojoPrecio else MaterialTheme.colorScheme.onSurface
+            )
         }
     }
 }
@@ -156,9 +165,10 @@ private fun DetalleProductoPreview() {
     BodegaTheme {
         DetalleProductoScreen(
             producto = listaProductosFake.first { it.nombre == "Coca-Cola Original" },
+            esFavorito = false,
             onVolver = {},
+            onFavorito = {},
             onAgregarAlCarrito = { _, _ -> }
         )
     }
 }
-
