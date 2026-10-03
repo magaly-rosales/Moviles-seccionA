@@ -147,7 +147,7 @@ private fun ImagenProducto() {
         modifier = Modifier
             .fillMaxWidth()
             .aspectRatio(1.4f)
-            .background(GrisClaro),
+            .background(MaterialTheme.colorScheme.surfaceVariant),
         contentAlignment = Alignment.Center
     ) {
         Icon(

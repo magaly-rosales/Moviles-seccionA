@@ -1,5 +1,9 @@
 package com.tecsup.mibodega.ui.cliente
 
+import androidx.compose.animation.AnimatedContentTransitionScope
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -47,23 +51,23 @@ private object Rutas {
     fun detalle(productoId: Int) = "detalle/$productoId"
 }
 
+private const val DURACION_ANIMACION = 300
+
 @Composable
-fun ClienteApp() {
+fun ClienteApp(
+    modoOscuro: Boolean,
+    onCambiarModoOscuro: (Boolean) -> Unit
+) {
     val navController = rememberNavController()
 
-    // El estado compartido vive aquí arriba, no en ninguna Screen.
     var carrito by remember { mutableStateOf<List<ItemCarrito>>(emptyList()) }
     var favoritos by remember { mutableStateOf<Set<Int>>(emptySet()) }
     var pedidos by remember { mutableStateOf<List<Pedido>>(emptyList()) }
     var tipoEntrega by remember { mutableStateOf(TipoEntrega.DELIVERY) }
-
-    // Si el producto ya es favorito lo quita; si no, lo agrega.
     val alternarFavorito: (Producto) -> Unit = { producto ->
         favoritos = if (producto.id in favoritos) favoritos - producto.id else favoritos + producto.id
     }
 
-    // Navegación de la barra inferior: Inicio es la base de la pila,
-    // así que al cambiar de pestaña no se acumulan pantallas.
     val navegarDestino: (DestinoBarra) -> Unit = { destino ->
         val ruta = when (destino) {
             DestinoBarra.INICIO -> Rutas.INICIO
@@ -79,7 +83,31 @@ fun ClienteApp() {
 
     NavHost(
         navController = navController,
-        startDestination = Rutas.BIENVENIDA
+        startDestination = Rutas.BIENVENIDA,
+        enterTransition = {
+            slideIntoContainer(
+                AnimatedContentTransitionScope.SlideDirection.Left,
+                animationSpec = tween(DURACION_ANIMACION)
+            ) + fadeIn(tween(DURACION_ANIMACION))
+        },
+        exitTransition = {
+            slideOutOfContainer(
+                AnimatedContentTransitionScope.SlideDirection.Left,
+                animationSpec = tween(DURACION_ANIMACION)
+            ) + fadeOut(tween(DURACION_ANIMACION))
+        },
+        popEnterTransition = {
+            slideIntoContainer(
+                AnimatedContentTransitionScope.SlideDirection.Right,
+                animationSpec = tween(DURACION_ANIMACION)
+            ) + fadeIn(tween(DURACION_ANIMACION))
+        },
+        popExitTransition = {
+            slideOutOfContainer(
+                AnimatedContentTransitionScope.SlideDirection.Right,
+                animationSpec = tween(DURACION_ANIMACION)
+            ) + fadeOut(tween(DURACION_ANIMACION))
+        }
     ) {
         composable(Rutas.BIENVENIDA) {
             BienvenidaScreen(
@@ -150,7 +178,11 @@ fun ClienteApp() {
         }
 
         composable(Rutas.PERFIL) {
-            PerfilScreen(onNavegar = navegarDestino)
+            PerfilScreen(
+                modoOscuro = modoOscuro,
+                onCambiarModoOscuro = onCambiarModoOscuro,
+                onNavegar = navegarDestino
+            )
         }
 
         composable(
@@ -214,7 +246,6 @@ fun ClienteApp() {
                     )
 
                     pedidos = listOf(nuevoPedido) + pedidos
-
                     carrito = emptyList()
 
                     navController.navigate(Rutas.CONFIRMACION) {
@@ -235,7 +266,6 @@ fun ClienteApp() {
         }
     }
 }
-
 
 private fun agregarOSumarProducto(
     carrito: List<ItemCarrito>,

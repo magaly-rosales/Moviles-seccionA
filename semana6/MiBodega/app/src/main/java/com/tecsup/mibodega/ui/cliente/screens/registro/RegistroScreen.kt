@@ -75,7 +75,7 @@ fun RegistroScreen(
                 tint = VerdeBodega,
                 modifier = Modifier
                     .size(84.dp)
-                    .background(GrisClaro, CircleShape)
+                    .background(MaterialTheme.colorScheme.surfaceVariant, CircleShape)
                     .padding(4.dp)
             )
         }
