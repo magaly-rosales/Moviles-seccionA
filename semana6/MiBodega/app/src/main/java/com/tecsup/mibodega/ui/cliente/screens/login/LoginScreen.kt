@@ -1,9 +1,10 @@
 package com.tecsup.mibodega.ui.cliente.screens.login
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
@@ -24,6 +25,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.tecsup.mibodega.ui.componentes.BotonPrimario
 import com.tecsup.mibodega.ui.componentes.CampoTexto
@@ -48,16 +50,32 @@ fun LoginScreen(
             .verticalScroll(rememberScrollState())
             .padding(horizontal = 24.dp)
     ) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            IconButton(onClick = onVolver) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 8.dp)
+        ) {
+            IconButton(
+                onClick = onVolver,
+                modifier = Modifier.align(Alignment.CenterStart)
+            ) {
                 Icon(Icons.Default.ArrowBack, contentDescription = "Volver")
             }
             Text(
                 text = "Iniciar sesión",
                 style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.Bold
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.align(Alignment.Center)
             )
         }
+
+        Text(
+            text = "Ingresa tus credenciales de cliente",
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.fillMaxWidth(),
+            textAlign = TextAlign.Center
+        )
 
         Spacer(Modifier.height(32.dp))
 
@@ -71,6 +89,7 @@ fun LoginScreen(
             placeholder = "Tu usuario",
             isError = intentoEnviar && usuario.isBlank()
         )
+
         Spacer(Modifier.height(16.dp))
 
         CampoTexto(
@@ -91,11 +110,12 @@ fun LoginScreen(
             Text(
                 text = "Usuario o contraseña incorrectos",
                 color = MaterialTheme.colorScheme.error,
-                style = MaterialTheme.typography.bodyMedium
+                style = MaterialTheme.typography.bodyMedium,
+                fontWeight = FontWeight.SemiBold
             )
         }
 
-        Spacer(Modifier.height(28.dp))
+        Spacer(Modifier.height(32.dp))
 
         BotonPrimario(
             texto = "Ingresar",

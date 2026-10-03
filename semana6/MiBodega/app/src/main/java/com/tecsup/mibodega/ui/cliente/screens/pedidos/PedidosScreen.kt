@@ -1,5 +1,7 @@
 package com.tecsup.mibodega.ui.cliente.screens.pedidos
 
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -11,6 +13,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -26,6 +29,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -33,7 +38,6 @@ import com.tecsup.mibodega.ui.cliente.modelo.Pedido
 import com.tecsup.mibodega.ui.componentes.BarraNavegacion
 import com.tecsup.mibodega.ui.componentes.DestinoBarra
 import com.tecsup.mibodega.ui.theme.VerdeBodega
-
 
 @Composable
 fun PedidosScreen(
@@ -61,7 +65,7 @@ fun PedidosScreen(
             } else {
                 LazyColumn(
                     verticalArrangement = Arrangement.spacedBy(12.dp),
-                    contentPadding = PaddingValues(vertical = 8.dp)
+                    contentPadding = PaddingValues(top = 8.dp, bottom = 16.dp)
                 ) {
                     items(pedidos, key = { it.numero }) { pedido ->
                         TarjetaPedido(pedido = pedido)
@@ -72,20 +76,19 @@ fun PedidosScreen(
     }
 }
 
-// Sub-composables PRIVADOS: solo los usa esta pantalla.
-
 @Composable
 private fun TarjetaPedido(pedido: Pedido) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(14.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
         elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
                     text = "Pedido #${pedido.numero}",
@@ -103,17 +106,40 @@ private fun TarjetaPedido(pedido: Pedido) {
 
             pedido.items.forEach { item ->
                 Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 4.dp),
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
+                    Box(
+                        modifier = Modifier
+                            .size(40.dp)
+                            .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(8.dp))
+                            .padding(2.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Image(
+                            painter = painterResource(item.producto.imagen),
+                            contentDescription = item.producto.nombre,
+                            contentScale = ContentScale.Fit,
+                            modifier = Modifier.fillMaxSize()
+                        )
+                    }
+
+                    Spacer(Modifier.width(10.dp))
+
                     Text(
-                        text = "${item.cantidad} x ${item.producto.nombre}",
-                        style = MaterialTheme.typography.bodyMedium
+                        text = "${item.cantidad} x ${item.producto.nombre} (${item.producto.presentacion})",
+                        style = MaterialTheme.typography.bodyMedium,
+                        fontWeight = FontWeight.Medium,
+                        modifier = Modifier.weight(1f)
                     )
+
                     Text(
                         text = "S/ %.2f".format(item.producto.precio * item.cantidad),
                         style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onSurface
                     )
                 }
             }
@@ -122,13 +148,16 @@ private fun TarjetaPedido(pedido: Pedido) {
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(
-                    text = pedido.tipoEntrega.etiqueta,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
+                Column {
+                    Text(
+                        text = "${pedido.tipoEntrega.etiqueta} • ${pedido.metodoPago.etiqueta}",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
                 Text(
                     text = "Total: S/ %.2f".format(pedido.total),
                     style = MaterialTheme.typography.titleSmall,

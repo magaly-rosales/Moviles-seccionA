@@ -22,6 +22,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -31,7 +32,6 @@ import androidx.compose.ui.unit.dp
 import com.tecsup.mibodega.ui.componentes.BarraNavegacion
 import com.tecsup.mibodega.ui.componentes.DestinoBarra
 import com.tecsup.mibodega.ui.theme.VerdeBodega
-
 
 @Composable
 fun PerfilScreen(
@@ -61,7 +61,7 @@ fun PerfilScreen(
             ) {
                 Box(
                     modifier = Modifier
-                        .size(72.dp)
+                        .size(80.dp)
                         .background(VerdeBodega, CircleShape),
                     contentAlignment = Alignment.Center
                 ) {
@@ -72,11 +72,11 @@ fun PerfilScreen(
                         color = MaterialTheme.colorScheme.onPrimary
                     )
                 }
-                Spacer(Modifier.height(8.dp))
+                Spacer(Modifier.height(12.dp))
                 Text(
                     text = "Cliente",
                     style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.SemiBold
+                    fontWeight = FontWeight.Bold
                 )
             }
 
@@ -105,12 +105,17 @@ fun PerfilScreen(
                         Spacer(Modifier.width(12.dp))
                         Text(
                             text = "Modo oscuro",
-                            style = MaterialTheme.typography.bodyLarge
+                            style = MaterialTheme.typography.bodyLarge,
+                            fontWeight = FontWeight.Medium
                         )
                     }
                     Switch(
                         checked = modoOscuro,
-                        onCheckedChange = onCambiarModoOscuro
+                        onCheckedChange = onCambiarModoOscuro,
+                        colors = SwitchDefaults.colors(
+                            checkedThumbColor = MaterialTheme.colorScheme.onPrimary,
+                            checkedTrackColor = VerdeBodega
+                        )
                     )
                 }
             }

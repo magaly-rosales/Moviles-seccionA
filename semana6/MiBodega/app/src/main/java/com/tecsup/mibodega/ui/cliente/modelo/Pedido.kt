@@ -5,5 +5,10 @@ data class Pedido(
     val fecha: String,
     val items: List<ItemCarrito>,
     val tipoEntrega: TipoEntrega,
-    val total: Double
+    val total: Double,
+    val nombreCliente: String = "",
+    val telefonoCliente: String = "",
+    val direccion: String = "",
+    val referencia: String = "",
+    val metodoPago: MetodoPago = MetodoPago.EFECTIVO
 )

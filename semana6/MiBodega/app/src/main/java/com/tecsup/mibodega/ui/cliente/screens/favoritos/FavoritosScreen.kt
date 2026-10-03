@@ -31,7 +31,6 @@ import com.tecsup.mibodega.ui.componentes.DestinoBarra
 import com.tecsup.mibodega.ui.componentes.ProductoCard
 import com.tecsup.mibodega.ui.theme.VerdeBodega
 
-
 @Composable
 fun FavoritosScreen(
     favoritos: List<Producto>,
@@ -63,10 +62,10 @@ fun FavoritosScreen(
                     columns = GridCells.Fixed(2),
                     horizontalArrangement = Arrangement.spacedBy(12.dp),
                     verticalArrangement = Arrangement.spacedBy(12.dp),
-                    contentPadding = PaddingValues(vertical = 12.dp),
+                    contentPadding = PaddingValues(top = 8.dp, bottom = 16.dp),
                     modifier = Modifier.fillMaxSize()
                 ) {
-                    items(favoritos) { producto ->
+                    items(favoritos, key = { it.id }) { producto ->
                         ProductoCard(
                             producto = producto,
                             esFavorito = true,

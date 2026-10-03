@@ -19,27 +19,23 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.tecsup.mibodega.R
 import com.tecsup.mibodega.ui.componentes.BotonPrimario
 import com.tecsup.mibodega.ui.componentes.BotonSecundario
 import com.tecsup.mibodega.ui.theme.AzulEnlace
 import com.tecsup.mibodega.ui.theme.BodegaTheme
-import com.tecsup.mibodega.ui.theme.FondoClaro
 import com.tecsup.mibodega.ui.theme.VerdeBodega
 
-/**
- * Pantalla 1: Registro / Login (mockup "Cliente").
- * No sabe navegar sola: recibe qué hacer por parámetro (callbacks).
- */
 @Composable
 fun BienvenidaScreen(
     onRegistrarse: () -> Unit,
@@ -49,17 +45,12 @@ fun BienvenidaScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(
-                Brush.verticalGradient(
-                    colors = listOf(FondoClaro, MaterialTheme.colorScheme.background),
-                    endY = 900f
-                )
-            )
+            .background(MaterialTheme.colorScheme.background)
             .safeDrawingPadding()
             .padding(horizontal = 24.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Spacer(Modifier.height(24.dp))
+        Spacer(Modifier.height(32.dp))
 
         IlustracionBodega()
 
@@ -73,7 +64,8 @@ fun BienvenidaScreen(
             text = "Tus productos de siempre\nen la puerta de tu casa",
             style = MaterialTheme.typography.bodyLarge,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
-            textAlign = TextAlign.Center
+            textAlign = TextAlign.Center,
+            fontSize = 16.sp
         )
 
         Spacer(Modifier.weight(1f))
@@ -100,8 +92,6 @@ fun BienvenidaScreen(
     }
 }
 
-// Sub-composables PRIVADOS: solo los usa esta pantalla, por eso no van a "componentes".
-
 @Composable
 private fun IlustracionBodega() {
     Box(
@@ -113,7 +103,7 @@ private fun IlustracionBodega() {
         Image(
             painter = painterResource(R.drawable.ilustracion_bodega),
             contentDescription = "Ilustración de la bodega",
-            modifier = Modifier.size(200.dp)
+            modifier = Modifier.size(210.dp)
         )
     }
 }
@@ -126,6 +116,7 @@ private fun TituloMiBodega() {
             withStyle(SpanStyle(color = VerdeBodega)) { append("Bodega") }
         },
         style = MaterialTheme.typography.displayMedium,
+        fontWeight = FontWeight.Bold,
         color = MaterialTheme.colorScheme.onBackground
     )
 }
@@ -142,6 +133,7 @@ private fun PieTerminos(onTerminos: () -> Unit) {
             text = "Términos y Condiciones",
             style = MaterialTheme.typography.bodySmall,
             color = AzulEnlace,
+            fontWeight = FontWeight.SemiBold,
             modifier = Modifier.clickable(onClick = onTerminos)
         )
     }
@@ -154,4 +146,3 @@ private fun BienvenidaPreview() {
         BienvenidaScreen({}, {}, {})
     }
 }
-

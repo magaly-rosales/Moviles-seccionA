@@ -1,5 +1,6 @@
 package com.tecsup.mibodega.ui.cliente.screens.carrito
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -21,6 +22,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.DeleteSweep
 import androidx.compose.material.icons.filled.ShoppingBasket
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.HorizontalDivider
@@ -38,6 +40,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -50,9 +54,8 @@ import com.tecsup.mibodega.ui.cliente.modelo.listaProductosFake
 import com.tecsup.mibodega.ui.componentes.BotonPrimario
 import com.tecsup.mibodega.ui.componentes.SelectorCantidad
 import com.tecsup.mibodega.ui.theme.BodegaTheme
-import com.tecsup.mibodega.ui.theme.GrisClaro
+import com.tecsup.mibodega.ui.theme.RojoPrecio
 import com.tecsup.mibodega.ui.theme.VerdeBodega
-
 
 @Composable
 fun CarritoScreen(
@@ -61,9 +64,11 @@ fun CarritoScreen(
     onIncrementar: (Producto) -> Unit,
     onDecrementar: (Producto) -> Unit,
     onEliminar: (Producto) -> Unit,
+    onVaciarCarrito: () -> Unit,
     onContinuarPedido: (TipoEntrega) -> Unit
 ) {
     var productoAEliminar by remember { mutableStateOf<Producto?>(null) }
+    var mostrarDialogoVaciar by remember { mutableStateOf(false) }
     var tipoEntrega by remember { mutableStateOf(TipoEntrega.DELIVERY) }
 
     val subtotal = carrito.sumOf { it.producto.precio * it.cantidad }
@@ -75,7 +80,10 @@ fun CarritoScreen(
             .fillMaxSize()
             .safeDrawingPadding()
     ) {
-        EncabezadoCarrito(onVolver = onVolver)
+        EncabezadoCarrito(
+            onVolver = onVolver,
+            onVaciar = if (carrito.isNotEmpty()) { { mostrarDialogoVaciar = true } } else null
+        )
 
         if (carrito.isEmpty()) {
             CarritoVacio(modifier = Modifier.weight(1f))
@@ -112,6 +120,7 @@ fun CarritoScreen(
         )
     }
 
+    // Dialogo para eliminar un solo producto
     productoAEliminar?.let { producto ->
         AlertDialog(
             onDismissRequest = { productoAEliminar = null },
@@ -121,33 +130,65 @@ fun CarritoScreen(
                 TextButton(onClick = {
                     onEliminar(producto)
                     productoAEliminar = null
-                }) { Text("Eliminar") }
+                }) { Text("Eliminar", color = MaterialTheme.colorScheme.error) }
             },
             dismissButton = {
                 TextButton(onClick = { productoAEliminar = null }) { Text("Cancelar") }
             }
         )
     }
+
+    // Dialogo para vaciar el carrito
+    if (mostrarDialogoVaciar) {
+        AlertDialog(
+            onDismissRequest = { mostrarDialogoVaciar = false },
+            title = { Text("Vaciar carrito") },
+            text = { Text("¿Estás seguro de que deseas vaciar todos los productos del carrito?") },
+            confirmButton = {
+                TextButton(onClick = {
+                    onVaciarCarrito()
+                    mostrarDialogoVaciar = false
+                }) { Text("Vaciar todo", color = MaterialTheme.colorScheme.error) }
+            },
+            dismissButton = {
+                TextButton(onClick = { mostrarDialogoVaciar = false }) { Text("Cancelar") }
+            }
+        )
+    }
 }
 
-// Sub-composables PRIVADOS: solo los usa esta pantalla.
-
 @Composable
-private fun EncabezadoCarrito(onVolver: () -> Unit) {
+private fun EncabezadoCarrito(
+    onVolver: () -> Unit,
+    onVaciar: (() -> Unit)?
+) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 8.dp, vertical = 4.dp),
-        verticalAlignment = Alignment.CenterVertically
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        IconButton(onClick = onVolver) {
-            Icon(Icons.Default.ArrowBack, contentDescription = "Volver")
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            IconButton(onClick = onVolver) {
+                Icon(Icons.Default.ArrowBack, contentDescription = "Volver")
+            }
+            Text(
+                text = "Mi carrito",
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Bold
+            )
         }
-        Text(
-            text = "Mi carrito",
-            style = MaterialTheme.typography.titleLarge,
-            fontWeight = FontWeight.Bold
-        )
+
+        if (onVaciar != null) {
+            IconButton(onClick = onVaciar) {
+                Icon(
+                    imageVector = Icons.Default.Delete,
+                    contentDescription = "Vaciar carrito",
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        }
     }
 }
 
@@ -193,18 +234,18 @@ private fun FilaCarrito(
         modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically
     ) {
-
         Box(
             modifier = Modifier
                 .size(56.dp)
-                .background(MaterialTheme.colorScheme.surfaceVariant, RoundedCornerShape(10.dp)),
+                .background(MaterialTheme.colorScheme.surfaceVariant, RoundedCornerShape(10.dp))
+                .padding(4.dp),
             contentAlignment = Alignment.Center
         ) {
-            Icon(
-                imageVector = Icons.Default.ShoppingBasket,
+            Image(
+                painter = painterResource(item.producto.imagen),
                 contentDescription = item.producto.nombre,
-                tint = VerdeBodega,
-                modifier = Modifier.size(26.dp)
+                contentScale = ContentScale.Fit,
+                modifier = Modifier.fillMaxSize()
             )
         }
 
@@ -212,14 +253,16 @@ private fun FilaCarrito(
 
         Column(modifier = Modifier.weight(1f)) {
             Text(
-                text = item.producto.nombre,
+                text = "${item.producto.nombre} ${item.producto.presentacion}",
                 style = MaterialTheme.typography.bodyMedium,
-                fontWeight = FontWeight.SemiBold
+                fontWeight = FontWeight.Bold
             )
+            Spacer(Modifier.height(2.dp))
             Text(
                 text = "S/ %.2f".format(item.producto.precio),
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                style = MaterialTheme.typography.bodyMedium,
+                fontWeight = FontWeight.Bold,
+                color = RojoPrecio
             )
         }
 
@@ -233,7 +276,8 @@ private fun FilaCarrito(
             Icon(
                 imageVector = Icons.Default.Delete,
                 contentDescription = "Eliminar ${item.producto.nombre}",
-                tint = MaterialTheme.colorScheme.onSurfaceVariant
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.size(20.dp)
             )
         }
     }
@@ -310,12 +354,14 @@ private fun ResumenYBoton(
         ) {
             Text(
                 text = "Total",
-                style = MaterialTheme.typography.titleMedium
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold
             )
             Text(
                 text = "S/ %.2f".format(total),
-                style = MaterialTheme.typography.titleMedium,
-                color = VerdeBodega
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Bold,
+                color = RojoPrecio
             )
         }
 
@@ -357,6 +403,7 @@ private fun CarritoPreview() {
             onIncrementar = {},
             onDecrementar = {},
             onEliminar = {},
+            onVaciarCarrito = {},
             onContinuarPedido = {}
         )
     }

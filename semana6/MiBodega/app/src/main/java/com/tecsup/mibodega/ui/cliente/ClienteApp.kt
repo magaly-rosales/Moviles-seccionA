@@ -6,6 +6,7 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -64,6 +65,8 @@ fun ClienteApp(
     var favoritos by remember { mutableStateOf<Set<Int>>(emptySet()) }
     var pedidos by remember { mutableStateOf<List<Pedido>>(emptyList()) }
     var tipoEntrega by remember { mutableStateOf(TipoEntrega.DELIVERY) }
+    var ultimoNumeroPedido by remember { mutableIntStateOf(1000) }
+
     val alternarFavorito: (Producto) -> Unit = { producto ->
         favoritos = if (producto.id in favoritos) favoritos - producto.id else favoritos + producto.id
     }
@@ -113,15 +116,14 @@ fun ClienteApp(
             BienvenidaScreen(
                 onRegistrarse = { navController.navigate(Rutas.REGISTRO) },
                 onIniciarSesion = { navController.navigate(Rutas.LOGIN) },
-                onTerminos = { /* TODO: abrir términos y condiciones */ }
+                onTerminos = { }
             )
         }
 
         composable(Rutas.REGISTRO) {
             RegistroScreen(
                 onVolver = { navController.popBackStack() },
-                onCrearCuenta = { nombre, telefono, direccion, referencia ->
-                    // TODO: guardar estos datos cuando exista el registro real
+                onCrearCuenta = { _, _, _, _ ->
                     navController.navigate(Rutas.INICIO) {
                         popUpTo(Rutas.BIENVENIDA) { inclusive = true }
                     }
@@ -218,12 +220,15 @@ fun ClienteApp(
                         when {
                             it.producto.id != producto.id -> it
                             it.cantidad > 1 -> it.copy(cantidad = it.cantidad - 1)
-                            else -> null // si llega a 0, se elimina de la lista
+                            else -> null
                         }
                     }
                 },
                 onEliminar = { producto ->
                     carrito = carrito.filterNot { it.producto.id == producto.id }
+                },
+                onVaciarCarrito = {
+                    carrito = emptyList()
                 },
                 onContinuarPedido = { tipoElegido ->
                     tipoEntrega = tipoElegido
@@ -235,14 +240,20 @@ fun ClienteApp(
         composable(Rutas.ENTREGA) {
             DatosEntregaScreen(
                 onVolver = { navController.popBackStack() },
-                onConfirmar = {
+                onConfirmar = { nombre, telefono, direccion, referencia, metodoPago ->
                     val subtotal = carrito.sumOf { it.producto.precio * it.cantidad }
+                    ultimoNumeroPedido++
                     val nuevoPedido = Pedido(
-                        numero = pedidos.size + 1,
+                        numero = ultimoNumeroPedido,
                         fecha = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault()).format(Date()),
                         items = carrito,
                         tipoEntrega = tipoEntrega,
-                        total = subtotal + tipoEntrega.costo
+                        total = subtotal + tipoEntrega.costo,
+                        nombreCliente = nombre,
+                        telefonoCliente = telefono,
+                        direccion = direccion,
+                        referencia = referencia,
+                        metodoPago = metodoPago
                     )
 
                     pedidos = listOf(nuevoPedido) + pedidos
@@ -257,6 +268,12 @@ fun ClienteApp(
 
         composable(Rutas.CONFIRMACION) {
             ConfirmacionScreen(
+                pedido = pedidos.firstOrNull(),
+                onVerEstadoPedido = {
+                    navController.navigate(Rutas.PEDIDOS) {
+                        popUpTo(Rutas.INICIO)
+                    }
+                },
                 onVolverInicio = {
                     navController.navigate(Rutas.INICIO) {
                         popUpTo(Rutas.INICIO) { inclusive = true }
