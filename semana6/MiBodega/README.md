@@ -9,11 +9,20 @@
 ## Resultado
 
 ![1. Bienvenida](Imagenes/1.png)
+
 ![2. Crear cuenta](Imagenes/2.png)
+
+
 ![3. Inicio con buscador](Imagenes/3.png)
+
 ![4. Detalle del producto](Imagenes/4.png)
+
+
 ![5. Carrito](Imagenes/5.png)
+
 ![6. Datos de entrega y pago](Imagenes/6.png)
+
+
 ![7. Pedido confirmado](Imagenes/7.png)
 
 
