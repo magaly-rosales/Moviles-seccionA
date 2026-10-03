@@ -330,7 +330,7 @@ private fun EstadoBusquedaVacio(modifier: Modifier = Modifier) {
             )
             Spacer(Modifier.height(12.dp))
             Text(
-                text = "No encontramos productos",
+                text = "No se encontraron productos con esa búsqueda",
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold
             )
