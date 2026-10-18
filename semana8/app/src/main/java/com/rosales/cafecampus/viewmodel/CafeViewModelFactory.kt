@@ -15,7 +15,8 @@ class CafeViewModelFactory(
         modelClass.isAssignableFrom(MenuViewModel::class.java) -> MenuViewModel(repo)
         modelClass.isAssignableFrom(SesionViewModel::class.java) -> SesionViewModel(repo, prefs)
         modelClass.isAssignableFrom(PedidosClienteViewModel::class.java) -> PedidosClienteViewModel(repo, prefs)
-
+        modelClass.isAssignableFrom(PanelAdminViewModel::class.java) -> PanelAdminViewModel(repo)
+        modelClass.isAssignableFrom(PedidosAdminViewModel::class.java) -> PedidosAdminViewModel(repo)
         else -> throw IllegalArgumentException("ViewModel desconocido: ${modelClass.name}")
     } as T
 }

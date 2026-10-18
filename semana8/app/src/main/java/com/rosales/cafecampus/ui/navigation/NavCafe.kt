@@ -1,13 +1,12 @@
 package com.rosales.cafecampus.ui.navigation
 
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.systemBarsPadding
+import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Dashboard
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Receipt
 import androidx.compose.material.icons.filled.RestaurantMenu
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -16,6 +15,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
@@ -26,7 +26,10 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.rosales.cafecampus.CafeApp
 import com.rosales.cafecampus.model.Rol
+import com.rosales.cafecampus.ui.admin.PanelScreen
+import com.rosales.cafecampus.ui.admin.PedidosAdminScreen
 import com.rosales.cafecampus.ui.cliente.*
+import com.rosales.cafecampus.ui.components.CafeButton
 import com.rosales.cafecampus.ui.theme.CafeTheme
 import com.rosales.cafecampus.viewmodel.*
 
@@ -38,6 +41,13 @@ private val tabsCliente = listOf(
     TabItem(Rutas.PERFIL, "Perfil", Icons.Filled.Person)
 )
 
+private val tabsAdmin = listOf(
+    TabItem(Rutas.PANEL, "Panel", Icons.Filled.Dashboard),
+    TabItem(Rutas.PEDIDOS_ADMIN, "Pedidos", Icons.Filled.Receipt),
+    TabItem(Rutas.MENU_ADMIN, "Menú", Icons.Filled.RestaurantMenu),
+    TabItem(Rutas.AJUSTES, "Ajustes", Icons.Filled.Settings)
+)
+
 @Composable
 fun NavCafe(app: CafeApp) {
     val nav = rememberNavController()
@@ -45,6 +55,8 @@ fun NavCafe(app: CafeApp) {
     val sesionVm: SesionViewModel = viewModel(factory = factory)
     val menuVm: MenuViewModel = viewModel(factory = factory)
     val pedidosClienteVm: PedidosClienteViewModel = viewModel(factory = factory)
+    val panelVm: PanelAdminViewModel = viewModel(factory = factory)
+    val pedidosAdminVm: PedidosAdminViewModel = viewModel(factory = factory)
 
     val perfil by sesionVm.perfilActivo.collectAsState()
     val oscuro by sesionVm.modoOscuro.collectAsState()
@@ -53,14 +65,23 @@ fun NavCafe(app: CafeApp) {
     val entrada by nav.currentBackStackEntryAsState()
     val rutaActual = entrada?.destination?.route
 
+    val cerrarSesion: () -> Unit = {
+        sesionVm.cerrarSesion {
+            nav.navigate(Rutas.LOGIN) { popUpTo(nav.graph.id) { inclusive = true } }
+        }
+    }
+
     CafeTheme(rol = rolTema, oscuro = oscuro) {
         Surface(Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
             Box(Modifier.systemBarsPadding()) {
                 Scaffold(
                     containerColor = MaterialTheme.colorScheme.background,
                     bottomBar = {
-                        if (tabsCliente.any { it.ruta == rutaActual }) {
-                            BarraInferior(tabsCliente, rutaActual) { ruta -> irATab(nav, ruta, Rutas.MENU) }
+                        when {
+                            tabsCliente.any { it.ruta == rutaActual } ->
+                                BarraInferior(tabsCliente, rutaActual) { irATab(nav, it, Rutas.MENU) }
+                            tabsAdmin.any { it.ruta == rutaActual } ->
+                                BarraInferior(tabsAdmin, rutaActual) { irATab(nav, it, Rutas.PANEL) }
                         }
                     }
                 ) { padding ->
@@ -136,10 +157,24 @@ fun NavCafe(app: CafeApp) {
                             MisPedidosScreen(pedidosClienteVm) { id -> nav.navigate(Rutas.seguimiento(id)) }
                         }
 
-                        composable(Rutas.PERFIL) { Temporal("Perfil (Paso 11)") }
+                        composable(Rutas.PERFIL) {
+                            SesionTemporal("Perfil (Paso 11)", cerrarSesion)
+                        }
 
-                        // ---------- Admin (Paso 9) ----------
-                        composable(Rutas.PANEL) { Temporal("Panel del administrador (Paso 9)") }
+                        // ---------- Admin ----------
+                        composable(Rutas.PANEL) {
+                            PanelScreen(panelVm, onVerPedidos = { irATab(nav, Rutas.PEDIDOS_ADMIN, Rutas.PANEL) })
+                        }
+
+                        composable(Rutas.PEDIDOS_ADMIN) {
+                            PedidosAdminScreen(pedidosAdminVm, onPedido = { /* TODO Paso 10 */ })
+                        }
+
+                        composable(Rutas.MENU_ADMIN) { Temporal("Gestión del menú (Paso 10)") }
+
+                        composable(Rutas.AJUSTES) {
+                            SesionTemporal("Ajustes (Paso 11)", cerrarSesion)
+                        }
                     }
                 }
             }
@@ -172,4 +207,17 @@ private fun irATab(nav: NavHostController, ruta: String, inicio: String) {
 @Composable
 private fun Temporal(texto: String) {
     Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { Text(texto) }
+}
+
+@Composable
+private fun SesionTemporal(titulo: String, onCerrarSesion: () -> Unit) {
+    Column(
+        Modifier.fillMaxSize().padding(24.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        Text(titulo)
+        Spacer(Modifier.height(16.dp))
+        CafeButton("Cerrar sesión", onClick = onCerrarSesion)
+    }
 }
