@@ -36,4 +36,11 @@ class PedidosAdminViewModel(private val repo: CafeRepository) : ViewModel() {
     fun cancelar(pc: PedidoConDetalle) {
         viewModelScope.launch { repo.cambiarEstado(pc.pedido.id, EstadoPedido.CANCELADO) }
     }
+    fun pedido(id: Int): StateFlow<PedidoConDetalle?> =
+        repo.observarPedido(id)
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
+
+    fun cambiarA(pc: PedidoConDetalle, estado: EstadoPedido) {
+        viewModelScope.launch { repo.cambiarEstado(pc.pedido.id, estado) }
+    }
 }

@@ -68,7 +68,9 @@ fun PedidosAdminScreen(vm: PedidosAdminViewModel, onPedido: (Int) -> Unit) {
                                 )
                                 CafeButton(
                                     "Cancelar",
+
                                     onClick = { vm.cancelar(pc) },
+
                                     modifier = Modifier.weight(1f),
                                     secundario = true
                                 )

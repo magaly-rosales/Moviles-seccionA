@@ -32,7 +32,9 @@ import com.rosales.cafecampus.ui.cliente.*
 import com.rosales.cafecampus.ui.components.CafeButton
 import com.rosales.cafecampus.ui.theme.CafeTheme
 import com.rosales.cafecampus.viewmodel.*
-
+import com.rosales.cafecampus.ui.admin.DetallePedidoAdminScreen
+import com.rosales.cafecampus.ui.admin.FormularioProductoScreen
+import com.rosales.cafecampus.ui.admin.MenuAdminScreen
 data class TabItem(val ruta: String, val etiqueta: String, val icono: ImageVector)
 
 private val tabsCliente = listOf(
@@ -57,7 +59,7 @@ fun NavCafe(app: CafeApp) {
     val pedidosClienteVm: PedidosClienteViewModel = viewModel(factory = factory)
     val panelVm: PanelAdminViewModel = viewModel(factory = factory)
     val pedidosAdminVm: PedidosAdminViewModel = viewModel(factory = factory)
-
+    val menuAdminVm: MenuAdminViewModel = viewModel(factory = factory)
     val perfil by sesionVm.perfilActivo.collectAsState()
     val oscuro by sesionVm.modoOscuro.collectAsState()
     val rolTema = if (perfil == Rol.ADMIN.name) Rol.ADMIN else Rol.CLIENTE
@@ -167,10 +169,40 @@ fun NavCafe(app: CafeApp) {
                         }
 
                         composable(Rutas.PEDIDOS_ADMIN) {
-                            PedidosAdminScreen(pedidosAdminVm, onPedido = { /* TODO Paso 10 */ })
+                            PedidosAdminScreen(pedidosAdminVm, onPedido = { id -> nav.navigate(Rutas.detallePedidoAdmin(id)) })
                         }
 
-                        composable(Rutas.MENU_ADMIN) { Temporal("Gestión del menú (Paso 10)") }
+                        composable(
+                            Rutas.DETALLE_PEDIDO_ADMIN,
+                            arguments = listOf(navArgument("id") { type = NavType.IntType })
+                        ) { e ->
+                            DetallePedidoAdminScreen(
+                                vm = pedidosAdminVm,
+                                pedidoId = e.arguments?.getInt("id") ?: 0,
+                                onAtras = { nav.popBackStack() }
+                            )
+                        }
+
+                        composable(Rutas.MENU_ADMIN) {
+                            MenuAdminScreen(
+                                vm = menuAdminVm,
+                                onNuevo = { nav.navigate(Rutas.formProducto()) },
+                                onEditar = { id -> nav.navigate(Rutas.formProducto(id)) }
+                            )
+                        }
+
+                        composable(
+                            Rutas.FORM_PRODUCTO,
+                            arguments = listOf(navArgument("id") { type = NavType.IntType; defaultValue = -1 })
+                        ) { e ->
+                            val id = e.arguments?.getInt("id") ?: -1
+                            FormularioProductoScreen(
+                                vm = menuAdminVm,
+                                productoId = if (id == -1) null else id,
+                                onAtras = { nav.popBackStack() },
+                                onGuardado = { nav.popBackStack() }
+                            )
+                        }
 
                         composable(Rutas.AJUSTES) {
                             SesionTemporal("Ajustes (Paso 11)", cerrarSesion)
