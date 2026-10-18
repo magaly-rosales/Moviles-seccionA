@@ -25,7 +25,9 @@ import com.rosales.cafecampus.ui.theme.CafeTheme
 import com.rosales.cafecampus.viewmodel.CafeViewModelFactory
 import com.rosales.cafecampus.viewmodel.MenuViewModel
 import com.rosales.cafecampus.viewmodel.SesionViewModel
-
+import androidx.navigation.NavType
+import androidx.navigation.navArgument
+import com.rosales.cafecampus.ui.cliente.DetalleProductoScreen
 @Composable
 fun NavCafe(app: CafeApp) {
     val nav = rememberNavController()
@@ -62,7 +64,24 @@ fun NavCafe(app: CafeApp) {
                     }
 
                     composable(Rutas.MENU) {
-                        MenuScreen(menuVm, onProducto = { /* TODO Paso 7 */ })
+                        MenuScreen(
+                            vm = menuVm,
+                            onProducto = { id -> nav.navigate(Rutas.detalleProducto(id)) },
+                            onCarrito = {  }
+                        )
+                    }
+
+                    composable(
+                        Rutas.DETALLE_PRODUCTO,
+                        arguments = listOf(navArgument("id") { type = NavType.IntType })
+                    ) { entry ->
+                        val id = entry.arguments?.getInt("id") ?: 0
+                        DetalleProductoScreen(
+                            vm = menuVm,
+                            productoId = id,
+                            onAtras = { nav.popBackStack() },
+                            onAgregado = { nav.popBackStack() }
+                        )
                     }
 
 
