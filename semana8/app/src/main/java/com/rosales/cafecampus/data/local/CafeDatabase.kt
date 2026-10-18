@@ -4,17 +4,23 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import com.rosales.cafecampus.data.local.dao.PedidoDao
 import com.rosales.cafecampus.data.local.dao.ProductoDao
+import com.rosales.cafecampus.data.local.dao.UsuarioDao
+import com.rosales.cafecampus.data.local.entity.DetallePedido
+import com.rosales.cafecampus.data.local.entity.Pedido
 import com.rosales.cafecampus.data.local.entity.Producto
+import com.rosales.cafecampus.data.local.entity.Usuario
 
 @Database(
-    entities = [Producto::class ],
-    version = 1,
+    entities = [Producto::class, Usuario::class, Pedido::class, DetallePedido::class],
+    version = 2,
     exportSchema = false
 )
 abstract class CafeDatabase : RoomDatabase() {
     abstract fun productoDao(): ProductoDao
-
+    abstract fun usuarioDao(): UsuarioDao
+    abstract fun pedidoDao(): PedidoDao
 
     companion object {
         @Volatile private var INSTANCE: CafeDatabase? = null

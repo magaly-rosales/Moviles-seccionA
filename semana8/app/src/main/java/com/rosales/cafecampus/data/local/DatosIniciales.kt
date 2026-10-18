@@ -1,6 +1,8 @@
 package com.rosales.cafecampus.data.local
 
 import com.rosales.cafecampus.data.local.entity.Producto
+import com.rosales.cafecampus.data.local.entity.Usuario
+import com.rosales.cafecampus.model.Rol
 
 object DatosIniciales {
 
@@ -13,10 +15,16 @@ object DatosIniciales {
         Producto(nombre = "Chicha morada", descripcion = "Vaso de chicha morada helada", categoria = "Bebidas", precio = 3.50, icono = "botella")
     )
 
+    private val usuarios = listOf(
+        Usuario(nombre = "Juan Pérez", correo = "juan@campus.test", clave = "1234", rol = Rol.CLIENTE.name),
+        Usuario(nombre = "Administrador", correo = "admin@cafe.test", clave = "admin", rol = Rol.ADMIN.name)
+    )
+
     suspend fun sembrar(db: CafeDatabase) {
-        val productoDao = db.productoDao()
-        if (productoDao.contar() == 0) {
-            productos.forEach { productoDao.insertar(it) }
+        if (db.usuarioDao().contar() == 0) {
+            val productoDao = db.productoDao()
+            if (productoDao.contar() == 0) productos.forEach { productoDao.insertar(it) }
+            usuarios.forEach { db.usuarioDao().insertar(it) }
         }
     }
 }
