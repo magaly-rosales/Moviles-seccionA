@@ -36,7 +36,7 @@ fun ConfirmarPedidoScreen(
     var nota by rememberSaveable { mutableStateOf("") }
     var enviando by remember { mutableStateOf(false) }
     val total = menuVm.total()
-
+    val recibir by pedidosVm.recibirPedidos.collectAsState()
     Scaffold(
         topBar = { AppTopBar("Confirmar pedido", onAtras = onAtras) },
         containerColor = MaterialTheme.colorScheme.background
@@ -56,6 +56,19 @@ fun ConfirmarPedidoScreen(
                 Modifier.fillMaxSize().padding(padding)
                     .verticalScroll(rememberScrollState()).padding(16.dp)
             ) {
+                if (!recibir) {
+                    Surface(
+                        color = MaterialTheme.colorScheme.errorContainer,
+                        shape = androidx.compose.foundation.shape.RoundedCornerShape(12.dp),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Column(Modifier.padding(12.dp)) {
+                            Text("Cafetería cerrada", fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onErrorContainer)
+                            Text("Por ahora no se reciben pedidos. Intenta más tarde.", color = MaterialTheme.colorScheme.onErrorContainer)
+                        }
+                    }
+                    Spacer(Modifier.height(12.dp))
+                }
                 Text("Resumen", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold)
                 Spacer(Modifier.height(8.dp))
 
@@ -125,7 +138,7 @@ fun ConfirmarPedidoScreen(
                         enviando = true
                         pedidosVm.confirmar(carrito, hora, pago, nota) { id -> onConfirmado(id) }
                     },
-                    enabled = !enviando
+                    enabled = !enviando && recibir
                 )
                 Spacer(Modifier.height(8.dp))
                 CafeButton("Seguir pidiendo", onClick = onSeguirPidiendo, secundario = true)

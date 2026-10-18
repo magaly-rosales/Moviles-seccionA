@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
@@ -27,12 +28,23 @@ class SesionViewModel(
     val modoOscuro: StateFlow<Boolean> =
         prefs.modoOscuro.stateIn(viewModelScope, SharingStarted.Eagerly, false)
 
+    val recibirPedidos: StateFlow<Boolean> =
+        prefs.recibirPedidos.stateIn(viewModelScope, SharingStarted.Eagerly, true)
+
 
     val perfilActivo: StateFlow<String?> =
         prefs.perfilActivo.stateIn<String?>(viewModelScope, SharingStarted.Eagerly, null)
 
     val usuarioId: StateFlow<Int> =
         prefs.usuarioId.stateIn(viewModelScope, SharingStarted.Eagerly, 0)
+
+    init {
+
+        viewModelScope.launch {
+            val id = prefs.usuarioId.first()
+            if (id != 0) _usuarioActual.value = repo.obtenerUsuario(id)
+        }
+    }
 
     fun limpiarError() { _error.value = null }
 
@@ -56,6 +68,26 @@ class SesionViewModel(
                     onExito(rolSeleccionado)
                 }
             }
+        }
+    }
+
+    fun guardarModoOscuro(b: Boolean) {
+        viewModelScope.launch { prefs.guardarModoOscuro(b) }
+    }
+
+    fun guardarRecibirPedidos(b: Boolean) {
+        viewModelScope.launch { prefs.guardarRecibirPedidos(b) }
+    }
+
+
+    fun cambiarPerfil(onListo: (Rol) -> Unit) {
+        viewModelScope.launch {
+            val otro = if (perfilActivo.value == Rol.ADMIN.name) Rol.CLIENTE else Rol.ADMIN
+            val u = repo.usuarioDemo(otro) ?: return@launch
+            prefs.guardarPerfil(otro)
+            prefs.guardarUsuarioId(u.id)
+            _usuarioActual.value = u
+            onListo(otro)
         }
     }
 

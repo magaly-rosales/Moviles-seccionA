@@ -6,9 +6,11 @@ import com.rosales.cafecampus.data.local.relation.PedidoConDetalle
 import com.rosales.cafecampus.model.EstadoPedido
 import com.rosales.cafecampus.model.ItemCarrito
 import kotlinx.coroutines.flow.Flow
-
+import com.rosales.cafecampus.model.Rol
 interface CafeRepository {
     suspend fun login(correo: String, clave: String): Usuario?
+    suspend fun obtenerUsuario(id: Int): Usuario?
+    suspend fun usuarioDemo(rol: Rol): Usuario?
     fun observarProductos(): Flow<List<Producto>>
     suspend fun guardarProducto(p: Producto)
     suspend fun eliminarProducto(p: Producto)

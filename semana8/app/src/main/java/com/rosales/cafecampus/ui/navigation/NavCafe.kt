@@ -12,10 +12,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
@@ -29,12 +27,12 @@ import com.rosales.cafecampus.model.Rol
 import com.rosales.cafecampus.ui.admin.PanelScreen
 import com.rosales.cafecampus.ui.admin.PedidosAdminScreen
 import com.rosales.cafecampus.ui.cliente.*
-import com.rosales.cafecampus.ui.components.CafeButton
 import com.rosales.cafecampus.ui.theme.CafeTheme
 import com.rosales.cafecampus.viewmodel.*
 import com.rosales.cafecampus.ui.admin.DetallePedidoAdminScreen
 import com.rosales.cafecampus.ui.admin.FormularioProductoScreen
 import com.rosales.cafecampus.ui.admin.MenuAdminScreen
+import com.rosales.cafecampus.ui.admin.AjustesScreen
 data class TabItem(val ruta: String, val etiqueta: String, val icono: ImageVector)
 
 private val tabsCliente = listOf(
@@ -67,10 +65,15 @@ fun NavCafe(app: CafeApp) {
     val entrada by nav.currentBackStackEntryAsState()
     val rutaActual = entrada?.destination?.route
 
-    val cerrarSesion: () -> Unit = {
-        sesionVm.cerrarSesion {
-            nav.navigate(Rutas.LOGIN) { popUpTo(nav.graph.id) { inclusive = true } }
-        }
+    val alCerrarSesion: () -> Unit = {
+        menuVm.vaciar()
+        nav.navigate(Rutas.LOGIN) { popUpTo(nav.graph.id) { inclusive = true } }
+    }
+
+    val alCambiarPerfil: (Rol) -> Unit = { rol ->
+        menuVm.vaciar()
+        val destino = if (rol == Rol.ADMIN) Rutas.PANEL else Rutas.MENU
+        nav.navigate(destino) { popUpTo(nav.graph.id) { inclusive = true } }
     }
 
     CafeTheme(rol = rolTema, oscuro = oscuro) {
@@ -160,7 +163,7 @@ fun NavCafe(app: CafeApp) {
                         }
 
                         composable(Rutas.PERFIL) {
-                            SesionTemporal("Perfil (Paso 11)", cerrarSesion)
+                            AjustesScreen(sesionVm, esAdmin = false, onPerfilCambiado = alCambiarPerfil, onSesionCerrada = alCerrarSesion)
                         }
 
                         // ---------- Admin ----------
@@ -205,7 +208,7 @@ fun NavCafe(app: CafeApp) {
                         }
 
                         composable(Rutas.AJUSTES) {
-                            SesionTemporal("Ajustes (Paso 11)", cerrarSesion)
+                            AjustesScreen(sesionVm, esAdmin = true, onPerfilCambiado = alCambiarPerfil, onSesionCerrada = alCerrarSesion)
                         }
                     }
                 }
@@ -236,20 +239,3 @@ private fun irATab(nav: NavHostController, ruta: String, inicio: String) {
     }
 }
 
-@Composable
-private fun Temporal(texto: String) {
-    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { Text(texto) }
-}
-
-@Composable
-private fun SesionTemporal(titulo: String, onCerrarSesion: () -> Unit) {
-    Column(
-        Modifier.fillMaxSize().padding(24.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
-    ) {
-        Text(titulo)
-        Spacer(Modifier.height(16.dp))
-        CafeButton("Cerrar sesión", onClick = onCerrarSesion)
-    }
-}

@@ -9,7 +9,7 @@ import com.rosales.cafecampus.data.local.relation.PedidoConDetalle
 import com.rosales.cafecampus.model.EstadoPedido
 import com.rosales.cafecampus.model.ItemCarrito
 import kotlinx.coroutines.flow.Flow
-
+import com.rosales.cafecampus.model.Rol
 class CafeRepositoryRoom(db: CafeDatabase) : CafeRepository {
 
     private val productoDao = db.productoDao()
@@ -17,6 +17,9 @@ class CafeRepositoryRoom(db: CafeDatabase) : CafeRepository {
     private val pedidoDao = db.pedidoDao()
     override suspend fun login(correo: String, clave: String): Usuario? =
         usuarioDao.login(correo.trim(), clave)
+    override suspend fun obtenerUsuario(id: Int): Usuario? = usuarioDao.obtener(id)
+
+    override suspend fun usuarioDemo(rol: Rol): Usuario? = usuarioDao.primeroPorRol(rol.name)
     override fun observarProductos(): Flow<List<Producto>> = productoDao.observarTodos()
 
     override suspend fun guardarProducto(p: Producto) {

@@ -37,7 +37,8 @@ class PedidosClienteViewModel(
     val historial: StateFlow<List<PedidoConDetalle>> = misPedidos
         .map { lista -> lista.filterNot { it.pedido.estado in estadosActivos } }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
-
+    val recibirPedidos: StateFlow<Boolean> =
+        prefs.recibirPedidos.stateIn(viewModelScope, SharingStarted.Eagerly, true)
     fun pedido(id: Int): StateFlow<PedidoConDetalle?> =
         repo.observarPedido(id)
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
@@ -51,6 +52,7 @@ class PedidosClienteViewModel(
     ) {
         if (items.isEmpty()) return
         viewModelScope.launch {
+            if (!prefs.recibirPedidos.first()) return@launch
             val clienteId = prefs.usuarioId.first()
             val id = repo.crearPedido(clienteId, items, horaRecojo, pago, nota)
             onCreado(id.toInt())
