@@ -1,13 +1,22 @@
 package com.rosales.cafecampus.data.repository
 
 import com.rosales.cafecampus.data.local.CafeDatabase
+import com.rosales.cafecampus.data.local.entity.DetallePedido
+import com.rosales.cafecampus.data.local.entity.Pedido
 import com.rosales.cafecampus.data.local.entity.Producto
+import com.rosales.cafecampus.data.local.entity.Usuario
+import com.rosales.cafecampus.data.local.relation.PedidoConDetalle
+import com.rosales.cafecampus.model.EstadoPedido
+import com.rosales.cafecampus.model.ItemCarrito
 import kotlinx.coroutines.flow.Flow
 
 class CafeRepositoryRoom(db: CafeDatabase) : CafeRepository {
 
     private val productoDao = db.productoDao()
-
+    private val usuarioDao = db.usuarioDao()
+    private val pedidoDao = db.pedidoDao()
+    override suspend fun login(correo: String, clave: String): Usuario? =
+        usuarioDao.login(correo.trim(), clave)
     override fun observarProductos(): Flow<List<Producto>> = productoDao.observarTodos()
 
     override suspend fun guardarProducto(p: Producto) {
@@ -18,6 +27,43 @@ class CafeRepositoryRoom(db: CafeDatabase) : CafeRepository {
 
     override suspend fun cambiarDisponibilidad(id: Int, disponible: Boolean) =
         productoDao.cambiarDisponibilidad(id, disponible)
+    override suspend fun crearPedido(
+        clienteId: Int, items: List<ItemCarrito>,
+        horaRecojo: String, pago: String, nota: String
+    ): Long {
+        val detalles = items.map {
+            DetallePedido(
+                productoId = it.producto.id,
+                nombreProducto = it.producto.nombre,
+                cantidad = it.cantidad,
+                precioUnitario = it.producto.precio
+            )
+        }
+        val total = items.sumOf { it.subtotal }
+        val pedido = Pedido(
+            clienteId = clienteId,
+            horaRecojo = horaRecojo,
+            pago = pago,
+            nota = nota,
+            total = total
+        )
+        return pedidoDao.crearPedido(pedido, detalles)
+    }
 
+    override fun observarPedidosCliente(clienteId: Int): Flow<List<PedidoConDetalle>> =
+        pedidoDao.observarPorCliente(clienteId)
 
+    override fun observarPedidosPorEstado(estado: EstadoPedido): Flow<List<PedidoConDetalle>> =
+        pedidoDao.observarPorEstado(estado.name)
+
+    override fun observarPedido(id: Int): Flow<PedidoConDetalle?> =
+        pedidoDao.observarUno(id)
+
+    override suspend fun cambiarEstado(pedidoId: Int, estado: EstadoPedido) =
+        pedidoDao.cambiarEstado(pedidoId, estado.name)
+    override fun observarVentasHoy(inicioDia: Long): Flow<Double> =
+        pedidoDao.ventasDesde(inicioDia)
+
+    override fun observarCantidadPorEstado(estado: EstadoPedido): Flow<Int> =
+        pedidoDao.cantidadPorEstado(estado.name)
 }
