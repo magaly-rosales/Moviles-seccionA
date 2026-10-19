@@ -17,6 +17,7 @@ Dos perfiles conviven en el mismo dispositivo y comparten la misma base de datos
 | Administrador | admin@tecsup.com | admin |
 
 
+
 ## Arquitectura MVVM + Repository
 
 ```
@@ -33,6 +34,8 @@ CafeRepositoryRoom ──► DAO ──► SQLite (cafecampus.db)
 
 DataStore (preferencias) ──► ViewModel
 ```
+
+**Regla de oro:** lectura que actualiza la pantalla → `Flow`; escritura o acción única → `suspend`.
 
 ## Estructura de paquetes
 
@@ -68,22 +71,26 @@ com.rosales.cafecampus
 
 | Estudiante | | |
 |---|---|---|
-| ![Menú](capturas/cliente-menu.png) | ![Confirmar](capturas/cliente-confirmar.png) | ![Seguimiento](capturas/cliente-seguimiento.png) |
+| ![Estudiante 1](img/estu1.png) | ![Estudiante 2](img/estu2.png) | ![Estudiante 3](img/estu3.png) |
 
 | Administrador | | |
 |---|---|---|
-| ![Panel](capturas/admin-panel.png) | ![Pedidos](capturas/admin-pedidos.png) | ![Menú admin](capturas/admin-menu.png) |
-
+| ![Admin 1](img/admi1.png) | ![Admin 2](img/admi2.png) | ![Admin 3](img/admi3.png) |
 ## Para pensar
 
-**¿Por qué el Repository es una interface?** Porque los ViewModels dependen del contrato y no de Room; así se puede cambiar la fuente de datos sin tocar ViewModels ni pantallas.
-**¿Por qué `crearPedido` es suspend y `observarPedidosCliente` es Flow?** `crearPedido` es una acción única que escribe y termina; `observarPedidosCliente` debe avisar a la pantalla cada vez que los datos cambian.
-**¿Qué pasaría si dos perfiles usaran bases distintas?** El admin no vería los pedidos del estudiante ni el estudiante los cambios de estado: se rompería la sincronización.
-**¿Qué cambiaría si los datos viven en un servidor?** Solo se crea otra implementación de `CafeRepository` (por ejemplo con Retrofit) y se cambia en `CafeApp`; ViewModels y pantallas quedan igual.
+**¿Por qué el Repository es una interface?** 
 
-## Notas técnicas
+Porque los ViewModels dependen del contrato y no de Room, así se puede cambiar la fuente de datos sin tocar ViewModels ni pantallas.
 
-- Se usó **Room 2.8.4 y KSP 2.3.4** (en vez de 2.6.1) por compatibilidad con AGP 9 y Kotlin 2.2; el código es el mismo.
-- Se guarda también el `usuarioId` en DataStore para saber qué estudiante hace el pedido cuando el Splash salta el login.
-- **Extra:** foto de producto opcional (selector de archivos + Coil); si no hay foto se muestra el ícono.
-- **Modo práctica:** el botón "Cambiar de perfil" no pide contraseña, tal como indica el laboratorio.
+**¿Por qué crearPedido es suspend y observarPedidosCliente es Flow?** 
+
+CrearPedido es una acción única que escribe y termina, observarPedidosCliente debe avisar a la pantalla cada vez que los datos cambian.
+
+**¿Qué pasaría si dos perfiles usaran bases distintas?** 
+
+El admin no vería los pedidos del estudiante ni el estudiante los cambios de estado: se rompería la sincronización.
+
+**¿Qué cambiaría si los datos viven en un servidor?** 
+
+Solo se crea otra implementación de CafeRepository por ejemplo con Retrofit y se cambia en CafeApp, ViewModels y pantallas quedan igual.
+
