@@ -3,6 +3,7 @@ package com.rosales.cafecampus.data.repository
 import com.rosales.cafecampus.data.local.entity.Producto
 import com.rosales.cafecampus.data.local.entity.Usuario
 import com.rosales.cafecampus.data.local.relation.PedidoConDetalle
+import com.rosales.cafecampus.data.local.relation.PedidosPorHora
 import com.rosales.cafecampus.model.EstadoPedido
 import com.rosales.cafecampus.model.ItemCarrito
 import kotlinx.coroutines.flow.Flow
@@ -29,4 +30,6 @@ interface CafeRepository {
 
     fun observarVentasHoy(inicioDia: Long): Flow<Double>
     fun observarCantidadPorEstado(estado: EstadoPedido): Flow<Int>
+    fun observarPedidosPorHora(inicioDia: Long): Flow<List<PedidosPorHora>>
+    fun observarPedidosHoy(inicioDia: Long): Flow<Int>
 }

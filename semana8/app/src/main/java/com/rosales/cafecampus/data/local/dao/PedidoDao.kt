@@ -7,6 +7,7 @@ import androidx.room.Transaction
 import com.rosales.cafecampus.data.local.entity.DetallePedido
 import com.rosales.cafecampus.data.local.entity.Pedido
 import com.rosales.cafecampus.data.local.relation.PedidoConDetalle
+import com.rosales.cafecampus.data.local.relation.PedidosPorHora
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -44,4 +45,10 @@ interface PedidoDao {
 
     @Query("SELECT COUNT(*) FROM pedidos WHERE estado = :estado")
     fun cantidadPorEstado(estado: String): Flow<Int>
+
+    @Query("SELECT strftime('%H', fecha/1000, 'unixepoch', 'localtime') AS hora, COUNT(*) AS cantidad FROM pedidos WHERE fecha >= :inicioDia AND estado != 'CANCELADO' GROUP BY hora ORDER BY hora ASC")
+    fun observarPedidosPorHora(inicioDia: Long): Flow<List<PedidosPorHora>>
+
+    @Query("SELECT COUNT(*) FROM pedidos WHERE fecha >= :inicioDia AND estado != 'CANCELADO'")
+    fun observarPedidosHoy(inicioDia: Long): Flow<Int>
 }

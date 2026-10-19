@@ -3,6 +3,7 @@ package com.rosales.cafecampus.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.rosales.cafecampus.data.local.relation.PedidoConDetalle
+import com.rosales.cafecampus.data.local.relation.PedidosPorHora
 import com.rosales.cafecampus.data.repository.CafeRepository
 import com.rosales.cafecampus.model.EstadoPedido
 import kotlinx.coroutines.flow.SharingStarted
@@ -24,6 +25,12 @@ class PanelAdminViewModel(private val repo: CafeRepository) : ViewModel() {
 
     val ventasHoy: StateFlow<Double> = repo.observarVentasHoy(inicioDelDia())
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0.0)
+
+    val pedidosHoy: StateFlow<Int> = repo.observarPedidosHoy(inicioDelDia())
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0)
+
+    val pedidosPorHora: StateFlow<List<PedidosPorHora>> = repo.observarPedidosPorHora(inicioDelDia())
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
     val pedidosNuevos: StateFlow<List<PedidoConDetalle>> =
         repo.observarPedidosPorEstado(EstadoPedido.RECIBIDO)

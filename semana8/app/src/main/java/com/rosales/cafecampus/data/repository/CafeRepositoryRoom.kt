@@ -6,6 +6,7 @@ import com.rosales.cafecampus.data.local.entity.Pedido
 import com.rosales.cafecampus.data.local.entity.Producto
 import com.rosales.cafecampus.data.local.entity.Usuario
 import com.rosales.cafecampus.data.local.relation.PedidoConDetalle
+import com.rosales.cafecampus.data.local.relation.PedidosPorHora
 import com.rosales.cafecampus.model.EstadoPedido
 import com.rosales.cafecampus.model.ItemCarrito
 import kotlinx.coroutines.flow.Flow
@@ -99,4 +100,10 @@ class CafeRepositoryRoom(db: CafeDatabase, private val context: Context) : CafeR
 
     override fun observarCantidadPorEstado(estado: EstadoPedido): Flow<Int> =
         pedidoDao.cantidadPorEstado(estado.name)
+
+    override fun observarPedidosPorHora(inicioDia: Long): Flow<List<PedidosPorHora>> =
+        pedidoDao.observarPedidosPorHora(inicioDia)
+
+    override fun observarPedidosHoy(inicioDia: Long): Flow<Int> =
+        pedidoDao.observarPedidosHoy(inicioDia)
 }
