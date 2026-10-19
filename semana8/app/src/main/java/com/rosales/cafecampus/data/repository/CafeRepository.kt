@@ -9,6 +9,7 @@ import kotlinx.coroutines.flow.Flow
 import com.rosales.cafecampus.model.Rol
 interface CafeRepository {
     suspend fun login(correo: String, clave: String): Usuario?
+    suspend fun registrarEstudiante(nombre: String, correo: String, clave: String): Boolean
     suspend fun obtenerUsuario(id: Int): Usuario?
     suspend fun usuarioDemo(rol: Rol): Usuario?
     fun observarProductos(): Flow<List<Producto>>

@@ -53,6 +53,7 @@ fun NavCafe(app: CafeApp) {
     val nav = rememberNavController()
     val factory = remember { CafeViewModelFactory(app.repository, app.prefs) }
     val sesionVm: SesionViewModel = viewModel(factory = factory)
+    val registroVm: RegistroViewModel = viewModel(factory = factory)
     val menuVm: MenuViewModel = viewModel(factory = factory)
     val pedidosClienteVm: PedidosClienteViewModel = viewModel(factory = factory)
     val panelVm: PanelAdminViewModel = viewModel(factory = factory)
@@ -108,10 +109,22 @@ fun NavCafe(app: CafeApp) {
                         }
 
                         composable(Rutas.LOGIN) {
-                            LoginScreen(sesionVm) { rol ->
-                                val destino = if (rol == Rol.ADMIN) Rutas.PANEL else Rutas.MENU
-                                nav.navigate(destino) { popUpTo(Rutas.LOGIN) { inclusive = true } }
-                            }
+                            LoginScreen(
+                                vm = sesionVm,
+                                onIngresar = { rol ->
+                                    val destino = if (rol == Rol.ADMIN) Rutas.PANEL else Rutas.MENU
+                                    nav.navigate(destino) { popUpTo(Rutas.LOGIN) { inclusive = true } }
+                                },
+                                onRegistro = { nav.navigate(Rutas.REGISTRO) }
+                            )
+                        }
+
+                        composable(Rutas.REGISTRO) {
+                            RegistroScreen(
+                                vm = registroVm,
+                                onAtras = { nav.popBackStack() },
+                                onRegistroExitoso = { nav.popBackStack() }
+                            )
                         }
 
                         // ---------- Cliente ----------

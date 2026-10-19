@@ -22,6 +22,19 @@ class CafeRepositoryRoom(db: CafeDatabase, private val context: Context) : CafeR
     private val pedidoDao = db.pedidoDao()
     override suspend fun login(correo: String, clave: String): Usuario? =
         usuarioDao.login(correo.trim(), clave)
+
+    override suspend fun registrarEstudiante(nombre: String, correo: String, clave: String): Boolean {
+        val correoLimpio = correo.trim()
+        if (usuarioDao.existeCorreo(correoLimpio)) return false
+        val nuevoUsuario = Usuario(
+            nombre = nombre.trim(),
+            correo = correoLimpio,
+            clave = clave,
+            rol = Rol.CLIENTE.name
+        )
+        usuarioDao.insertar(nuevoUsuario)
+        return true
+    }
     override suspend fun obtenerUsuario(id: Int): Usuario? = usuarioDao.obtener(id)
 
     override suspend fun usuarioDemo(rol: Rol): Usuario? = usuarioDao.primeroPorRol(rol.name)

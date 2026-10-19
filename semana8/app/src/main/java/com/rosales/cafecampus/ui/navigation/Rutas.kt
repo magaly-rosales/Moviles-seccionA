@@ -3,6 +3,7 @@ package com.rosales.cafecampus.ui.navigation
 object Rutas {
     const val SPLASH = "splash"
     const val LOGIN = "login"
+    const val REGISTRO = "registro"
 
     // Cliente
     const val MENU = "menu"

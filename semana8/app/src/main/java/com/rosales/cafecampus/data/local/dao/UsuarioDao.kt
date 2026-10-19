@@ -21,4 +21,7 @@ interface UsuarioDao {
 
     @Query("SELECT * FROM usuarios WHERE rol = :rol ORDER BY id LIMIT 1")
     suspend fun primeroPorRol(rol: String): Usuario?
+
+    @Query("SELECT COUNT(*) > 0 FROM usuarios WHERE LOWER(correo) = LOWER(:correo)")
+    suspend fun existeCorreo(correo: String): Boolean
 }

@@ -21,7 +21,11 @@ import com.rosales.cafecampus.viewmodel.SesionViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun LoginScreen(vm: SesionViewModel, onIngresar: (Rol) -> Unit) {
+fun LoginScreen(
+    vm: SesionViewModel,
+    onIngresar: (Rol) -> Unit,
+    onRegistro: () -> Unit = {}
+) {
     var rol by rememberSaveable { mutableStateOf(Rol.CLIENTE) }
     var correo by rememberSaveable { mutableStateOf("") }
     var clave by rememberSaveable { mutableStateOf("") }
@@ -77,6 +81,13 @@ fun LoginScreen(vm: SesionViewModel, onIngresar: (Rol) -> Unit) {
 
                 Spacer(Modifier.height(20.dp))
                 CafeButton("Ingresar", onClick = { vm.login(correo, clave, rol, onIngresar) })
+
+                if (rol == Rol.CLIENTE) {
+                    Spacer(Modifier.height(16.dp))
+                    TextButton(onClick = onRegistro) {
+                        Text("¿No tienes cuenta? Regístrate")
+                    }
+                }
             }
         }
     }
