@@ -13,12 +13,27 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.flow.combine
 
 class MenuViewModel(private val repo: CafeRepository) : ViewModel() {
 
     val productos: StateFlow<List<Producto>> = repo.observarProductos()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+    private val _categoria = MutableStateFlow("Todo")
+    val categoria: StateFlow<String> = _categoria.asStateFlow()
 
+    val categorias: StateFlow<List<String>> = productos
+        .map { lista -> listOf("Todo") + lista.map { it.categoria }.distinct().sorted() }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), listOf("Todo"))
+
+    val productosFiltrados: StateFlow<List<Producto>> =
+        combine(productos, _categoria) { lista, cat ->
+            if (cat == "Todo") lista else lista.filter { it.categoria == cat }
+        }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+
+    fun seleccionarCategoria(c: String) {
+        _categoria.value = c
+    }
     fun productoPorId(id: Int): Flow<Producto?> =
         repo.observarProductos().map { lista -> lista.find { it.id == id } }
 

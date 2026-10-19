@@ -60,6 +60,7 @@ fun NavCafe(app: CafeApp) {
     val menuAdminVm: MenuAdminViewModel = viewModel(factory = factory)
     val perfil by sesionVm.perfilActivo.collectAsState()
     val oscuro by sesionVm.modoOscuro.collectAsState()
+    val usuario by sesionVm.usuarioActual.collectAsState()
     val rolTema = if (perfil == Rol.ADMIN.name) Rol.ADMIN else Rol.CLIENTE
 
     val entrada by nav.currentBackStackEntryAsState()
@@ -117,6 +118,7 @@ fun NavCafe(app: CafeApp) {
                         composable(Rutas.MENU) {
                             MenuScreen(
                                 vm = menuVm,
+                                nombre = usuario?.nombre,
                                 onProducto = { id -> nav.navigate(Rutas.detalleProducto(id)) },
                                 onCarrito = { nav.navigate(Rutas.CONFIRMAR) }
                             )
@@ -219,13 +221,21 @@ fun NavCafe(app: CafeApp) {
 
 @Composable
 private fun BarraInferior(items: List<TabItem>, rutaActual: String?, onClick: (String) -> Unit) {
-    NavigationBar {
+    val cs = MaterialTheme.colorScheme
+    NavigationBar(containerColor = cs.surface) {
         items.forEach { t ->
             NavigationBarItem(
                 selected = rutaActual == t.ruta,
                 onClick = { onClick(t.ruta) },
                 icon = { Icon(t.icono, contentDescription = t.etiqueta) },
-                label = { Text(t.etiqueta) }
+                label = { Text(t.etiqueta) },
+                colors = NavigationBarItemDefaults.colors(
+                    selectedIconColor = cs.primary,
+                    selectedTextColor = cs.primary,
+                    indicatorColor = cs.primaryContainer,
+                    unselectedIconColor = cs.onSurfaceVariant,
+                    unselectedTextColor = cs.onSurfaceVariant
+                )
             )
         }
     }

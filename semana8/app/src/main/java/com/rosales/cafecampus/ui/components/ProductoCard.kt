@@ -1,15 +1,10 @@
 package com.rosales.cafecampus.ui.components
 
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedCard
-import androidx.compose.material3.Text
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -22,7 +17,11 @@ import java.util.Locale
 fun Double.enSoles(): String = String.format(Locale.US, "S/ %.2f", this)
 
 @Composable
-fun ProductoCard(p: Producto, onClick: () -> Unit) {
+fun ProductoCard(
+    p: Producto,
+    onAgregar: (() -> Unit)? = null,
+    onClick: () -> Unit
+) {
     OutlinedCard(
         onClick = onClick,
         shape = RoundedCornerShape(12.dp),
@@ -51,12 +50,19 @@ fun ProductoCard(p: Producto, onClick: () -> Unit) {
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier.weight(1f)
                 )
-                if (!p.disponible) {
-                    Text(
+                when {
+                    !p.disponible -> Text(
                         "Agotado",
                         color = MaterialTheme.colorScheme.error,
                         style = MaterialTheme.typography.labelSmall
                     )
+                    onAgregar != null -> FilledIconButton(
+                        onClick = onAgregar,
+                        shape = RoundedCornerShape(10.dp),
+                        modifier = Modifier.size(34.dp)
+                    ) {
+                        Icon(Icons.Filled.Add, contentDescription = "Agregar ${p.nombre}")
+                    }
                 }
             }
         }
