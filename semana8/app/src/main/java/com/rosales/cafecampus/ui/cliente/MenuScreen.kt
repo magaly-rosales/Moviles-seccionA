@@ -9,6 +9,7 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.ShoppingBag
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -31,6 +32,7 @@ fun MenuScreen(
     val productos by vm.productosFiltrados.collectAsState()
     val categorias by vm.categorias.collectAsState()
     val categoria by vm.categoria.collectAsState()
+    val busqueda by vm.busqueda.collectAsState()
     val enCarrito by vm.cantidadEnCarrito.collectAsState()
     val primerNombre = nombre?.substringBefore(" ")?.takeIf { it.isNotBlank() }
     val cs = MaterialTheme.colorScheme
@@ -60,6 +62,30 @@ fun MenuScreen(
                     }
                 }
             }
+        }
+
+        // Barra de búsqueda redondeada
+        item(span = { GridItemSpan(maxLineSpan) }) {
+            OutlinedTextField(
+                value = busqueda,
+                onValueChange = { vm.cambiarBusqueda(it) },
+                placeholder = { Text("Buscar en el menú...") },
+                leadingIcon = {
+                    Icon(
+                        imageVector = Icons.Default.Search,
+                        contentDescription = "Buscar"
+                    )
+                },
+                singleLine = true,
+                shape = RoundedCornerShape(50),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 6.dp, vertical = 6.dp),
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor = cs.primary,
+                    unfocusedBorderColor = cs.outlineVariant
+                )
+            )
         }
 
         // Categorías
@@ -96,9 +122,9 @@ fun MenuScreen(
         if (productos.isEmpty()) {
             item(span = { GridItemSpan(maxLineSpan) }) {
                 Text(
-                    "No hay productos en esta categoría",
+                    "No encontramos productos",
                     color = cs.onSurfaceVariant,
-                    modifier = Modifier.padding(6.dp)
+                    modifier = Modifier.padding(16.dp)
                 )
             }
         } else {

@@ -10,10 +10,11 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.flow.combine
+import java.text.Normalizer
 
 class MenuViewModel(private val repo: CafeRepository) : ViewModel() {
 
@@ -22,18 +23,31 @@ class MenuViewModel(private val repo: CafeRepository) : ViewModel() {
     private val _categoria = MutableStateFlow("Todo")
     val categoria: StateFlow<String> = _categoria.asStateFlow()
 
+    private val _busqueda = MutableStateFlow("")
+    val busqueda: StateFlow<String> = _busqueda.asStateFlow()
+
     val categorias: StateFlow<List<String>> = productos
         .map { lista -> listOf("Todo") + lista.map { it.categoria }.distinct().sorted() }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), listOf("Todo"))
 
     val productosFiltrados: StateFlow<List<Producto>> =
-        combine(productos, _categoria) { lista, cat ->
-            if (cat == "Todo") lista else lista.filter { it.categoria == cat }
+        combine(productos, _categoria, _busqueda) { lista, cat, query ->
+            val queryLimpia = query.sinTildes().lowercase()
+            lista.filter { p ->
+                val coincideCat = if (cat == "Todo") true else p.categoria == cat
+                val coincideBusqueda = queryLimpia.isEmpty() || p.nombre.sinTildes().lowercase().contains(queryLimpia)
+                coincideCat && coincideBusqueda
+            }
         }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
     fun seleccionarCategoria(c: String) {
         _categoria.value = c
     }
+
+    fun cambiarBusqueda(texto: String) {
+        _busqueda.value = texto
+    }
+
     fun productoPorId(id: Int): Flow<Producto?> =
         repo.observarProductos().map { lista -> lista.find { it.id == id } }
 
@@ -50,7 +64,6 @@ class MenuViewModel(private val repo: CafeRepository) : ViewModel() {
         _carrito.update { lista ->
             val yaEsta = lista.any { it.producto.id == producto.id }
             if (yaEsta) {
-
                 lista.map {
                     if (it.producto.id == producto.id)
                         it.copy(cantidad = it.cantidad + cantidad, nota = nota.ifBlank { it.nota })
@@ -71,4 +84,9 @@ class MenuViewModel(private val repo: CafeRepository) : ViewModel() {
     }
 
     fun total(): Double = _carrito.value.sumOf { it.subtotal }
+}
+
+private fun String.sinTildes(): String {
+    val normalizado = Normalizer.normalize(this, Normalizer.Form.NFD)
+    return Regex("\\p{InCombiningDiacriticalMarks}+").replace(normalizado, "")
 }
