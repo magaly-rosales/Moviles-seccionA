@@ -12,7 +12,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.rosales.cafecampus.model.Rol
 import com.rosales.cafecampus.ui.components.CafeButton
@@ -28,8 +27,6 @@ fun LoginScreen(vm: SesionViewModel, onIngresar: (Rol) -> Unit) {
     var clave by rememberSaveable { mutableStateOf("") }
     val mensajeError by vm.error.collectAsState()
     val oscuro by vm.modoOscuro.collectAsState()
-
-    // El color cambia según la pestaña elegida
     CafeTheme(rol = rol, oscuro = oscuro) {
         Surface(Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
             Column(
@@ -80,14 +77,6 @@ fun LoginScreen(vm: SesionViewModel, onIngresar: (Rol) -> Unit) {
 
                 Spacer(Modifier.height(20.dp))
                 CafeButton("Ingresar", onClick = { vm.login(correo, clave, rol, onIngresar) })
-
-                Spacer(Modifier.height(16.dp))
-                Text(
-                    "Prueba: juan@campus.test / 1234 · admin@cafe.test / admin",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    textAlign = TextAlign.Center
-                )
             }
         }
     }

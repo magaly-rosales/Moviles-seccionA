@@ -16,8 +16,8 @@ object DatosIniciales {
     )
 
     private val usuarios = listOf(
-        Usuario(nombre = "Juan Pérez", correo = "juan@campus.test", clave = "1234", rol = Rol.CLIENTE.name),
-        Usuario(nombre = "Administrador", correo = "admin@cafe.test", clave = "admin", rol = Rol.ADMIN.name)
+        Usuario(nombre = "Magaly Rosales", correo = "magaly@tecsup.com", clave = "1234", rol = Rol.CLIENTE.name),
+        Usuario(nombre = "Administrador", correo = "admin@tecsup.com", clave = "admin", rol = Rol.ADMIN.name)
     )
 
     suspend fun sembrar(db: CafeDatabase) {

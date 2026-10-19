@@ -14,7 +14,7 @@ import com.rosales.cafecampus.data.local.entity.Usuario
 
 @Database(
     entities = [Producto::class, Usuario::class, Pedido::class, DetallePedido::class],
-    version = 4,
+    version = 5,
     exportSchema = false
 )
 abstract class CafeDatabase : RoomDatabase() {

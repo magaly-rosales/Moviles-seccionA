@@ -91,11 +91,6 @@ fun AjustesScreen(
             onClick = { vm.cerrarSesion(onSesionCerrada) },
             secundario = true
         )
-        Text(
-            "Modo práctica: ambos perfiles comparten la misma base de datos.",
-            style = MaterialTheme.typography.bodySmall,
-            color = cs.onSurfaceVariant
-        )
     }
 }
 
