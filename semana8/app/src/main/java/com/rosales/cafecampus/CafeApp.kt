@@ -13,7 +13,8 @@ import com.rosales.cafecampus.data.prefs.PreferenciasStore
 class CafeApp : Application() {
 
     val db: CafeDatabase by lazy { CafeDatabase.obtener(this) }
-    val repository: CafeRepository by lazy { CafeRepositoryRoom(db) }
+    val repository: CafeRepository by lazy { CafeRepositoryRoom(db, applicationContext) }
+
     val prefs: PreferenciasStore by lazy { PreferenciasStore(this) }
 
     override fun onCreate() {

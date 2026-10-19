@@ -48,7 +48,7 @@ fun MenuAdminScreen(vm: MenuAdminViewModel, onNuevo: () -> Unit, onEditar: (Int)
                 items(productos, key = { it.id }) { p ->
                     OutlinedCard(shape = RoundedCornerShape(12.dp), modifier = Modifier.fillMaxWidth()) {
                         Row(Modifier.padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
-                            ProductoIcono(p.icono, Modifier.size(48.dp))
+                            ProductoIcono(p.icono, Modifier.size(48.dp), imagen = p.imagen)
                             Spacer(Modifier.width(12.dp))
                             Column(Modifier.weight(1f)) {
                                 Text(p.nombre, fontWeight = FontWeight.Bold)

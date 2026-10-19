@@ -48,7 +48,7 @@ fun DetalleProductoScreen(
                 Modifier.fillMaxSize().padding(padding)
                     .verticalScroll(rememberScrollState()).padding(16.dp)
             ) {
-                ProductoIcono(p.icono, Modifier.fillMaxWidth().height(180.dp))
+                ProductoIcono(p.icono, Modifier.fillMaxWidth().height(180.dp), imagen = p.imagen)
                 Spacer(Modifier.height(16.dp))
 
                 Row(verticalAlignment = Alignment.CenterVertically) {

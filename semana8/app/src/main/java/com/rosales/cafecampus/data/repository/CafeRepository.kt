@@ -12,6 +12,7 @@ interface CafeRepository {
     suspend fun obtenerUsuario(id: Int): Usuario?
     suspend fun usuarioDemo(rol: Rol): Usuario?
     fun observarProductos(): Flow<List<Producto>>
+    suspend fun guardarImagen(uri: String): String?
     suspend fun guardarProducto(p: Producto)
     suspend fun eliminarProducto(p: Producto)
     suspend fun cambiarDisponibilidad(id: Int, disponible: Boolean)

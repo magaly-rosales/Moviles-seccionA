@@ -77,7 +77,7 @@ fun ConfirmarPedidoScreen(
                         Modifier.fillMaxWidth().padding(vertical = 6.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        ProductoIcono(item.producto.icono, Modifier.size(44.dp))
+                        ProductoIcono(item.producto.icono, Modifier.size(44.dp), imagen = item.producto.imagen)
                         Spacer(Modifier.width(12.dp))
                         Column(Modifier.weight(1f)) {
                             Text(item.producto.nombre, fontWeight = FontWeight.SemiBold)

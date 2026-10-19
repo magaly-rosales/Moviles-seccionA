@@ -29,7 +29,7 @@ fun ProductoCard(p: Producto, onClick: () -> Unit) {
         modifier = Modifier.fillMaxWidth().padding(6.dp)
     ) {
         Column(Modifier.padding(12.dp)) {
-            ProductoIcono(p.icono, Modifier.fillMaxWidth().height(90.dp))
+            ProductoIcono(p.icono, Modifier.fillMaxWidth().height(90.dp), imagen = p.imagen)
             Spacer(Modifier.height(8.dp))
             Text(
                 p.nombre,

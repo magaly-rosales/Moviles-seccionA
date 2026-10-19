@@ -31,10 +31,12 @@ class MenuAdminViewModel(private val repo: CafeRepository) : ViewModel() {
         viewModelScope.launch { repo.cambiarDisponibilidad(producto.id, !producto.disponible) }
     }
 
-
+    fun copiarImagen(uri: String, onListo: (String?) -> Unit) {
+        viewModelScope.launch { onListo(repo.guardarImagen(uri)) }
+    }
     fun guardarFormulario(
         id: Int?, nombre: String, categoria: String, precioTexto: String,
-        descripcion: String, disponible: Boolean, icono: String
+        descripcion: String, disponible: Boolean, icono: String, imagen: String?
     ): String? {
         val precio = precioTexto.replace(',', '.').toDoubleOrNull()
         return when {
@@ -49,11 +51,13 @@ class MenuAdminViewModel(private val repo: CafeRepository) : ViewModel() {
                         categoria = categoria.trim().ifBlank { "General" },
                         precio = precio,
                         disponible = disponible,
-                        icono = icono
+                        icono = icono,
+                        imagen = imagen
                     )
                 )
                 null
             }
         }
+
     }
 }

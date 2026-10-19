@@ -20,7 +20,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
+import coil.compose.AsyncImage
+import java.io.File
 
 fun iconoDe(nombre: String): ImageVector = when (nombre) {
     "cafe" -> Icons.Filled.LocalCafe
@@ -33,18 +36,31 @@ fun iconoDe(nombre: String): ImageVector = when (nombre) {
 }
 
 @Composable
-fun ProductoIcono(icono: String, modifier: Modifier = Modifier.size(56.dp)) {
+fun ProductoIcono(
+    icono: String,
+    modifier: Modifier = Modifier.size(56.dp),
+    imagen: String? = null
+) {
     Box(
         modifier = modifier
             .clip(RoundedCornerShape(12.dp))
             .background(MaterialTheme.colorScheme.primaryContainer),
         contentAlignment = Alignment.Center
     ) {
-        Icon(
-            iconoDe(icono),
-            contentDescription = null,
-            tint = MaterialTheme.colorScheme.primary,
-            modifier = Modifier.fillMaxSize(0.5f)
-        )
+        if (!imagen.isNullOrBlank()) {
+            AsyncImage(
+                model = File(imagen),
+                contentDescription = null,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier.fillMaxSize()
+            )
+        } else {
+            Icon(
+                iconoDe(icono),
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.fillMaxSize(0.5f)
+            )
+        }
     }
 }

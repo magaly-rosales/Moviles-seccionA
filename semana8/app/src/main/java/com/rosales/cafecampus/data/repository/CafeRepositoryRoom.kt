@@ -10,7 +10,12 @@ import com.rosales.cafecampus.model.EstadoPedido
 import com.rosales.cafecampus.model.ItemCarrito
 import kotlinx.coroutines.flow.Flow
 import com.rosales.cafecampus.model.Rol
-class CafeRepositoryRoom(db: CafeDatabase) : CafeRepository {
+import android.content.Context
+import android.net.Uri
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import java.io.File
+class CafeRepositoryRoom(db: CafeDatabase, private val context: Context) : CafeRepository {
 
     private val productoDao = db.productoDao()
     private val usuarioDao = db.usuarioDao()
@@ -26,6 +31,18 @@ class CafeRepositoryRoom(db: CafeDatabase) : CafeRepository {
         if (p.id == 0) productoDao.insertar(p) else productoDao.actualizar(p)
     }
 
+    override suspend fun guardarImagen(uri: String): String? = withContext(Dispatchers.IO) {
+        try {
+            val carpeta = File(context.filesDir, "productos").apply { mkdirs() }
+            val destino = File(carpeta, "prod_${System.currentTimeMillis()}.jpg")
+            val entrada = context.contentResolver.openInputStream(Uri.parse(uri))
+                ?: return@withContext null
+            entrada.use { e -> destino.outputStream().use { s -> e.copyTo(s) } }
+            destino.absolutePath
+        } catch (e: Exception) {
+            null
+        }
+    }
     override suspend fun eliminarProducto(p: Producto) = productoDao.eliminar(p)
 
     override suspend fun cambiarDisponibilidad(id: Int, disponible: Boolean) =
