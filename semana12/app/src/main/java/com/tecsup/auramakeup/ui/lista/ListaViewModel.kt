@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.tecsup.auramakeup.AppContainer
+import com.tecsup.auramakeup.data.network.MonitorConexion
 import com.tecsup.auramakeup.data.repository.ItemRepository
 import com.tecsup.auramakeup.domain.model.Item
 import com.tecsup.auramakeup.ui.UiState
@@ -16,7 +17,8 @@ import retrofit2.HttpException
 import java.io.IOException
 
 class ListaViewModel(
-    private val repo: ItemRepository
+    private val repo: ItemRepository,
+    private val monitor: MonitorConexion
 ) : ViewModel() {
 
     private val _estado = MutableStateFlow<UiState<List<Item>>>(UiState.Cargando)
@@ -31,6 +33,11 @@ class ListaViewModel(
         viewModelScope.launch {
             repo.items.collect { lista ->
                 if (lista.isNotEmpty() || refrescoTerminado) _estado.value = UiState.Exito(lista)
+            }
+        }
+        viewModelScope.launch {
+            monitor.conectado.collect { hayInternet ->
+                if (hayInternet && (_aviso.value != null || _estado.value is UiState.Error)) refrescar()
             }
         }
         refrescar()
@@ -65,7 +72,7 @@ class ListaViewModel(
 
     companion object {
         fun factory(container: AppContainer) = viewModelFactory {
-            initializer { ListaViewModel(container.itemRepository) }
+            initializer { ListaViewModel(container.itemRepository, container.monitorConexion) }
         }
     }
 }
