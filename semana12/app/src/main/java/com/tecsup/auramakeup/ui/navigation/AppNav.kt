@@ -14,12 +14,26 @@ import com.tecsup.auramakeup.ui.favoritos.FavoritosScreen
 import com.tecsup.auramakeup.ui.favoritos.FavoritosViewModel
 import com.tecsup.auramakeup.ui.lista.ListaScreen
 import com.tecsup.auramakeup.ui.lista.ListaViewModel
+import com.tecsup.auramakeup.ui.login.LoginScreen
+import com.tecsup.auramakeup.ui.login.LoginViewModel
 
 @Composable
 fun AppNav(container: AppContainer) {
     val nav = rememberNavController()
 
-    NavHost(navController = nav, startDestination = "lista") {
+    NavHost(navController = nav, startDestination = "login") {
+
+        composable("login") {
+            val vm: LoginViewModel = viewModel(factory = LoginViewModel.factory(container))
+            LoginScreen(
+                viewModel = vm,
+                onIngresoExitoso = {
+                    nav.navigate("lista") {
+                        popUpTo("login") { inclusive = true }
+                    }
+                }
+            )
+        }
 
         composable("lista") {
             val vm: ListaViewModel = viewModel(factory = ListaViewModel.factory(container))

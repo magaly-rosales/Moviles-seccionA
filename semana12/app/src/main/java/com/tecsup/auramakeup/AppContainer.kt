@@ -1,7 +1,9 @@
 package com.tecsup.auramakeup
-
+import com.tecsup.auramakeup.data.auth.AuthRepository
+import com.tecsup.auramakeup.data.auth.FirebaseAuthRepository
 import android.content.Context
 import androidx.room.Room
+
 import com.tecsup.auramakeup.data.local.AppDatabase
 import com.tecsup.auramakeup.data.network.MonitorConexion
 import com.tecsup.auramakeup.data.network.MonitorConexionAndroid
@@ -21,5 +23,8 @@ class AppContainer(private val context: Context) {
 
     val monitorConexion: MonitorConexion by lazy {
         MonitorConexionAndroid(context)
+    }
+    val authRepository: AuthRepository by lazy {
+        FirebaseAuthRepository()
     }
 }
