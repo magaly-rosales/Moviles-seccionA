@@ -14,6 +14,6 @@ class AppContainer(private val context: Context) {
     }
 
     val itemRepository: ItemRepository by lazy {
-        ItemRepositoryImpl(RetrofitClient.api)
+        ItemRepositoryImpl(RetrofitClient.api, database.productoDao())
     }
 }
