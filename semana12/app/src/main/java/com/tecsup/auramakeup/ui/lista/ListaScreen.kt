@@ -4,6 +4,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -25,9 +26,11 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -35,35 +38,73 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import com.tecsup.auramakeup.domain.model.Item
+import com.tecsup.auramakeup.ui.UiState
+import com.tecsup.auramakeup.ui.components.Cargando
+import com.tecsup.auramakeup.ui.components.ErrorView
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ListaScreen(
-    items: List<Item>,
-    onItemClick: (Int) -> Unit = {},
-    onFavoritoClick: (Int) -> Unit = {}
+    viewModel: ListaViewModel,
+    onItemClick: (Int) -> Unit = {}
 ) {
+    val estado by viewModel.estado.collectAsStateWithLifecycle()
+    val aviso by viewModel.aviso.collectAsStateWithLifecycle()
+
     Scaffold(
         topBar = { TopAppBar(title = { Text("Aura Makeup 💄") }) }
     ) { padding ->
-        if (items.isEmpty()) {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(padding),
-                contentAlignment = Alignment.Center
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding)
+        ) {
+            when (val e = estado) {
+                is UiState.Cargando -> Cargando(texto = "Cargando productos...")
+                is UiState.Error -> ErrorView(mensaje = e.mensaje, onReintentar = viewModel::refrescar)
+                is UiState.Exito -> ListaContenido(
+                    items = e.datos,
+                    aviso = aviso,
+                    onItemClick = onItemClick,
+                    onFavoritoClick = { viewModel.alternarFavorito(it) }
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun ListaContenido(
+    items: List<Item>,
+    aviso: String?,
+    onItemClick: (Int) -> Unit,
+    onFavoritoClick: (Int) -> Unit
+) {
+    Column(Modifier.fillMaxSize()) {
+        if (aviso != null) {
+            Surface(
+                color = MaterialTheme.colorScheme.errorContainer,
+                modifier = Modifier.fillMaxWidth()
             ) {
+                Text(
+                    text = aviso,
+                    modifier = Modifier.padding(12.dp),
+                    color = MaterialTheme.colorScheme.onErrorContainer
+                )
+            }
+        }
+        if (items.isEmpty()) {
+            Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 Text("No hay productos")
             }
         } else {
             LazyVerticalGrid(
                 columns = GridCells.Fixed(2),
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(padding),
-                contentPadding = androidx.compose.foundation.layout.PaddingValues(12.dp),
+                modifier = Modifier.fillMaxSize(),
+                contentPadding = PaddingValues(12.dp),
                 horizontalArrangement = Arrangement.spacedBy(12.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
