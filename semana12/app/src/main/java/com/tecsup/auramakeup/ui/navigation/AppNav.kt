@@ -1,6 +1,7 @@
 package com.tecsup.auramakeup.ui.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -12,7 +13,9 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.tecsup.auramakeup.AppContainer
+import com.tecsup.auramakeup.domain.model.Rol
 import com.tecsup.auramakeup.ui.UiState
+import com.tecsup.auramakeup.ui.admin.AdminScreen
 import com.tecsup.auramakeup.ui.components.Cargando
 import com.tecsup.auramakeup.ui.detalle.DetalleScreen
 import com.tecsup.auramakeup.ui.detalle.DetalleViewModel
@@ -37,6 +40,7 @@ fun AppNav(container: AppContainer) {
                 nav = rememberNavController(),
                 container = container,
                 sesionVm = sesionVm,
+                esAdmin = s.datos?.rol == Rol.ADMIN,
                 inicio = inicio
             )
         }
@@ -48,6 +52,7 @@ private fun Grafo(
     nav: NavHostController,
     container: AppContainer,
     sesionVm: SesionViewModel,
+    esAdmin: Boolean,
     inicio: String
 ) {
     NavHost(navController = nav, startDestination = inicio) {
@@ -69,8 +74,10 @@ private fun Grafo(
             val vm: ListaViewModel = viewModel(factory = ListaViewModel.factory(container))
             ListaScreen(
                 viewModel = vm,
+                esAdmin = esAdmin,
                 onItemClick = { id -> nav.navigate("detalle/$id") },
                 onFavoritosClick = { nav.navigate("favoritos") },
+                onAdminClick = { nav.navigate("admin") },
                 onCerrarSesion = {
                     sesionVm.cerrarSesion()
                     nav.navigate("login") {
@@ -99,6 +106,14 @@ private fun Grafo(
                 onItemClick = { id -> nav.navigate("detalle/$id") },
                 onVolver = { nav.popBackStack() }
             )
+        }
+
+        composable("admin") {
+            if (esAdmin) {
+                AdminScreen(onVolver = { nav.popBackStack() })
+            } else {
+                LaunchedEffect(Unit) { nav.popBackStack() }
+            }
         }
     }
 }

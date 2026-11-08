@@ -1,5 +1,5 @@
 package com.tecsup.auramakeup.ui.lista
-
+import androidx.compose.material.icons.filled.AdminPanelSettings
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -35,11 +35,12 @@ import com.tecsup.auramakeup.ui.components.ProductoCard
 import androidx.compose.material.icons.automirrored.filled.Logout
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-
 fun ListaScreen(
     viewModel: ListaViewModel,
+    esAdmin: Boolean = false,
     onItemClick: (Int) -> Unit = {},
     onFavoritosClick: () -> Unit = {},
+    onAdminClick: () -> Unit = {},
     onCerrarSesion: () -> Unit = {}
 ) {
     val estado by viewModel.estado.collectAsStateWithLifecycle()
@@ -48,10 +49,24 @@ fun ListaScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Aura Makeup 💄") },
+                title = {
+                    Column {
+                        Text("Aura Makeup 💄")
+                        Text(
+                            text = if (esAdmin) "Administrador" else "Cliente",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                },
                 actions = {
                     IconButton(onClick = onFavoritosClick) {
                         Icon(Icons.Filled.Favorite, contentDescription = "Favoritos", tint = Color(0xFFE91E63))
+                    }
+                    if (esAdmin) {
+                        IconButton(onClick = onAdminClick) {
+                            Icon(Icons.Filled.AdminPanelSettings, contentDescription = "Panel Admin")
+                        }
                     }
                     IconButton(onClick = onCerrarSesion) {
                         Icon(Icons.AutoMirrored.Filled.Logout, contentDescription = "Cerrar sesión")
