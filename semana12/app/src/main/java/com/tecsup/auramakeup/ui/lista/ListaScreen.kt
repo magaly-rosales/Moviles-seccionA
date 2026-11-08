@@ -32,13 +32,15 @@ import com.tecsup.auramakeup.ui.UiState
 import com.tecsup.auramakeup.ui.components.Cargando
 import com.tecsup.auramakeup.ui.components.ErrorView
 import com.tecsup.auramakeup.ui.components.ProductoCard
-
+import androidx.compose.material.icons.automirrored.filled.Logout
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
+
 fun ListaScreen(
     viewModel: ListaViewModel,
     onItemClick: (Int) -> Unit = {},
-    onFavoritosClick: () -> Unit = {}
+    onFavoritosClick: () -> Unit = {},
+    onCerrarSesion: () -> Unit = {}
 ) {
     val estado by viewModel.estado.collectAsStateWithLifecycle()
     val aviso by viewModel.aviso.collectAsStateWithLifecycle()
@@ -50,6 +52,9 @@ fun ListaScreen(
                 actions = {
                     IconButton(onClick = onFavoritosClick) {
                         Icon(Icons.Filled.Favorite, contentDescription = "Favoritos", tint = Color(0xFFE91E63))
+                    }
+                    IconButton(onClick = onCerrarSesion) {
+                        Icon(Icons.AutoMirrored.Filled.Logout, contentDescription = "Cerrar sesión")
                     }
                 }
             )

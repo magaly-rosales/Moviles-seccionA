@@ -29,7 +29,11 @@ class FirebaseAuthRepository(
 
     override suspend fun sesionActual(): Sesion? {
         val u = auth.currentUser ?: return null
-        return leerSesion(u.uid, u.email ?: "")
+        return try {
+            leerSesion(u.uid, u.email ?: "")
+        } catch (e: Exception) {
+            Sesion(u.uid, u.email ?: "", Rol.USUARIO)
+        }
     }
 
     override fun cerrarSesion() = auth.signOut()
