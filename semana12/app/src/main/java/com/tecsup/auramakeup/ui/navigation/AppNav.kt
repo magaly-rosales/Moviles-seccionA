@@ -1,5 +1,5 @@
 package com.tecsup.auramakeup.ui.navigation
-
+import com.tecsup.auramakeup.ui.admin.AdminViewModel
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -110,7 +110,11 @@ private fun Grafo(
 
         composable("admin") {
             if (esAdmin) {
-                AdminScreen(onVolver = { nav.popBackStack() })
+                val vm: AdminViewModel = viewModel(factory = AdminViewModel.factory(container))
+                AdminScreen(
+                    viewModel = vm,
+                    onVolver = { nav.popBackStack() }
+                )
             } else {
                 LaunchedEffect(Unit) { nav.popBackStack() }
             }
