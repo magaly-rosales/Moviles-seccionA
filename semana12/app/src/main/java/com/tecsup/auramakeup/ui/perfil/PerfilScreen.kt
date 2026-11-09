@@ -143,20 +143,20 @@ fun PerfilScreen(
     }
 
     Scaffold(
+        containerColor = Color.White,
         topBar = {
             TopAppBar(
-                title = { Text("Mi Perfil", color = Color.White) },
+                title = { Text("Mi Perfil") },
                 navigationIcon = {
                     IconButton(onClick = onVolver) {
                         Icon(
                             Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Volver",
-                            tint = Color.White
+                            contentDescription = "Volver"
                         )
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = CarmesiPrimary
+                    containerColor = Color.White
                 )
             )
         }
@@ -305,7 +305,7 @@ private fun PerfilContenido(
             Card(
                 shape = RoundedCornerShape(20.dp),
                 colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.surface
+                    containerColor = Color.White
                 ),
                 elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
                 modifier = Modifier.fillMaxWidth()

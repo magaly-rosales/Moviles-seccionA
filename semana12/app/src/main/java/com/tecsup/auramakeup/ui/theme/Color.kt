@@ -11,6 +11,7 @@ val TextoOscuroCalido = Color(0xFF2B1A1D)
 val RosadoMuyClaro = Color(0xFFFDE8E9)
 val FondoLogo = Color(0xFFEFF2F4)
 val RosaPalido = Color(0xFFFCEEF0)
+val FondoRosa = Color(0xFFF5D3DC)
 
 val CarmesiPrimaryDark = Color(0xFFE55B7E)
 val OroRosaSecondaryDark = Color(0xFFE2A893)

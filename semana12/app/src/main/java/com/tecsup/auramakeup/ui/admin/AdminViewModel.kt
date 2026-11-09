@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.tecsup.auramakeup.AppContainer
+import com.tecsup.auramakeup.data.auth.AuthRepository
 import com.tecsup.auramakeup.data.repository.ItemRepository
 import com.tecsup.auramakeup.notification.Notificador
 import com.tecsup.auramakeup.ui.UiState
@@ -23,7 +24,8 @@ data class ResumenAdmin(
 
 class AdminViewModel(
     private val repo: ItemRepository,
-    private val notificador: Notificador
+    private val notificador: Notificador,
+    private val auth: AuthRepository? = null
 ) : ViewModel() {
 
     val estado: StateFlow<UiState<ResumenAdmin>> =
@@ -36,6 +38,17 @@ class AdminViewModel(
 
     private val _mensaje = MutableStateFlow<String?>(null)
     val mensaje: StateFlow<String?> = _mensaje.asStateFlow()
+
+    private val _correoAdmin = MutableStateFlow("")
+    val correoAdmin: StateFlow<String> = _correoAdmin.asStateFlow()
+
+    init {
+        auth?.let {
+            viewModelScope.launch {
+                _correoAdmin.value = it.sesionActual()?.correo ?: ""
+            }
+        }
+    }
 
     fun sincronizar() {
         if (_ocupado.value) return
@@ -64,7 +77,7 @@ class AdminViewModel(
 
     companion object {
         fun factory(container: AppContainer) = viewModelFactory {
-            initializer { AdminViewModel(container.itemRepository, container.notificador) }
+            initializer { AdminViewModel(container.itemRepository, container.notificador, container.authRepository) }
         }
     }
 }

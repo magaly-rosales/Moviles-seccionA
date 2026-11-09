@@ -1,6 +1,6 @@
 package com.tecsup.auramakeup.ui.admin
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.ui.text.style.TextAlign
+
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -11,7 +11,12 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.DeleteSweep
@@ -22,8 +27,8 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -32,8 +37,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -43,15 +46,22 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.tecsup.auramakeup.ui.UiState
 import com.tecsup.auramakeup.ui.components.Cargando
+import com.tecsup.auramakeup.ui.components.ErrorView
+import com.tecsup.auramakeup.ui.theme.CarmesiPrimary
+import com.tecsup.auramakeup.ui.theme.OroRosaSecondary
+import com.tecsup.auramakeup.ui.theme.RosaPalido
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AdminScreen(
     viewModel: AdminViewModel,
@@ -60,6 +70,7 @@ fun AdminScreen(
     val estado by viewModel.estado.collectAsStateWithLifecycle()
     val ocupado by viewModel.ocupado.collectAsStateWithLifecycle()
     val mensaje by viewModel.mensaje.collectAsStateWithLifecycle()
+    val correoAdmin by viewModel.correoAdmin.collectAsStateWithLifecycle()
     val snackbar = remember { SnackbarHostState() }
     var confirmarLimpieza by rememberSaveable { mutableStateOf(false) }
 
@@ -124,16 +135,7 @@ fun AdminScreen(
     }
 
     Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text("Panel Admin") },
-                navigationIcon = {
-                    IconButton(onClick = onVolver) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Volver")
-                    }
-                }
-            )
-        },
+        containerColor = RosaPalido,
         snackbarHost = { SnackbarHost(snackbar) }
     ) { padding ->
         Box(
@@ -143,99 +145,214 @@ fun AdminScreen(
         ) {
             when (val e = estado) {
                 is UiState.Cargando -> Cargando()
-                is UiState.Error -> Text(e.mensaje, Modifier.align(Alignment.Center))
-                is UiState.Exito -> Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(16.dp)
-                ) {
-                    Text(
-                        text = "Resumen",
-                        style = MaterialTheme.typography.titleLarge,
-                        fontWeight = FontWeight.Bold
-                    )
-                    Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                        TarjetaTotal(
-                            titulo = "Productos guardados",
-                            valor = e.datos.totalGuardados,
-                            icono = Icons.Filled.Inventory2,
-                            color = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier.weight(1f)
-                        )
-                        TarjetaTotal(
-                            titulo = "Favoritos",
-                            valor = e.datos.totalFavoritos,
-                            icono = Icons.Filled.Favorite,
-                            color = Color(0xFFE91E63),
-                            modifier = Modifier.weight(1f)
-                        )
-                    }
-                    Spacer(Modifier.height(8.dp))
-                    Button(
-                        onClick = viewModel::sincronizar,
-                        enabled = !ocupado,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(50.dp)
-                    ) {
-                        if (ocupado) {
-                            CircularProgressIndicator(
-                                modifier = Modifier.size(22.dp),
-                                strokeWidth = 2.dp,
-                                color = MaterialTheme.colorScheme.onPrimary
-                            )
-                        } else {
-                            Icon(Icons.Filled.Sync, contentDescription = null)
-                            Spacer(Modifier.width(8.dp))
-                            Text("Sincronizar")
-                        }
-                    }
-                    OutlinedButton(
-                        onClick = { confirmarLimpieza = true },
-                        enabled = !ocupado,
-                        colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.error),
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(50.dp)
-                    ) {
-                        Icon(Icons.Filled.DeleteSweep, contentDescription = null)
-                        Spacer(Modifier.width(8.dp))
-                        Text("Limpiar caché")
-                    }
-                }
+                is UiState.Error -> ErrorView(mensaje = e.mensaje, onReintentar = viewModel::sincronizar)
+                is UiState.Exito -> AdminContenido(
+                    totalGuardados = e.datos.totalGuardados,
+                    totalFavoritos = e.datos.totalFavoritos,
+                    correoAdmin = correoAdmin,
+                    ocupado = ocupado,
+                    onVolver = onVolver,
+                    onSincronizar = viewModel::sincronizar,
+                    onLimpiarCacheClick = { confirmarLimpieza = true }
+                )
             }
         }
     }
 }
 
 @Composable
-private fun TarjetaTotal(
-    titulo: String,
-    valor: Int,
-    icono: ImageVector,
-    color: Color,
-    modifier: Modifier = Modifier
+private fun AdminContenido(
+    totalGuardados: Int,
+    totalFavoritos: Int,
+    correoAdmin: String,
+    ocupado: Boolean,
+    onVolver: () -> Unit,
+    onSincronizar: () -> Unit,
+    onLimpiarCacheClick: () -> Unit
 ) {
-    Card(modifier = modifier) {
+    val scrollState = rememberScrollState()
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .verticalScroll(scrollState)
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(bottomStart = 28.dp, bottomEnd = 28.dp))
+                .background(
+                    brush = Brush.horizontalGradient(
+                        colors = listOf(CarmesiPrimary, OroRosaSecondary)
+                    )
+                )
+                .statusBarsPadding()
+                .padding(horizontal = 16.dp, vertical = 20.dp)
+        ) {
+            Column {
+                IconButton(
+                    onClick = onVolver,
+                    modifier = Modifier.padding(bottom = 8.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                        contentDescription = "Volver",
+                        tint = Color.White
+                    )
+                }
+                Column(modifier = Modifier.padding(horizontal = 8.dp)) {
+                    Text(
+                        text = "Panel de administración",
+                        style = MaterialTheme.typography.headlineSmall,
+                        fontFamily = FontFamily.Serif,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.White
+                    )
+                    if (correoAdmin.isNotBlank()) {
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Text(
+                            text = correoAdmin,
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = Color.White.copy(alpha = 0.85f)
+                        )
+                    }
+                }
+            }
+        }
+
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp),
+                .padding(20.dp),
+            verticalArrangement = Arrangement.spacedBy(20.dp)
+        ) {
+            Text(
+                text = "Resumen del catálogo",
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold
+            )
+
+            Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                TarjetaAdminResumen(
+                    titulo = "Productos guardados",
+                    valor = totalGuardados,
+                    icono = Icons.Filled.Inventory2,
+                    colorIcono = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.weight(1f)
+                )
+                TarjetaAdminResumen(
+                    titulo = "Favoritos",
+                    valor = totalFavoritos,
+                    icono = Icons.Filled.Favorite,
+                    colorIcono = Color(0xFFE91E63),
+                    modifier = Modifier.weight(1f)
+                )
+            }
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Button(
+                onClick = onSincronizar,
+                enabled = !ocupado,
+                shape = RoundedCornerShape(16.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(54.dp)
+            ) {
+                if (ocupado) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(24.dp),
+                        strokeWidth = 2.dp,
+                        color = MaterialTheme.colorScheme.onPrimary
+                    )
+                } else {
+                    Icon(Icons.Filled.Sync, contentDescription = null)
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = "Sincronizar",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+            }
+
+            OutlinedButton(
+                onClick = onLimpiarCacheClick,
+                enabled = !ocupado,
+                shape = RoundedCornerShape(16.dp),
+                colors = ButtonDefaults.outlinedButtonColors(
+                    contentColor = MaterialTheme.colorScheme.error
+                ),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(54.dp)
+            ) {
+                Icon(Icons.Filled.DeleteSweep, contentDescription = null)
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    text = "Limpiar caché",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun TarjetaAdminResumen(
+    titulo: String,
+    valor: Int,
+    icono: ImageVector,
+    colorIcono: Color,
+    modifier: Modifier = Modifier
+) {
+    Card(
+        shape = RoundedCornerShape(20.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = Color.White
+        ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+        modifier = modifier
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(20.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Icon(icono, contentDescription = null, tint = color, modifier = Modifier.size(32.dp))
-            Spacer(Modifier.height(8.dp))
+            Box(
+                modifier = Modifier
+                    .size(52.dp)
+                    .clip(CircleShape)
+                    .background(colorIcono.copy(alpha = 0.12f)),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = icono,
+                    contentDescription = null,
+                    tint = colorIcono,
+                    modifier = Modifier.size(28.dp)
+                )
+            }
+
+            Spacer(modifier = Modifier.height(12.dp))
+
             Text(
                 text = valor.toString(),
-                style = MaterialTheme.typography.displaySmall,
+                style = MaterialTheme.typography.displayMedium,
+                fontFamily = FontFamily.Serif,
                 fontWeight = FontWeight.Bold,
-                color = color
+                color = MaterialTheme.colorScheme.onSurface
             )
+
+            Spacer(modifier = Modifier.height(4.dp))
+
             Text(
                 text = titulo,
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                textAlign = TextAlign.Center
             )
         }
     }

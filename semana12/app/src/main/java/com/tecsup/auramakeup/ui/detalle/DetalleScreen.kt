@@ -1,5 +1,7 @@
 package com.tecsup.auramakeup.ui.detalle
 
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -24,9 +26,9 @@ import androidx.compose.material.icons.filled.AddShoppingCart
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.Star
-import androidx.compose.material3.AssistChip
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -37,14 +39,18 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -54,6 +60,7 @@ import com.tecsup.auramakeup.ui.UiState
 import com.tecsup.auramakeup.ui.components.Cargando
 import com.tecsup.auramakeup.ui.components.ErrorView
 import com.tecsup.auramakeup.ui.components.categoriaEnEspanol
+import com.tecsup.auramakeup.ui.theme.RosaPalido
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -74,9 +81,10 @@ fun DetalleScreen(
     }
 
     Scaffold(
+        containerColor = RosaPalido,
         topBar = {
             TopAppBar(
-                title = { Text("Detalle") },
+                title = { Text("Detalle del producto") },
                 navigationIcon = {
                     IconButton(onClick = onVolver) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Volver")
@@ -93,12 +101,18 @@ fun DetalleScreen(
                             )
                         }
                     }
-                }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = RosaPalido
+                )
             )
         },
         bottomBar = {
             if (!esAdmin && estado is UiState.Exito) {
-                Surface(shadowElevation = 8.dp) {
+                Surface(
+                    shadowElevation = 8.dp,
+                    color = Color.White
+                ) {
                     Box(
                         modifier = Modifier
                             .navigationBarsPadding()
@@ -106,14 +120,18 @@ fun DetalleScreen(
                     ) {
                         Button(
                             onClick = viewModel::agregarAlCarrito,
-                            shape = RoundedCornerShape(12.dp),
+                            shape = RoundedCornerShape(16.dp),
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .height(50.dp)
+                                .height(54.dp)
                         ) {
                             Icon(Icons.Filled.AddShoppingCart, contentDescription = null)
                             Spacer(Modifier.width(8.dp))
-                            Text("Agregar al carrito")
+                            Text(
+                                text = "Agregar al carrito",
+                                style = MaterialTheme.typography.titleMedium,
+                                fontWeight = FontWeight.Bold
+                            )
                         }
                     }
                 }
@@ -138,57 +156,172 @@ fun DetalleScreen(
 @Composable
 private fun DetalleContenido(item: Item) {
     val fotos = item.imagenes.ifEmpty { listOfNotNull(item.imagenUrl) }
+    var fotoSeleccionada by remember(item.id) { mutableStateOf(item.imagenUrl.orEmpty()) }
 
     Column(
         modifier = Modifier
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
     ) {
-        LazyRow(
-            contentPadding = PaddingValues(16.dp),
-            horizontalArrangement = Arrangement.spacedBy(12.dp)
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            contentAlignment = Alignment.Center
         ) {
-            items(fotos) { url ->
-                Card(shape = RoundedCornerShape(16.dp)) {
+            Card(
+                shape = RoundedCornerShape(24.dp),
+                colors = CardDefaults.cardColors(containerColor = Color.White),
+                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(280.dp)
+            ) {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
                     AsyncImage(
-                        model = url,
+                        model = if (fotoSeleccionada.isBlank()) item.imagenUrl.orEmpty() else fotoSeleccionada,
                         contentDescription = item.titulo,
-                        contentScale = ContentScale.Crop,
-                        modifier = Modifier.size(260.dp)
+                        contentScale = ContentScale.Fit,
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(16.dp)
                     )
                 }
             }
         }
 
-        Column(Modifier.padding(horizontal = 16.dp)) {
-            AssistChip(onClick = {}, label = { Text(categoriaEnEspanol(item.categoria)) })
-            Spacer(Modifier.height(4.dp))
-            Text(item.titulo, style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
-            Text(item.marca, style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
-            Spacer(Modifier.height(12.dp))
-            Row(verticalAlignment = Alignment.CenterVertically) {
+        if (fotos.size > 1) {
+            LazyRow(
+                contentPadding = PaddingValues(horizontal = 16.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                modifier = Modifier.padding(bottom = 16.dp)
+            ) {
+                items(fotos) { url ->
+                    val esSeleccionada = (url == fotoSeleccionada)
+                    Card(
+                        shape = RoundedCornerShape(12.dp),
+                        colors = CardDefaults.cardColors(containerColor = Color.White),
+                        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
+                        modifier = Modifier
+                            .size(64.dp)
+                            .clickable { fotoSeleccionada = url }
+                            .then(
+                                if (esSeleccionada) {
+                                    Modifier.border(
+                                        width = 2.dp,
+                                        color = MaterialTheme.colorScheme.primary,
+                                        shape = RoundedCornerShape(12.dp)
+                                    )
+                                } else Modifier
+                            )
+                    ) {
+                        AsyncImage(
+                            model = url,
+                            contentDescription = null,
+                            contentScale = ContentScale.Fit,
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(4.dp)
+                        )
+                    }
+                }
+            }
+        }
+
+        Surface(
+            shape = RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp),
+            color = Color.White,
+            tonalElevation = 2.dp,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(20.dp)
+            ) {
+                Surface(
+                    color = MaterialTheme.colorScheme.secondary,
+                    shape = RoundedCornerShape(12.dp)
+                ) {
+                    Text(
+                        text = categoriaEnEspanol(item.categoria),
+                        style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.onSecondary,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp)
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(12.dp))
+
                 Text(
-                    text = "$ %.2f".format(item.precio),
-                    style = MaterialTheme.typography.headlineMedium,
-                    color = MaterialTheme.colorScheme.primary,
+                    text = item.titulo,
+                    style = MaterialTheme.typography.headlineSmall,
+                    fontFamily = FontFamily.Serif,
                     fontWeight = FontWeight.Bold
                 )
-                Spacer(Modifier.weight(1f))
-                Icon(Icons.Filled.Star, contentDescription = null, tint = Color(0xFFFFB300))
-                Spacer(Modifier.width(4.dp))
-                Text("%.1f".format(item.rating), style = MaterialTheme.typography.titleMedium)
+
+                Text(
+                    text = item.marca,
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        text = "$ %.2f".format(item.precio),
+                        style = MaterialTheme.typography.headlineMedium,
+                        color = MaterialTheme.colorScheme.primary,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Spacer(modifier = Modifier.weight(1f))
+                    Icon(
+                        imageVector = Icons.Filled.Star,
+                        contentDescription = null,
+                        tint = Color(0xFFFFB300),
+                        modifier = Modifier.size(24.dp)
+                    )
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text(
+                        text = "%.1f".format(item.rating),
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Text(
+                    text = if (item.stock > 0) "Stock: ${item.stock} unidades" else "Agotado",
+                    style = MaterialTheme.typography.bodyMedium,
+                    fontWeight = FontWeight.Medium,
+                    color = if (item.stock > 0) Color(0xFF2E7D32) else MaterialTheme.colorScheme.error
+                )
+
+                Spacer(modifier = Modifier.height(20.dp))
+
+                Text(
+                    text = "Descripción",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontFamily = FontFamily.Serif,
+                    fontWeight = FontWeight.Bold
+                )
+
+                Spacer(modifier = Modifier.height(6.dp))
+
+                Text(
+                    text = item.descripcion,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+
+                Spacer(modifier = Modifier.height(24.dp))
             }
-            Spacer(Modifier.height(8.dp))
-            Text(
-                text = if (item.stock > 0) "Stock: ${item.stock} unidades" else "Agotado",
-                style = MaterialTheme.typography.bodyMedium,
-                color = if (item.stock > 0) Color(0xFF2E7D32) else MaterialTheme.colorScheme.error
-            )
-            Spacer(Modifier.height(16.dp))
-            Text("Descripción", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
-            Spacer(Modifier.height(4.dp))
-            Text(item.descripcion, style = MaterialTheme.typography.bodyMedium)
-            Spacer(Modifier.height(24.dp))
         }
     }
 }

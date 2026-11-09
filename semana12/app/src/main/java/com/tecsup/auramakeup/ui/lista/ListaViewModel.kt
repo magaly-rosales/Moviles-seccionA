@@ -13,6 +13,7 @@ import com.tecsup.auramakeup.ui.UiState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import retrofit2.HttpException
 import java.io.IOException
@@ -29,12 +30,23 @@ class ListaViewModel(
     private val _aviso = MutableStateFlow<String?>(null)
     val aviso: StateFlow<String?> = _aviso.asStateFlow()
 
+    private val _categoriaSeleccionada = MutableStateFlow("todos")
+    val categoriaSeleccionada: StateFlow<String> = _categoriaSeleccionada.asStateFlow()
+
     private var refrescoTerminado = false
 
     init {
         viewModelScope.launch {
-            repo.items.collect { lista ->
-                if (lista.isNotEmpty() || refrescoTerminado) _estado.value = UiState.Exito(lista)
+            combine(repo.items, _categoriaSeleccionada) { lista, cat ->
+                if (cat == "todos" || cat.isBlank()) {
+                    lista
+                } else {
+                    lista.filter { it.categoria == cat }
+                }
+            }.collect { listaFiltrada ->
+                if (listaFiltrada.isNotEmpty() || refrescoTerminado || _categoriaSeleccionada.value != "todos") {
+                    _estado.value = UiState.Exito(listaFiltrada)
+                }
             }
         }
         viewModelScope.launch {
@@ -43,6 +55,10 @@ class ListaViewModel(
             }
         }
         refrescar()
+    }
+
+    fun seleccionarCategoria(categoria: String) {
+        _categoriaSeleccionada.value = categoria
     }
 
     fun refrescar() {

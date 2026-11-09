@@ -54,6 +54,7 @@ import com.tecsup.auramakeup.ui.UiState
 import com.tecsup.auramakeup.ui.components.Cargando
 import com.tecsup.auramakeup.ui.theme.CarmesiPrimary
 import com.tecsup.auramakeup.ui.theme.OroRosaSecondary
+import com.tecsup.auramakeup.ui.theme.RosaPalido
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -70,26 +71,29 @@ fun PagoScreen(
     val estado by viewModel.estado.collectAsStateWithLifecycle()
 
     Scaffold(
+        containerColor = RosaPalido,
         topBar = {
             TopAppBar(
-                title = { Text("Pago de pedido", color = Color.White) },
+                title = { Text("Pago de pedido") },
                 navigationIcon = {
                     IconButton(onClick = onVolver) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Volver",
-                            tint = Color.White
+                            contentDescription = "Volver"
                         )
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = CarmesiPrimary
+                    containerColor = RosaPalido
                 )
             )
         },
         bottomBar = {
             if (estado !is UiState.Cargando && estado !is UiState.Exito) {
-                Surface(shadowElevation = 8.dp) {
+                Surface(
+                    shadowElevation = 8.dp,
+                    color = Color.White
+                ) {
                     Box(
                         modifier = Modifier
                             .navigationBarsPadding()
@@ -390,8 +394,9 @@ private fun ExitoPagoContenido(
         Card(
             shape = RoundedCornerShape(16.dp),
             colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.surfaceVariant
+                containerColor = Color.White
             ),
+            elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
             modifier = Modifier.fillMaxWidth()
         ) {
             Column(

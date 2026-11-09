@@ -27,6 +27,7 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.Icon
@@ -37,6 +38,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -45,6 +47,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -55,6 +58,7 @@ import coil.compose.AsyncImage
 import com.tecsup.auramakeup.domain.model.ItemCarrito
 import com.tecsup.auramakeup.ui.UiState
 import com.tecsup.auramakeup.ui.components.Cargando
+import com.tecsup.auramakeup.ui.theme.RosaPalido
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -124,6 +128,7 @@ fun CarritoScreen(
     }
 
     Scaffold(
+        containerColor = RosaPalido,
         topBar = {
             TopAppBar(
                 title = { Text("Mi carrito") },
@@ -131,12 +136,18 @@ fun CarritoScreen(
                     IconButton(onClick = onVolver) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Volver")
                     }
-                }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = RosaPalido
+                )
             )
         },
         bottomBar = {
             if (lista.isNotEmpty()) {
-                Surface(shadowElevation = 8.dp) {
+                Surface(
+                    shadowElevation = 8.dp,
+                    color = Color.White
+                ) {
                     Column(
                         modifier = Modifier
                             .navigationBarsPadding()
@@ -227,7 +238,10 @@ private fun FilaCarrito(
     onMenos: () -> Unit,
     onEliminar: () -> Unit
 ) {
-    Card(Modifier.fillMaxWidth()) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(containerColor = Color.White)
+    ) {
         Row(
             modifier = Modifier.padding(10.dp),
             verticalAlignment = Alignment.CenterVertically

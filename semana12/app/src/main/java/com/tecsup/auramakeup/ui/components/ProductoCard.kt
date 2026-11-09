@@ -1,5 +1,6 @@
 package com.tecsup.auramakeup.ui.components
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -10,11 +11,13 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -37,18 +40,28 @@ fun ProductoCard(
     onFavorito: () -> Unit
 ) {
     Card(
+        shape = RoundedCornerShape(20.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = Color.White
+        ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
         modifier = Modifier
             .fillMaxWidth()
             .clickable(onClick = onClick)
     ) {
-        Box {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(Color.White)
+        ) {
             AsyncImage(
                 model = item.imagenUrl,
                 contentDescription = item.titulo,
-                contentScale = ContentScale.Crop,
+                contentScale = ContentScale.Fit,
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(150.dp)
+                    .padding(8.dp)
             )
             IconButton(
                 onClick = onFavorito,
@@ -61,7 +74,7 @@ fun ProductoCard(
                 )
             }
         }
-        Column(Modifier.padding(10.dp)) {
+        Column(Modifier.padding(12.dp)) {
             Text(
                 text = item.titulo,
                 style = MaterialTheme.typography.titleSmall,
@@ -74,7 +87,7 @@ fun ProductoCard(
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
-            Spacer(Modifier.height(6.dp))
+            Spacer(Modifier.height(8.dp))
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
                     text = "$ %.2f".format(item.precio),
@@ -84,13 +97,16 @@ fun ProductoCard(
                 )
                 Spacer(Modifier.weight(1f))
                 Icon(
-                    Icons.Filled.Star,
+                    imageVector = Icons.Filled.Star,
                     contentDescription = null,
                     tint = Color(0xFFFFB300),
                     modifier = Modifier.size(16.dp)
                 )
                 Spacer(Modifier.width(2.dp))
-                Text("%.1f".format(item.rating), style = MaterialTheme.typography.bodySmall)
+                Text(
+                    text = "%.1f".format(item.rating),
+                    style = MaterialTheme.typography.bodySmall
+                )
             }
         }
     }

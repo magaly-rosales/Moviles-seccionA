@@ -22,6 +22,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -33,6 +34,7 @@ import com.tecsup.auramakeup.ui.UiState
 import com.tecsup.auramakeup.ui.components.Cargando
 import com.tecsup.auramakeup.ui.components.ErrorView
 import com.tecsup.auramakeup.ui.components.ProductoCard
+import com.tecsup.auramakeup.ui.theme.RosaPalido
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -44,6 +46,7 @@ fun FavoritosScreen(
     val estado by viewModel.estado.collectAsStateWithLifecycle()
 
     Scaffold(
+        containerColor = RosaPalido,
         topBar = {
             TopAppBar(
                 title = { Text("Mis favoritos") },
@@ -51,7 +54,10 @@ fun FavoritosScreen(
                     IconButton(onClick = onVolver) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Volver")
                     }
-                }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = RosaPalido
+                )
             )
         }
     ) { padding ->
