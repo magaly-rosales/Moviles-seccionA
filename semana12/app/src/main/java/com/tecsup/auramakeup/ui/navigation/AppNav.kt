@@ -14,6 +14,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.tecsup.auramakeup.AppContainer
 import com.tecsup.auramakeup.domain.model.Rol
+import com.tecsup.auramakeup.domain.model.Sesion
 import com.tecsup.auramakeup.ui.UiState
 import com.tecsup.auramakeup.ui.admin.AdminScreen
 import com.tecsup.auramakeup.ui.admin.AdminViewModel
@@ -28,6 +29,8 @@ import com.tecsup.auramakeup.ui.lista.ListaScreen
 import com.tecsup.auramakeup.ui.lista.ListaViewModel
 import com.tecsup.auramakeup.ui.login.LoginScreen
 import com.tecsup.auramakeup.ui.login.LoginViewModel
+import com.tecsup.auramakeup.ui.perfil.PerfilScreen
+import com.tecsup.auramakeup.ui.perfil.PerfilViewModel
 import com.tecsup.auramakeup.ui.registro.RegistroScreen
 import com.tecsup.auramakeup.ui.registro.RegistroViewModel
 
@@ -45,7 +48,7 @@ fun AppNav(container: AppContainer) {
                 nav = rememberNavController(),
                 container = container,
                 sesionVm = sesionVm,
-                esAdmin = s.datos?.rol == Rol.ADMIN,
+                sesionActual = s.datos,
                 inicio = inicio
             )
         }
@@ -57,9 +60,13 @@ private fun Grafo(
     nav: NavHostController,
     container: AppContainer,
     sesionVm: SesionViewModel,
-    esAdmin: Boolean,
+    sesionActual: Sesion?,
     inicio: String
 ) {
+    val esAdmin = sesionActual?.rol == Rol.ADMIN
+    val uid = sesionActual?.uid ?: ""
+    val fotoPerfilRuta by container.perfilRepository.foto(uid).collectAsStateWithLifecycle(initialValue = null)
+
     NavHost(navController = nav, startDestination = inicio) {
 
         composable("login") {
@@ -95,11 +102,21 @@ private fun Grafo(
             ListaScreen(
                 viewModel = vm,
                 esAdmin = esAdmin,
+                fotoPerfilRuta = fotoPerfilRuta,
                 onItemClick = { id -> nav.navigate("detalle/$id") },
                 onFavoritosClick = { nav.navigate("favoritos") },
                 onCarritoClick = { nav.navigate("carrito") },
                 onAdminClick = { nav.navigate("admin") },
-                onCerrarSesion = {
+                onPerfilClick = { nav.navigate("perfil") }
+            )
+        }
+
+        composable("perfil") {
+            val vm: PerfilViewModel = viewModel(factory = PerfilViewModel.factory(container))
+            PerfilScreen(
+                viewModel = vm,
+                onVolver = { nav.popBackStack() },
+                onCerrarSesionConfirmado = {
                     sesionVm.cerrarSesion()
                     nav.navigate("login") {
                         popUpTo(nav.graph.id) { inclusive = true }

@@ -7,13 +7,15 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material.icons.filled.AdminPanelSettings
 import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -27,24 +29,30 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import coil.compose.AsyncImage
 import com.tecsup.auramakeup.domain.model.Item
 import com.tecsup.auramakeup.ui.UiState
 import com.tecsup.auramakeup.ui.components.Cargando
 import com.tecsup.auramakeup.ui.components.ErrorView
 import com.tecsup.auramakeup.ui.components.ProductoCard
+import java.io.File
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ListaScreen(
     viewModel: ListaViewModel,
     esAdmin: Boolean = false,
+    fotoPerfilRuta: String? = null,
     onItemClick: (Int) -> Unit = {},
     onFavoritosClick: () -> Unit = {},
     onCarritoClick: () -> Unit = {},
     onAdminClick: () -> Unit = {},
+    onPerfilClick: () -> Unit = {},
     onCerrarSesion: () -> Unit = {}
 ) {
     val estado by viewModel.estado.collectAsStateWithLifecycle()
@@ -75,8 +83,22 @@ fun ListaScreen(
                             Icon(Icons.Filled.AdminPanelSettings, contentDescription = "Panel Admin")
                         }
                     }
-                    IconButton(onClick = onCerrarSesion) {
-                        Icon(Icons.AutoMirrored.Filled.Logout, contentDescription = "Cerrar sesión")
+                    IconButton(onClick = onPerfilClick) {
+                        val rutaLimpia = fotoPerfilRuta?.substringBefore("?")
+                        if (rutaLimpia != null && File(rutaLimpia).exists()) {
+                            androidx.compose.runtime.key(fotoPerfilRuta) {
+                                AsyncImage(
+                                    model = File(rutaLimpia),
+                                    contentDescription = "Perfil",
+                                    contentScale = ContentScale.Crop,
+                                    modifier = Modifier
+                                        .size(32.dp)
+                                        .clip(CircleShape)
+                                )
+                            }
+                        } else {
+                            Icon(Icons.Filled.Person, contentDescription = "Perfil")
+                        }
                     }
                 }
             )

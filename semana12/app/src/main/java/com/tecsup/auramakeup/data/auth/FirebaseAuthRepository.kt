@@ -37,7 +37,7 @@ class FirebaseAuthRepository(
             "nombre" to nombre
         )
         db.collection("usuarios").document(uid).set(datos).await()
-        Result.success(Sesion(uid, correo, Rol.USUARIO))
+        Result.success(Sesion(uid, correo, Rol.USUARIO, nombre))
     } catch (e: FirebaseAuthUserCollisionException) {
         Result.failure(Exception("El correo ya se encuentra registrado"))
     } catch (e: FirebaseAuthInvalidCredentialsException) {
@@ -55,7 +55,7 @@ class FirebaseAuthRepository(
         return try {
             leerSesion(u.uid, u.email ?: "")
         } catch (e: Exception) {
-            Sesion(u.uid, u.email ?: "", Rol.USUARIO)
+            Sesion(u.uid, u.email ?: "", Rol.USUARIO, "")
         }
     }
 
@@ -64,6 +64,7 @@ class FirebaseAuthRepository(
     private suspend fun leerSesion(uid: String, correo: String): Sesion {
         val doc = db.collection("usuarios").document(uid).get().await()
         val rol = if (doc.getString("rol") == "admin") Rol.ADMIN else Rol.USUARIO
-        return Sesion(uid, correo, rol)
+        val nombre = doc.getString("nombre") ?: ""
+        return Sesion(uid, correo, rol, nombre)
     }
 }

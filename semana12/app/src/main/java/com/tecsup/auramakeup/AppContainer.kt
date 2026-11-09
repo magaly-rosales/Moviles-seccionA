@@ -7,6 +7,8 @@ import com.tecsup.auramakeup.data.auth.FirebaseAuthRepository
 import com.tecsup.auramakeup.data.local.AppDatabase
 import com.tecsup.auramakeup.data.network.MonitorConexion
 import com.tecsup.auramakeup.data.network.MonitorConexionAndroid
+import com.tecsup.auramakeup.data.perfil.PerfilRepository
+import com.tecsup.auramakeup.data.perfil.PerfilRepositoryAndroid
 import com.tecsup.auramakeup.data.remote.RetrofitClient
 import com.tecsup.auramakeup.data.repository.CarritoRepository
 import com.tecsup.auramakeup.data.repository.CarritoRepositoryImpl
@@ -37,6 +39,10 @@ class AppContainer(private val context: Context) {
 
     val authRepository: AuthRepository by lazy {
         FirebaseAuthRepository()
+    }
+
+    val perfilRepository: PerfilRepository by lazy {
+        PerfilRepositoryAndroid(context)
     }
 
     val notificador: Notificador by lazy {
