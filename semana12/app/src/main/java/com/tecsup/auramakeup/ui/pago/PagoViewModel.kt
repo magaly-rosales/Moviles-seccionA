@@ -77,7 +77,7 @@ class PagoViewModel(
             carrito.vaciar()
             val codigo = "AURA-${(1000..9999).random()}"
             notificador.mostrar(
-                "Pedido confirmado ✅",
+                "Pedido confirmado",
                 "Pago de $ %.2f aprobado. Pedido %s".format(monto, codigo)
             )
             _estado.value = UiState.Exito(Pedido(codigo, monto))

@@ -29,6 +29,8 @@ import com.tecsup.auramakeup.ui.lista.ListaScreen
 import com.tecsup.auramakeup.ui.lista.ListaViewModel
 import com.tecsup.auramakeup.ui.login.LoginScreen
 import com.tecsup.auramakeup.ui.login.LoginViewModel
+import com.tecsup.auramakeup.ui.pago.PagoScreen
+import com.tecsup.auramakeup.ui.pago.PagoViewModel
 import com.tecsup.auramakeup.ui.perfil.PerfilScreen
 import com.tecsup.auramakeup.ui.perfil.PerfilViewModel
 import com.tecsup.auramakeup.ui.registro.RegistroScreen
@@ -158,7 +160,24 @@ private fun Grafo(
                 CarritoScreen(
                     viewModel = carritoVm,
                     onVolver = { nav.popBackStack() },
-                    onPagar = { }
+                    onPagar = { nav.navigate("pago") }
+                )
+            }
+        }
+
+        composable("pago") {
+            if (esAdmin) {
+                LaunchedEffect(Unit) { nav.popBackStack() }
+            } else {
+                val vm: PagoViewModel = viewModel(factory = PagoViewModel.factory(container))
+                PagoScreen(
+                    viewModel = vm,
+                    onVolver = { nav.popBackStack() },
+                    onSeguirComprando = {
+                        nav.navigate("lista") {
+                            popUpTo("lista") { inclusive = true }
+                        }
+                    }
                 )
             }
         }

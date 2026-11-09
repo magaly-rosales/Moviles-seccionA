@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -98,17 +99,22 @@ fun DetalleScreen(
         bottomBar = {
             if (!esAdmin && estado is UiState.Exito) {
                 Surface(shadowElevation = 8.dp) {
-                    Button(
-                        onClick = viewModel::agregarAlCarrito,
-                        shape = RoundedCornerShape(12.dp),
+                    Box(
                         modifier = Modifier
-                            .fillMaxWidth()
+                            .navigationBarsPadding()
                             .padding(16.dp)
-                            .height(50.dp)
                     ) {
-                        Icon(Icons.Filled.AddShoppingCart, contentDescription = null)
-                        Spacer(Modifier.width(8.dp))
-                        Text("Agregar al carrito")
+                        Button(
+                            onClick = viewModel::agregarAlCarrito,
+                            shape = RoundedCornerShape(12.dp),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(50.dp)
+                        ) {
+                            Icon(Icons.Filled.AddShoppingCart, contentDescription = null)
+                            Spacer(Modifier.width(8.dp))
+                            Text("Agregar al carrito")
+                        }
                     }
                 }
             }

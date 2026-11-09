@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -136,7 +137,11 @@ fun CarritoScreen(
         bottomBar = {
             if (lista.isNotEmpty()) {
                 Surface(shadowElevation = 8.dp) {
-                    Column(Modifier.padding(16.dp)) {
+                    Column(
+                        modifier = Modifier
+                            .navigationBarsPadding()
+                            .padding(16.dp)
+                    ) {
                         Row(Modifier.fillMaxWidth()) {
                             Text("Total", style = MaterialTheme.typography.titleMedium)
                             Spacer(Modifier.weight(1f))
