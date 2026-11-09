@@ -19,20 +19,27 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.AddShoppingCart
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.AssistChip
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -54,6 +61,15 @@ fun DetalleScreen(
     onVolver: () -> Unit
 ) {
     val estado by viewModel.estado.collectAsStateWithLifecycle()
+    val mensaje by viewModel.mensaje.collectAsStateWithLifecycle()
+    val snackbar = remember { SnackbarHostState() }
+
+    LaunchedEffect(mensaje) {
+        mensaje?.let {
+            snackbar.showSnackbar(it)
+            viewModel.mensajeMostrado()
+        }
+    }
 
     Scaffold(
         topBar = {
@@ -77,7 +93,26 @@ fun DetalleScreen(
                     }
                 }
             )
-        }
+        },
+        bottomBar = {
+            if (estado is UiState.Exito) {
+                Surface(shadowElevation = 8.dp) {
+                    Button(
+                        onClick = viewModel::agregarAlCarrito,
+                        shape = RoundedCornerShape(12.dp),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp)
+                            .height(50.dp)
+                    ) {
+                        Icon(Icons.Filled.AddShoppingCart, contentDescription = null)
+                        Spacer(Modifier.width(8.dp))
+                        Text("Agregar al carrito")
+                    }
+                }
+            }
+        },
+        snackbarHost = { SnackbarHost(snackbar) }
     ) { padding ->
         Box(
             modifier = Modifier

@@ -6,6 +6,7 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.tecsup.auramakeup.AppContainer
 import com.tecsup.auramakeup.data.repository.ItemRepository
+import com.tecsup.auramakeup.notification.Notificador
 import com.tecsup.auramakeup.ui.UiState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -14,7 +15,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import com.tecsup.auramakeup.notification.Notificador
+
 data class ResumenAdmin(
     val totalGuardados: Int,
     val totalFavoritos: Int
@@ -43,7 +44,7 @@ class AdminViewModel(
             repo.refrescar()
                 .onSuccess { n ->
                     _mensaje.value = "Sincronizado: se guardaron $n productos"
-                    notificador.mostrar("Aura Makeup 💄", "Se guardaron $n productos")
+                    notificador.mostrar("Aura Makeup", "Se guardaron $n productos")
                 }
                 .onFailure { _mensaje.value = "No se pudo sincronizar: revisa tu conexión" }
             _ocupado.value = false

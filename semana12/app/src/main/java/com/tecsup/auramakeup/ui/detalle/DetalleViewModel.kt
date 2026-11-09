@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.tecsup.auramakeup.AppContainer
+import com.tecsup.auramakeup.data.repository.CarritoRepository
 import com.tecsup.auramakeup.data.repository.ItemRepository
 import com.tecsup.auramakeup.domain.model.Item
 import com.tecsup.auramakeup.ui.UiState
@@ -17,11 +18,15 @@ import java.io.IOException
 
 class DetalleViewModel(
     private val repo: ItemRepository,
+    private val carrito: CarritoRepository,
     private val id: Int
 ) : ViewModel() {
 
     private val _estado = MutableStateFlow<UiState<Item>>(UiState.Cargando)
     val estado: StateFlow<UiState<Item>> = _estado.asStateFlow()
+
+    private val _mensaje = MutableStateFlow<String?>(null)
+    val mensaje: StateFlow<String?> = _mensaje.asStateFlow()
 
     init {
         cargar()
@@ -46,6 +51,19 @@ class DetalleViewModel(
         }
     }
 
+    fun agregarAlCarrito() {
+        val actual = _estado.value
+        if (actual !is UiState.Exito) return
+        viewModelScope.launch {
+            carrito.agregar(actual.datos)
+            _mensaje.value = "Agregado al carrito"
+        }
+    }
+
+    fun mensajeMostrado() {
+        _mensaje.value = null
+    }
+
     private fun mensajeDe(e: Throwable) = when (e) {
         is IOException -> "No hay conexión a internet"
         is HttpException -> "El servidor respondió con error ${e.code()}"
@@ -54,7 +72,7 @@ class DetalleViewModel(
 
     companion object {
         fun factory(container: AppContainer, id: Int) = viewModelFactory {
-            initializer { DetalleViewModel(container.itemRepository, id) }
+            initializer { DetalleViewModel(container.itemRepository, container.carritoRepository, id) }
         }
     }
 }

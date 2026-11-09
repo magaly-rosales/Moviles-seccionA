@@ -1,5 +1,5 @@
 package com.tecsup.auramakeup.ui.navigation
-import com.tecsup.auramakeup.ui.admin.AdminViewModel
+
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -16,6 +16,9 @@ import com.tecsup.auramakeup.AppContainer
 import com.tecsup.auramakeup.domain.model.Rol
 import com.tecsup.auramakeup.ui.UiState
 import com.tecsup.auramakeup.ui.admin.AdminScreen
+import com.tecsup.auramakeup.ui.admin.AdminViewModel
+import com.tecsup.auramakeup.ui.carrito.CarritoScreen
+import com.tecsup.auramakeup.ui.carrito.CarritoViewModel
 import com.tecsup.auramakeup.ui.components.Cargando
 import com.tecsup.auramakeup.ui.detalle.DetalleScreen
 import com.tecsup.auramakeup.ui.detalle.DetalleViewModel
@@ -77,6 +80,7 @@ private fun Grafo(
                 esAdmin = esAdmin,
                 onItemClick = { id -> nav.navigate("detalle/$id") },
                 onFavoritosClick = { nav.navigate("favoritos") },
+                onCarritoClick = { nav.navigate("carrito") },
                 onAdminClick = { nav.navigate("admin") },
                 onCerrarSesion = {
                     sesionVm.cerrarSesion()
@@ -105,6 +109,15 @@ private fun Grafo(
                 viewModel = vm,
                 onItemClick = { id -> nav.navigate("detalle/$id") },
                 onVolver = { nav.popBackStack() }
+            )
+        }
+
+        composable("carrito") {
+            val vm: CarritoViewModel = viewModel(factory = CarritoViewModel.factory(container))
+            CarritoScreen(
+                viewModel = vm,
+                onVolver = { nav.popBackStack() },
+                onPagar = { }
             )
         }
 

@@ -8,6 +8,7 @@ import com.tecsup.auramakeup.AppContainer
 import com.tecsup.auramakeup.data.network.MonitorConexion
 import com.tecsup.auramakeup.data.repository.ItemRepository
 import com.tecsup.auramakeup.domain.model.Item
+import com.tecsup.auramakeup.notification.Notificador
 import com.tecsup.auramakeup.ui.UiState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -15,7 +16,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import retrofit2.HttpException
 import java.io.IOException
-import com.tecsup.auramakeup.notification.Notificador
+
 class ListaViewModel(
     private val repo: ItemRepository,
     private val notificador: Notificador,
@@ -53,7 +54,7 @@ class ListaViewModel(
                 .onSuccess { n ->
                     if (_estado.value is UiState.Cargando) _estado.value = UiState.Exito(emptyList())
                     _aviso.value = null
-                    notificador.mostrar("Aura Makeup 💄", "Se guardaron $n productos")
+                    notificador.mostrar("Aura Makeup", "Se guardaron $n productos")
                 }
                 .onFailure { e ->
                     if (repo.cantidadGuardada() == 0) _estado.value = UiState.Error(mensajeDe(e))

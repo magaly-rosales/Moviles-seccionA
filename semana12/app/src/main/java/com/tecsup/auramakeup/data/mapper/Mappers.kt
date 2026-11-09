@@ -1,8 +1,10 @@
 package com.tecsup.auramakeup.data.mapper
 
+import com.tecsup.auramakeup.data.local.CarritoEntity
 import com.tecsup.auramakeup.data.local.ProductoEntity
 import com.tecsup.auramakeup.data.remote.dto.ProductoDto
 import com.tecsup.auramakeup.domain.model.Item
+import com.tecsup.auramakeup.domain.model.ItemCarrito
 
 fun ProductoDto.aEntity(esFavorito: Boolean = false) = ProductoEntity(
     id = id,
@@ -42,4 +44,12 @@ fun ProductoDto.aModelo(esFavorito: Boolean = false) = Item(
     descripcion = description,
     stock = stock,
     imagenes = images
+)
+
+fun CarritoEntity.aModelo() = ItemCarrito(
+    productoId = productoId,
+    titulo = titulo,
+    precio = precio,
+    imagenUrl = imagenUrl,
+    cantidad = cantidad
 )

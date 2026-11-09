@@ -46,7 +46,7 @@ fun FavoritosScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Mis favoritos ❤️") },
+                title = { Text("Mis favoritos") },
                 navigationIcon = {
                     IconButton(onClick = onVolver) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Volver")
@@ -80,7 +80,7 @@ fun FavoritosScreen(
                             )
                             Spacer(Modifier.height(12.dp))
                             Text(
-                                text = "Aún no tienes favoritos.\nToca el ❤️ en un producto para guardarlo aquí.",
+                                text = "Aún no tienes favoritos.\nToca el ícono de corazón en un producto para guardarlo aquí.",
                                 textAlign = TextAlign.Center
                             )
                         }

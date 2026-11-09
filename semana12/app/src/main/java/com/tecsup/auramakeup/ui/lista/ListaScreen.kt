@@ -1,5 +1,5 @@
 package com.tecsup.auramakeup.ui.lista
-import androidx.compose.material.icons.filled.AdminPanelSettings
+
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -11,7 +11,10 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Logout
+import androidx.compose.material.icons.filled.AdminPanelSettings
 import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -32,7 +35,7 @@ import com.tecsup.auramakeup.ui.UiState
 import com.tecsup.auramakeup.ui.components.Cargando
 import com.tecsup.auramakeup.ui.components.ErrorView
 import com.tecsup.auramakeup.ui.components.ProductoCard
-import androidx.compose.material.icons.automirrored.filled.Logout
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ListaScreen(
@@ -40,6 +43,7 @@ fun ListaScreen(
     esAdmin: Boolean = false,
     onItemClick: (Int) -> Unit = {},
     onFavoritosClick: () -> Unit = {},
+    onCarritoClick: () -> Unit = {},
     onAdminClick: () -> Unit = {},
     onCerrarSesion: () -> Unit = {}
 ) {
@@ -51,7 +55,7 @@ fun ListaScreen(
             TopAppBar(
                 title = {
                     Column {
-                        Text("Aura Makeup 💄")
+                        Text("Aura Makeup")
                         Text(
                             text = if (esAdmin) "Administrador" else "Cliente",
                             style = MaterialTheme.typography.labelSmall,
@@ -62,6 +66,9 @@ fun ListaScreen(
                 actions = {
                     IconButton(onClick = onFavoritosClick) {
                         Icon(Icons.Filled.Favorite, contentDescription = "Favoritos", tint = Color(0xFFE91E63))
+                    }
+                    IconButton(onClick = onCarritoClick) {
+                        Icon(Icons.Filled.ShoppingCart, contentDescription = "Carrito")
                     }
                     if (esAdmin) {
                         IconButton(onClick = onAdminClick) {
