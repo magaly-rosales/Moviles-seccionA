@@ -4,6 +4,8 @@ import com.google.firebase.FirebaseNetworkException
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
 import com.google.firebase.auth.FirebaseAuthInvalidUserException
+import com.google.firebase.auth.FirebaseAuthUserCollisionException
+import com.google.firebase.auth.FirebaseAuthWeakPasswordException
 import com.google.firebase.firestore.FirebaseFirestore
 import com.tecsup.auramakeup.domain.model.Rol
 import com.tecsup.auramakeup.domain.model.Sesion
@@ -25,6 +27,27 @@ class FirebaseAuthRepository(
         Result.failure(Exception("No hay conexión a internet"))
     } catch (e: Exception) {
         Result.failure(Exception("No se pudo iniciar sesión"))
+    }
+
+    override suspend fun registrar(nombre: String, correo: String, clave: String): Result<Sesion> = try {
+        val resultado = auth.createUserWithEmailAndPassword(correo, clave).await()
+        val uid = resultado.user!!.uid
+        val datos = mapOf(
+            "rol" to "usuario",
+            "nombre" to nombre
+        )
+        db.collection("usuarios").document(uid).set(datos).await()
+        Result.success(Sesion(uid, correo, Rol.USUARIO))
+    } catch (e: FirebaseAuthUserCollisionException) {
+        Result.failure(Exception("El correo ya se encuentra registrado"))
+    } catch (e: FirebaseAuthInvalidCredentialsException) {
+        Result.failure(Exception("El correo no tiene un formato válido"))
+    } catch (e: FirebaseAuthWeakPasswordException) {
+        Result.failure(Exception("La contraseña debe tener al menos 6 caracteres"))
+    } catch (e: FirebaseNetworkException) {
+        Result.failure(Exception("No hay conexión a internet"))
+    } catch (e: Exception) {
+        Result.failure(Exception(e.message ?: "No se pudo crear la cuenta"))
     }
 
     override suspend fun sesionActual(): Sesion? {

@@ -28,6 +28,8 @@ import com.tecsup.auramakeup.ui.lista.ListaScreen
 import com.tecsup.auramakeup.ui.lista.ListaViewModel
 import com.tecsup.auramakeup.ui.login.LoginScreen
 import com.tecsup.auramakeup.ui.login.LoginViewModel
+import com.tecsup.auramakeup.ui.registro.RegistroScreen
+import com.tecsup.auramakeup.ui.registro.RegistroViewModel
 
 @Composable
 fun AppNav(container: AppContainer) {
@@ -69,7 +71,22 @@ private fun Grafo(
                     nav.navigate("lista") {
                         popUpTo("login") { inclusive = true }
                     }
-                }
+                },
+                onIrARegistro = { nav.navigate("registro") }
+            )
+        }
+
+        composable("registro") {
+            val vm: RegistroViewModel = viewModel(factory = RegistroViewModel.factory(container))
+            RegistroScreen(
+                viewModel = vm,
+                onRegistroExitoso = { sesion ->
+                    sesionVm.establecer(sesion)
+                    nav.navigate("lista") {
+                        popUpTo("login") { inclusive = true }
+                    }
+                },
+                onVolverALogin = { nav.popBackStack() }
             )
         }
 
