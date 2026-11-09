@@ -58,6 +58,7 @@ import com.tecsup.auramakeup.ui.components.categoriaEnEspanol
 @Composable
 fun DetalleScreen(
     viewModel: DetalleViewModel,
+    esAdmin: Boolean = false,
     onVolver: () -> Unit
 ) {
     val estado by viewModel.estado.collectAsStateWithLifecycle()
@@ -95,7 +96,7 @@ fun DetalleScreen(
             )
         },
         bottomBar = {
-            if (estado is UiState.Exito) {
+            if (!esAdmin && estado is UiState.Exito) {
                 Surface(shadowElevation = 8.dp) {
                     Button(
                         onClick = viewModel::agregarAlCarrito,

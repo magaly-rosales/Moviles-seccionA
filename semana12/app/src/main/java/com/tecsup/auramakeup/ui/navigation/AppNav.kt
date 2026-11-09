@@ -67,6 +67,9 @@ private fun Grafo(
     val uid = sesionActual?.uid ?: ""
     val fotoPerfilRuta by container.perfilRepository.foto(uid).collectAsStateWithLifecycle(initialValue = null)
 
+    val carritoVm: CarritoViewModel = viewModel(factory = CarritoViewModel.factory(container))
+    val cantidadCarrito by carritoVm.cantidad.collectAsStateWithLifecycle()
+
     NavHost(navController = nav, startDestination = inicio) {
 
         composable("login") {
@@ -103,6 +106,7 @@ private fun Grafo(
                 viewModel = vm,
                 esAdmin = esAdmin,
                 fotoPerfilRuta = fotoPerfilRuta,
+                cantidadCarrito = cantidadCarrito,
                 onItemClick = { id -> nav.navigate("detalle/$id") },
                 onFavoritosClick = { nav.navigate("favoritos") },
                 onCarritoClick = { nav.navigate("carrito") },
@@ -133,6 +137,7 @@ private fun Grafo(
             val vm: DetalleViewModel = viewModel(factory = DetalleViewModel.factory(container, id))
             DetalleScreen(
                 viewModel = vm,
+                esAdmin = esAdmin,
                 onVolver = { nav.popBackStack() }
             )
         }
@@ -147,12 +152,15 @@ private fun Grafo(
         }
 
         composable("carrito") {
-            val vm: CarritoViewModel = viewModel(factory = CarritoViewModel.factory(container))
-            CarritoScreen(
-                viewModel = vm,
-                onVolver = { nav.popBackStack() },
-                onPagar = { }
-            )
+            if (esAdmin) {
+                LaunchedEffect(Unit) { nav.popBackStack() }
+            } else {
+                CarritoScreen(
+                    viewModel = carritoVm,
+                    onVolver = { nav.popBackStack() },
+                    onPagar = { }
+                )
+            }
         }
 
         composable("admin") {

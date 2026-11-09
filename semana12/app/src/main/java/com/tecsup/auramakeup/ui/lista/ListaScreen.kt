@@ -17,6 +17,8 @@ import androidx.compose.material.icons.filled.AdminPanelSettings
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.ShoppingCart
+import androidx.compose.material3.Badge
+import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -27,6 +29,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -48,6 +51,7 @@ fun ListaScreen(
     viewModel: ListaViewModel,
     esAdmin: Boolean = false,
     fotoPerfilRuta: String? = null,
+    cantidadCarrito: Int = 0,
     onItemClick: (Int) -> Unit = {},
     onFavoritosClick: () -> Unit = {},
     onCarritoClick: () -> Unit = {},
@@ -75,8 +79,22 @@ fun ListaScreen(
                     IconButton(onClick = onFavoritosClick) {
                         Icon(Icons.Filled.Favorite, contentDescription = "Favoritos", tint = Color(0xFFE91E63))
                     }
-                    IconButton(onClick = onCarritoClick) {
-                        Icon(Icons.Filled.ShoppingCart, contentDescription = "Carrito")
+                    if (!esAdmin) {
+                        IconButton(onClick = onCarritoClick) {
+                            if (cantidadCarrito > 0) {
+                                BadgedBox(
+                                    badge = {
+                                        Badge {
+                                            Text(if (cantidadCarrito > 99) "99+" else cantidadCarrito.toString())
+                                        }
+                                    }
+                                ) {
+                                    Icon(Icons.Filled.ShoppingCart, contentDescription = "Carrito")
+                                }
+                            } else {
+                                Icon(Icons.Filled.ShoppingCart, contentDescription = "Carrito")
+                            }
+                        }
                     }
                     if (esAdmin) {
                         IconButton(onClick = onAdminClick) {
@@ -86,7 +104,7 @@ fun ListaScreen(
                     IconButton(onClick = onPerfilClick) {
                         val rutaLimpia = fotoPerfilRuta?.substringBefore("?")
                         if (rutaLimpia != null && File(rutaLimpia).exists()) {
-                            androidx.compose.runtime.key(fotoPerfilRuta) {
+                            key(fotoPerfilRuta) {
                                 AsyncImage(
                                     model = File(rutaLimpia),
                                     contentDescription = "Perfil",
