@@ -14,14 +14,15 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-
+import com.tecsup.auramakeup.notification.Notificador
 data class ResumenAdmin(
     val totalGuardados: Int,
     val totalFavoritos: Int
 )
 
 class AdminViewModel(
-    private val repo: ItemRepository
+    private val repo: ItemRepository,
+    private val notificador: Notificador
 ) : ViewModel() {
 
     val estado: StateFlow<UiState<ResumenAdmin>> =
@@ -40,7 +41,10 @@ class AdminViewModel(
         viewModelScope.launch {
             _ocupado.value = true
             repo.refrescar()
-                .onSuccess { n -> _mensaje.value = "Sincronizado: se guardaron $n productos" }
+                .onSuccess { n ->
+                    _mensaje.value = "Sincronizado: se guardaron $n productos"
+                    notificador.mostrar("Aura Makeup 💄", "Se guardaron $n productos")
+                }
                 .onFailure { _mensaje.value = "No se pudo sincronizar: revisa tu conexión" }
             _ocupado.value = false
         }
@@ -59,7 +63,7 @@ class AdminViewModel(
 
     companion object {
         fun factory(container: AppContainer) = viewModelFactory {
-            initializer { AdminViewModel(container.itemRepository) }
+            initializer { AdminViewModel(container.itemRepository, container.notificador) }
         }
     }
 }

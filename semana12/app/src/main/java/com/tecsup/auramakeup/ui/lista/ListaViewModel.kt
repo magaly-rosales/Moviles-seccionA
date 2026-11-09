@@ -15,9 +15,10 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import retrofit2.HttpException
 import java.io.IOException
-
+import com.tecsup.auramakeup.notification.Notificador
 class ListaViewModel(
     private val repo: ItemRepository,
+    private val notificador: Notificador,
     private val monitor: MonitorConexion
 ) : ViewModel() {
 
@@ -49,9 +50,10 @@ class ListaViewModel(
             val resultado = repo.refrescar()
             refrescoTerminado = true
             resultado
-                .onSuccess {
+                .onSuccess { n ->
                     if (_estado.value is UiState.Cargando) _estado.value = UiState.Exito(emptyList())
                     _aviso.value = null
+                    notificador.mostrar("Aura Makeup 💄", "Se guardaron $n productos")
                 }
                 .onFailure { e ->
                     if (repo.cantidadGuardada() == 0) _estado.value = UiState.Error(mensajeDe(e))
@@ -72,7 +74,7 @@ class ListaViewModel(
 
     companion object {
         fun factory(container: AppContainer) = viewModelFactory {
-            initializer { ListaViewModel(container.itemRepository, container.monitorConexion) }
+            initializer { ListaViewModel(container.itemRepository, container.notificador, container.monitorConexion) }
         }
     }
 }

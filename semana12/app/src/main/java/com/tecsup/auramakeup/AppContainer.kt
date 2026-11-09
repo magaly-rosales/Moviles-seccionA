@@ -3,7 +3,8 @@ import com.tecsup.auramakeup.data.auth.AuthRepository
 import com.tecsup.auramakeup.data.auth.FirebaseAuthRepository
 import android.content.Context
 import androidx.room.Room
-
+import com.tecsup.auramakeup.notification.Notificador
+import com.tecsup.auramakeup.notification.NotificadorAndroid
 import com.tecsup.auramakeup.data.local.AppDatabase
 import com.tecsup.auramakeup.data.network.MonitorConexion
 import com.tecsup.auramakeup.data.network.MonitorConexionAndroid
@@ -26,5 +27,8 @@ class AppContainer(private val context: Context) {
     }
     val authRepository: AuthRepository by lazy {
         FirebaseAuthRepository()
+    }
+    val notificador: Notificador by lazy {
+        NotificadorAndroid(context)
     }
 }

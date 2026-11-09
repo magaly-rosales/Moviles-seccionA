@@ -91,7 +91,7 @@ fun AdminScreen(
             },
             text = {
                 Text(
-                    text = "Se borrarán todos los productos guardados en el celular, incluidos los favoritos ❤️.\n\nPodrás recuperarlos con Sincronizar.",
+                    text = "Se borrarán todos los productos guardados en el celular, incluidos los favoritos.\n\nPodrás recuperarlos con Sincronizar.",
                     textAlign = TextAlign.Center,
                     modifier = Modifier.fillMaxWidth()
                 )
