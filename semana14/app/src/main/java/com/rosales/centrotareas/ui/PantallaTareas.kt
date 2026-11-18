@@ -27,6 +27,7 @@ fun PantallaTareas(vm: TareasViewModel) {
     val corriendo by vm.corriendo.collectAsState()
     val primos by vm.primos.collectAsState()
     val carga by vm.carga.collectAsState()
+    val simularError by vm.simularError.collectAsState()
     var toques by rememberSaveable { mutableIntStateOf(0) }
 
     Scaffold(
@@ -103,13 +104,18 @@ fun PantallaTareas(vm: TareasViewModel) {
                     }
                     Button(onClick = { vm.cargarALaVez() }, enabled = !cargando) { Text("A la vez") }
                 }
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Switch(checked = simularError, onCheckedChange = { vm.cambiarSimularError(it) })
+                    Spacer(Modifier.width(8.dp))
+                    Text("Simular error")
+                }
                 when (val c = carga) {
                     CargaUi.Inicial -> Unit
                     CargaUi.Cargando -> CircularProgressIndicator()
                     is CargaUi.Exito -> RecuadroExito(
                         "Modo: ${c.modo}\nPerfil: ${c.perfil}\nPedidos: ${c.pedidos}\nTiempo: ${c.milisegundos} ms"
                     )
-                    is CargaUi.Error -> Text(c.mensaje, color = MaterialTheme.colorScheme.error)
+                    is CargaUi.Error -> RecuadroError(c.mensaje) { vm.cargarALaVez() }
                 }
             }
         }
