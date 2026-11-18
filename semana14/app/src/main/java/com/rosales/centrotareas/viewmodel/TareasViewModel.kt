@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.rosales.centrotareas.data.TareasRepository
 import com.rosales.centrotareas.model.CargaUi
 import com.rosales.centrotareas.model.PrimosUi
+import com.rosales.centrotareas.model.RegistroTiempo
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -122,6 +123,36 @@ class TareasViewModel(private val repo: TareasRepository) : ViewModel() {
         throw ultimoError ?: IllegalStateException("Error al reintentar")
     }
 
+    // ----- Comparación de tiempos (Mejora 3)
+    private val _tiempos = MutableStateFlow<List<RegistroTiempo>>(emptyList())
+    val tiempos: StateFlow<List<RegistroTiempo>> = _tiempos.asStateFlow()
+
+    private val _promedioUnaPorUna = MutableStateFlow(0.0)
+    val promedioUnaPorUna: StateFlow<Double> = _promedioUnaPorUna.asStateFlow()
+
+    private val _promedioALaVez = MutableStateFlow(0.0)
+    val promedioALaVez: StateFlow<Double> = _promedioALaVez.asStateFlow()
+
+    private fun agregarTiempo(modo: String, milisegundos: Long) {
+        val nuevaLista = _tiempos.value + RegistroTiempo(modo, milisegundos)
+        _tiempos.value = nuevaLista
+        recalcularPromedios(nuevaLista)
+    }
+
+    private fun recalcularPromedios(lista: List<RegistroTiempo>) {
+        val unaPorUnaList = lista.filter { it.modo == "Una por una" }
+        _promedioUnaPorUna.value = if (unaPorUnaList.isNotEmpty()) unaPorUnaList.map { it.milisegundos }.average() else 0.0
+
+        val aLaVezList = lista.filter { it.modo == "A la vez" }
+        _promedioALaVez.value = if (aLaVezList.isNotEmpty()) aLaVezList.map { it.milisegundos }.average() else 0.0
+    }
+
+    fun limpiarTiempos() {
+        _tiempos.value = emptyList()
+        _promedioUnaPorUna.value = 0.0
+        _promedioALaVez.value = 0.0
+    }
+
     fun cargarUnaPorUna() {
         if (_carga.value is CargaUi.Cargando || _carga.value is CargaUi.Reintentando) return
         _carga.value = CargaUi.Cargando
@@ -133,9 +164,11 @@ class TareasViewModel(private val repo: TareasRepository) : ViewModel() {
                     val ped = repo.cargarPedidos(_simularError.value)
                     Pair(p, ped)
                 }
+                val ms = System.currentTimeMillis() - inicio
                 _carga.value = CargaUi.Exito(
-                    "Una por una", perfil, pedidos.size, System.currentTimeMillis() - inicio
+                    "Una por una", perfil, pedidos.size, ms
                 )
+                agregarTiempo("Una por una", ms)
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
@@ -157,9 +190,11 @@ class TareasViewModel(private val repo: TareasRepository) : ViewModel() {
                         Pair(a.await(), b.await())
                     }
                 }
+                val ms = System.currentTimeMillis() - inicio
                 _carga.value = CargaUi.Exito(
-                    "A la vez", perfil, pedidos.size, System.currentTimeMillis() - inicio
+                    "A la vez", perfil, pedidos.size, ms
                 )
+                agregarTiempo("A la vez", ms)
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {

@@ -19,3 +19,8 @@ sealed interface CargaUi {
     ) : CargaUi
     data class Error(val mensaje: String) : CargaUi
 }
+
+data class RegistroTiempo(
+    val modo: String,
+    val milisegundos: Long
+)

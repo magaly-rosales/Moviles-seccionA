@@ -29,6 +29,9 @@ fun PantallaTareas(vm: TareasViewModel) {
     val progresoPrimos by vm.progresoPrimos.collectAsState()
     val carga by vm.carga.collectAsState()
     val simularError by vm.simularError.collectAsState()
+    val tiempos by vm.tiempos.collectAsState()
+    val promedioUnaPorUna by vm.promedioUnaPorUna.collectAsState()
+    val promedioALaVez by vm.promedioALaVez.collectAsState()
     var toques by rememberSaveable { mutableIntStateOf(0) }
 
     Scaffold(
@@ -124,6 +127,46 @@ fun PantallaTareas(vm: TareasViewModel) {
                         "Modo: ${c.modo}\nPerfil: ${c.perfil}\nPedidos: ${c.pedidos}\nTiempo: ${c.milisegundos} ms"
                     )
                     is CargaUi.Error -> RecuadroError(c.mensaje) { vm.cargarALaVez() }
+                }
+                if (tiempos.isNotEmpty()) {
+                    HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp))
+                    Text(
+                        "Historial de tiempos",
+                        fontWeight = FontWeight.Bold,
+                        style = MaterialTheme.typography.titleSmall
+                    )
+                    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                        tiempos.forEach { item ->
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                Text(item.modo)
+                                Text("${item.milisegundos} ms")
+                            }
+                        }
+                        HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp))
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Text("Promedio Una por una:", fontWeight = FontWeight.SemiBold)
+                            Text("${promedioUnaPorUna.toInt()} ms", fontWeight = FontWeight.SemiBold)
+                        }
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Text("Promedio A la vez:", fontWeight = FontWeight.SemiBold)
+                            Text("${promedioALaVez.toInt()} ms", fontWeight = FontWeight.SemiBold)
+                        }
+                    }
+                    TextButton(
+                        onClick = { vm.limpiarTiempos() },
+                        modifier = Modifier.align(Alignment.End)
+                    ) {
+                        Text("Limpiar")
+                    }
                 }
             }
         }
