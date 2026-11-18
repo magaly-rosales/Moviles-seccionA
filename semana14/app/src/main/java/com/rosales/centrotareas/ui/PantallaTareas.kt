@@ -25,6 +25,7 @@ fun PantallaTareas(vm: TareasViewModel) {
     val mensaje by vm.mensaje.collectAsState()
     val progreso by vm.progreso.collectAsState()
     val corriendo by vm.corriendo.collectAsState()
+    val primos by vm.primos.collectAsState()
     var toques by rememberSaveable { mutableIntStateOf(0) }
 
     Scaffold(
@@ -60,7 +61,38 @@ fun PantallaTareas(vm: TareasViewModel) {
                 Text(mensaje)
             }
             TarjetaTarea("Contar números primos") {
-                Text("Pendiente")
+                var texto by rememberSaveable { mutableStateOf("500000") }
+                val numero = texto.toIntOrNull()
+                val calculando = primos is PrimosUi.Calculando
+                OutlinedTextField(
+                    value = texto,
+                    onValueChange = { nuevo -> texto = nuevo.filter { it.isDigit() } },
+                    label = { Text("Contar primos hasta") },
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    modifier = Modifier.fillMaxWidth()
+                )
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Button(
+                        onClick = { numero?.let { vm.contar(it) } },
+                        enabled = !calculando && numero != null && numero >= 2
+                    ) { Text("Contar") }
+                    OutlinedButton(onClick = { vm.cancelarPrimos() }, enabled = calculando) {
+                        Text("Cancelar")
+                    }
+                }
+                when (val p = primos) {
+                    PrimosUi.Inicial -> Unit
+                    PrimosUi.Calculando -> Row(verticalAlignment = Alignment.CenterVertically) {
+                        CircularProgressIndicator(modifier = Modifier.size(20.dp), strokeWidth = 2.dp)
+                        Spacer(Modifier.width(8.dp))
+                        Text("Calculando...")
+                    }
+                    is PrimosUi.Listo -> RecuadroExito(
+                        "Primos encontrados: ${p.cantidad}\nTiempo: ${p.milisegundos} ms"
+                    )
+                    PrimosUi.Cancelado -> Text("Cancelado", color = MaterialTheme.colorScheme.error)
+                }
             }
             TarjetaTarea("Dos cargas") {
                 Text("Pendiente")
