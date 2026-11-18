@@ -37,6 +37,7 @@ fun PantallaMapa(vm: MapaViewModel) {
     val radioMetros by vm.radioMetros.collectAsState()
     val seleccionado by vm.seleccionado.collectAsState()
     val masCercano by vm.masCercano.collectAsState()
+    val ultimoVisitado by vm.ultimoVisitado.collectAsState()
     val contexto = LocalContext.current
 
     val lanzador = rememberLauncherForActivityResult(
@@ -152,6 +153,14 @@ fun PantallaMapa(vm: MapaViewModel) {
                         label = { Text(cat) }
                     )
                 }
+            }
+            ultimoVisitado?.let { lugar ->
+                Text(
+                    text = "Último visitado: ${lugar.nombre}",
+                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
             }
             ListaLugares(
                 lugares = lugaresFiltrados,

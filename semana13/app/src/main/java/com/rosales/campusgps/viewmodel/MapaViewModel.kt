@@ -3,6 +3,7 @@ package com.rosales.campusgps.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.rosales.campusgps.data.LugaresRepository
+import com.rosales.campusgps.data.PreferenciasRepository
 import com.rosales.campusgps.data.UbicacionNoDisponibleException
 import com.rosales.campusgps.data.UbicacionRepository
 import com.rosales.campusgps.model.Lugar
@@ -16,13 +17,15 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 class MapaViewModel(
     private val ubicacionRepo: UbicacionRepository,
-    private val lugaresRepo: LugaresRepository
+    private val lugaresRepo: LugaresRepository,
+    private val preferenciasRepo: PreferenciasRepository
 ) : ViewModel() {
 
     private val _estado = MutableStateFlow<UbicacionUi>(UbicacionUi.Inicial)
@@ -50,6 +53,19 @@ class MapaViewModel(
     val masCercano: StateFlow<Lugar?> = _lugares
         .map { lista -> lista.firstOrNull { it.metros != null }?.lugar }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
+
+    val ultimoVisitado: StateFlow<Lugar?> = combine(_lugares, preferenciasRepo.ultimoLugar) { lista, id ->
+        if (id == null) null else lista.firstOrNull { it.lugar.id == id }?.lugar
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
+
+    init {
+        viewModelScope.launch {
+            val ultimoId = preferenciasRepo.ultimoLugar.first()
+            if (ultimoId != null && _seleccionado.value == null) {
+                _seleccionado.value = ultimoId
+            }
+        }
+    }
 
     fun buscar() {
         if (!ubicacionRepo.playServicesDisponible()) {
@@ -79,6 +95,11 @@ class MapaViewModel(
 
     fun seleccionar(id: Int?) {
         _seleccionado.value = id
+        if (id != null) {
+            viewModelScope.launch {
+                preferenciasRepo.guardarUltimoLugar(id)
+            }
+        }
     }
 
     fun filtrar(categoria: String?) {
