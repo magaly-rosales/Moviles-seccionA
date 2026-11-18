@@ -8,6 +8,8 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -64,17 +66,26 @@ fun PantallaMapa(vm: MapaViewModel) {
             )
         }
     ) { padding ->
-        Column(modifier = Modifier.padding(padding).fillMaxSize()) {
+        Column(
+            modifier = Modifier
+                .padding(padding)
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState())
+        ) {
             MapaUbicacion(
                 estado = estado,
                 lugares = lugaresFiltrados,
                 seleccionado = seleccionado,
                 masCercanoId = masCercano?.id,
                 radioMetros = radioMetros,
-                modifier = Modifier.weight(1f).fillMaxWidth()
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(300.dp)
             )
             Column(
-                modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 8.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Button(
@@ -103,7 +114,9 @@ fun PantallaMapa(vm: MapaViewModel) {
                 }
             }
             Row(
-                modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 2.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 2.dp),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
@@ -119,7 +132,9 @@ fun PantallaMapa(vm: MapaViewModel) {
             }
             val categorias = listOf("Todas", "Estudio", "Comida", "Eventos", "Servicios")
             LazyRow(
-                modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 4.dp),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 items(categorias) { cat ->
@@ -143,7 +158,7 @@ fun PantallaMapa(vm: MapaViewModel) {
                 seleccionado = seleccionado,
                 onClick = { vm.seleccionar(it) },
                 masCercanoId = masCercano?.id,
-                modifier = Modifier.fillMaxWidth().height(220.dp)
+                modifier = Modifier.fillMaxWidth()
             )
         }
     }

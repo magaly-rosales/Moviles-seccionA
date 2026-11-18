@@ -3,8 +3,6 @@ package com.rosales.campusgps.ui
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -25,12 +23,11 @@ fun ListaLugares(
     modifier: Modifier = Modifier,
     masCercanoId: Int? = null
 ) {
-    LazyColumn(
-        modifier = modifier,
-        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 8.dp),
+    Column(
+        modifier = modifier.padding(horizontal = 12.dp, vertical = 8.dp),
         verticalArrangement = Arrangement.spacedBy(6.dp)
     ) {
-        items(lugares, key = { it.lugar.id }) { item ->
+        lugares.forEach { item ->
             val esSeleccionado = item.lugar.id == seleccionado
             val esCercano = item.lugar.id == masCercanoId
             Card(
