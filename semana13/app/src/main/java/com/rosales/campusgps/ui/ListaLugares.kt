@@ -55,7 +55,25 @@ fun ListaLugares(
                     Spacer(Modifier.width(12.dp))
                     Column(modifier = Modifier.weight(1f)) {
                         Text(item.lugar.nombre, fontWeight = FontWeight.Bold)
-                        Text(item.lugar.categoria, color = Color.Gray, style = MaterialTheme.typography.bodySmall)
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(6.dp)
+                        ) {
+                            Text(item.lugar.categoria, color = Color.Gray, style = MaterialTheme.typography.bodySmall)
+                            if (item.dentroDelRadio) {
+                                Surface(
+                                    color = MaterialTheme.colorScheme.secondaryContainer,
+                                    shape = CircleShape
+                                ) {
+                                    Text(
+                                        text = "Dentro del radio",
+                                        modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp),
+                                        style = MaterialTheme.typography.labelSmall,
+                                        color = MaterialTheme.colorScheme.onSecondaryContainer
+                                    )
+                                }
+                            }
+                        }
                     }
                     Text(item.metros?.let { formatearDistancia(it) } ?: "Sin calcular")
                 }

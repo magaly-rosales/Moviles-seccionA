@@ -11,7 +11,11 @@ data class Lugar(
 )
 
 // metros = null mientras todavía no se conoce la ubicación del usuario
-data class LugarConDistancia(val lugar: Lugar, val metros: Float?)
+data class LugarConDistancia(
+    val lugar: Lugar,
+    val metros: Float?,
+    val dentroDelRadio: Boolean = false
+)
 
 enum class TipoError { SIN_PERMISO, GPS_APAGADO, SIN_PLAY_SERVICES, OTRO }
 

@@ -32,6 +32,7 @@ fun PantallaMapa(vm: MapaViewModel) {
     val todosLosLugares by vm.lugares.collectAsState()
     val lugaresFiltrados by vm.lugaresFiltrados.collectAsState()
     val categoriaSeleccionada by vm.categoriaSeleccionada.collectAsState()
+    val radioMetros by vm.radioMetros.collectAsState()
     val seleccionado by vm.seleccionado.collectAsState()
     val masCercano by vm.masCercano.collectAsState()
     val contexto = LocalContext.current
@@ -69,6 +70,7 @@ fun PantallaMapa(vm: MapaViewModel) {
                 lugares = lugaresFiltrados,
                 seleccionado = seleccionado,
                 masCercanoId = masCercano?.id,
+                radioMetros = radioMetros,
                 modifier = Modifier.weight(1f).fillMaxWidth()
             )
             Column(
@@ -98,6 +100,21 @@ fun PantallaMapa(vm: MapaViewModel) {
                 masCercano?.let { lugar ->
                     val metros = todosLosLugares.firstOrNull { it.lugar.id == lugar.id }?.metros
                     Text("Más cercano: ${lugar.nombre} (${metros?.let { formatearDistancia(it) } ?: ""})")
+                }
+            }
+            Row(
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 2.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Text("Radio:", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                val opcionesRadio = listOf(100, 200, 500)
+                opcionesRadio.forEach { m ->
+                    FilterChip(
+                        selected = radioMetros == m,
+                        onClick = { vm.cambiarRadio(m) },
+                        label = { Text("$m m") }
+                    )
                 }
             }
             val categorias = listOf("Todas", "Estudio", "Comida", "Eventos", "Servicios")
