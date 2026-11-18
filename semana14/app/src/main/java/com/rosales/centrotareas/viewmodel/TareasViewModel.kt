@@ -101,14 +101,38 @@ class TareasViewModel(private val repo: TareasRepository) : ViewModel() {
         _simularError.value = valor
     }
 
+    private suspend fun <T> ejecutarConReintento(
+        maxIntentos: Int = 3,
+        bloque: suspend () -> T
+    ): T {
+        var ultimoError: Exception? = null
+        for (intento in 1..maxIntentos) {
+            if (intento > 1) {
+                _carga.value = CargaUi.Reintentando(intento)
+                delay(500L * (intento - 1))
+            }
+            try {
+                return bloque()
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                ultimoError = e
+            }
+        }
+        throw ultimoError ?: IllegalStateException("Error al reintentar")
+    }
+
     fun cargarUnaPorUna() {
-        if (_carga.value is CargaUi.Cargando) return
+        if (_carga.value is CargaUi.Cargando || _carga.value is CargaUi.Reintentando) return
         _carga.value = CargaUi.Cargando
         viewModelScope.launch {
             val inicio = System.currentTimeMillis()
             try {
-                val perfil = repo.cargarPerfil()
-                val pedidos = repo.cargarPedidos(_simularError.value)
+                val (perfil, pedidos) = ejecutarConReintento {
+                    val p = repo.cargarPerfil()
+                    val ped = repo.cargarPedidos(_simularError.value)
+                    Pair(p, ped)
+                }
                 _carga.value = CargaUi.Exito(
                     "Una por una", perfil, pedidos.size, System.currentTimeMillis() - inicio
                 )
@@ -121,15 +145,17 @@ class TareasViewModel(private val repo: TareasRepository) : ViewModel() {
     }
 
     fun cargarALaVez() {
-        if (_carga.value is CargaUi.Cargando) return
+        if (_carga.value is CargaUi.Cargando || _carga.value is CargaUi.Reintentando) return
         _carga.value = CargaUi.Cargando
         viewModelScope.launch {
             val inicio = System.currentTimeMillis()
             try {
-                val (perfil, pedidos) = coroutineScope {
-                    val a = async { repo.cargarPerfil() }
-                    val b = async { repo.cargarPedidos(_simularError.value) }
-                    Pair(a.await(), b.await())
+                val (perfil, pedidos) = ejecutarConReintento {
+                    coroutineScope {
+                        val a = async { repo.cargarPerfil() }
+                        val b = async { repo.cargarPedidos(_simularError.value) }
+                        Pair(a.await(), b.await())
+                    }
                 }
                 _carga.value = CargaUi.Exito(
                     "A la vez", perfil, pedidos.size, System.currentTimeMillis() - inicio

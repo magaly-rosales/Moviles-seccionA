@@ -100,7 +100,7 @@ fun PantallaTareas(vm: TareasViewModel) {
                 }
             }
             TarjetaTarea("Dos cargas") {
-                val cargando = carga is CargaUi.Cargando
+                val cargando = carga is CargaUi.Cargando || carga is CargaUi.Reintentando
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     OutlinedButton(onClick = { vm.cargarUnaPorUna() }, enabled = !cargando) {
                         Text("Una por una")
@@ -115,6 +115,11 @@ fun PantallaTareas(vm: TareasViewModel) {
                 when (val c = carga) {
                     CargaUi.Inicial -> Unit
                     CargaUi.Cargando -> CircularProgressIndicator()
+                    is CargaUi.Reintentando -> Row(verticalAlignment = Alignment.CenterVertically) {
+                        CircularProgressIndicator(modifier = Modifier.size(20.dp), strokeWidth = 2.dp)
+                        Spacer(Modifier.width(8.dp))
+                        Text("Reintentando (${c.intento}/3)...")
+                    }
                     is CargaUi.Exito -> RecuadroExito(
                         "Modo: ${c.modo}\nPerfil: ${c.perfil}\nPedidos: ${c.pedidos}\nTiempo: ${c.milisegundos} ms"
                     )
