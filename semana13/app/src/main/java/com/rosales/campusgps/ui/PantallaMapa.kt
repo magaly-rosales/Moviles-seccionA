@@ -65,7 +65,7 @@ fun PantallaMapa(vm: MapaViewModel) {
                 modifier = Modifier.weight(1f).fillMaxWidth()
             )
             Column(
-                modifier = Modifier.fillMaxWidth().padding(16.dp),
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Button(
@@ -74,7 +74,6 @@ fun PantallaMapa(vm: MapaViewModel) {
                 ) {
                     Text(if (estado is UbicacionUi.Buscando) "Buscando..." else "Obtener mi ubicación")
                 }
-                Spacer(Modifier.height(8.dp))
                 when (val e = estado) {
                     is UbicacionUi.Lista -> Text(
                         "Lat: %.5f   Lon: %.5f".format(e.posicion.latitud, e.posicion.longitud)
@@ -84,6 +83,12 @@ fun PantallaMapa(vm: MapaViewModel) {
                     UbicacionUi.Inicial -> Text("Pulsa el botón para buscar tu ubicación")
                 }
             }
+            ListaLugares(
+                lugares = lugares,
+                seleccionado = seleccionado,
+                onClick = { vm.seleccionar(it) },
+                modifier = Modifier.fillMaxWidth().height(220.dp)
+            )
         }
     }
 }
