@@ -6,6 +6,8 @@ import android.content.pm.PackageManager
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -27,7 +29,9 @@ private fun tienePermiso(contexto: Context): Boolean =
 @Composable
 fun PantallaMapa(vm: MapaViewModel) {
     val estado by vm.estado.collectAsState()
-    val lugares by vm.lugares.collectAsState()
+    val todosLosLugares by vm.lugares.collectAsState()
+    val lugaresFiltrados by vm.lugaresFiltrados.collectAsState()
+    val categoriaSeleccionada by vm.categoriaSeleccionada.collectAsState()
     val seleccionado by vm.seleccionado.collectAsState()
     val masCercano by vm.masCercano.collectAsState()
     val contexto = LocalContext.current
@@ -62,7 +66,7 @@ fun PantallaMapa(vm: MapaViewModel) {
         Column(modifier = Modifier.padding(padding).fillMaxSize()) {
             MapaUbicacion(
                 estado = estado,
-                lugares = lugares,
+                lugares = lugaresFiltrados,
                 seleccionado = seleccionado,
                 masCercanoId = masCercano?.id,
                 modifier = Modifier.weight(1f).fillMaxWidth()
@@ -92,12 +96,33 @@ fun PantallaMapa(vm: MapaViewModel) {
                     Text("Ir al más cercano")
                 }
                 masCercano?.let { lugar ->
-                    val metros = lugares.firstOrNull { it.lugar.id == lugar.id }?.metros
+                    val metros = todosLosLugares.firstOrNull { it.lugar.id == lugar.id }?.metros
                     Text("Más cercano: ${lugar.nombre} (${metros?.let { formatearDistancia(it) } ?: ""})")
                 }
             }
+            val categorias = listOf("Todas", "Estudio", "Comida", "Eventos", "Servicios")
+            LazyRow(
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                items(categorias) { cat ->
+                    val esTodas = cat == "Todas"
+                    val estaSeleccionado = if (esTodas) categoriaSeleccionada == null else categoriaSeleccionada == cat
+                    FilterChip(
+                        selected = estaSeleccionado,
+                        onClick = {
+                            if (esTodas) {
+                                vm.filtrar(null)
+                            } else {
+                                vm.filtrar(if (estaSeleccionado) null else cat)
+                            }
+                        },
+                        label = { Text(cat) }
+                    )
+                }
+            }
             ListaLugares(
-                lugares = lugares,
+                lugares = lugaresFiltrados,
                 seleccionado = seleccionado,
                 onClick = { vm.seleccionar(it) },
                 masCercanoId = masCercano?.id,
