@@ -14,6 +14,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import com.rosales.campusgps.model.UbicacionUi
+import com.rosales.campusgps.util.formatearDistancia
 import com.rosales.campusgps.viewmodel.MapaViewModel
 
 private fun tienePermiso(contexto: Context): Boolean =
@@ -28,6 +29,7 @@ fun PantallaMapa(vm: MapaViewModel) {
     val estado by vm.estado.collectAsState()
     val lugares by vm.lugares.collectAsState()
     val seleccionado by vm.seleccionado.collectAsState()
+    val masCercano by vm.masCercano.collectAsState()
     val contexto = LocalContext.current
 
     val lanzador = rememberLauncherForActivityResult(
@@ -62,6 +64,7 @@ fun PantallaMapa(vm: MapaViewModel) {
                 estado = estado,
                 lugares = lugares,
                 seleccionado = seleccionado,
+                masCercanoId = masCercano?.id,
                 modifier = Modifier.weight(1f).fillMaxWidth()
             )
             Column(
@@ -82,11 +85,22 @@ fun PantallaMapa(vm: MapaViewModel) {
                     UbicacionUi.Buscando -> CircularProgressIndicator()
                     UbicacionUi.Inicial -> Text("Pulsa el botón para buscar tu ubicación")
                 }
+                OutlinedButton(
+                    onClick = { masCercano?.let { vm.seleccionar(it.id) } },
+                    enabled = masCercano != null
+                ) {
+                    Text("Ir al más cercano")
+                }
+                masCercano?.let { lugar ->
+                    val metros = lugares.firstOrNull { it.lugar.id == lugar.id }?.metros
+                    Text("Más cercano: ${lugar.nombre} (${metros?.let { formatearDistancia(it) } ?: ""})")
+                }
             }
             ListaLugares(
                 lugares = lugares,
                 seleccionado = seleccionado,
                 onClick = { vm.seleccionar(it) },
+                masCercanoId = masCercano?.id,
                 modifier = Modifier.fillMaxWidth().height(220.dp)
             )
         }
