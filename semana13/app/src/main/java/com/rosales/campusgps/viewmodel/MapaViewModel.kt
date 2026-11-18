@@ -1,11 +1,14 @@
 package com.rosales.campusgps.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.rosales.campusgps.data.LugaresRepository
 import com.rosales.campusgps.data.UbicacionRepository
 import com.rosales.campusgps.model.LugarConDistancia
+import com.rosales.campusgps.model.Posicion
 import com.rosales.campusgps.model.UbicacionUi
+import com.rosales.campusgps.util.distanciaMetros
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -33,7 +36,7 @@ class MapaViewModel(
             ubicacionRepo.obtenerPosicion()
                 .onSuccess {
                     _estado.value = UbicacionUi.Lista(it)
-                    // TODO Paso 5: actualizarDistancias(it)
+                    actualizarDistancias(it)
                 }
                 .onFailure { _estado.value = UbicacionUi.Error(mensajeDe(it)) }
         }
@@ -43,8 +46,12 @@ class MapaViewModel(
         _estado.value = UbicacionUi.Error("Sin permiso de ubicación no puedo mostrar dónde estás")
     }
 
-    // TODO Paso 6: fun seleccionar(id: Int?)
-    // TODO Paso 7: val masCercano: StateFlow<Lugar?>
+    private fun actualizarDistancias(pos: Posicion) {
+        _lugares.value = lugaresRepo.obtenerLugares()
+            .map { LugarConDistancia(it, distanciaMetros(pos, it)) }
+            .sortedBy { it.metros }
+        _lugares.value.forEach { Log.d("CampusGPS", "${it.lugar.nombre}: ${it.metros} m") }
+    }
 
     private fun mensajeDe(e: Throwable): String = when (e) {
         is SecurityException -> "Falta el permiso de ubicación"
