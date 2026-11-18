@@ -45,7 +45,9 @@ fun PantallaTareas(vm: TareasViewModel) {
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             TarjetaTarea("Tarea con progreso") {
-                Text("Pendiente")
+                Button(onClick = { toques++ }) { Text("Tócame: $toques") }
+                Button(onClick = { vm.tareaLargaMala() }) { Text("Tarea larga (MAL)") }
+                Text(mensaje)
             }
             TarjetaTarea("Contar números primos") {
                 Text("Pendiente")
