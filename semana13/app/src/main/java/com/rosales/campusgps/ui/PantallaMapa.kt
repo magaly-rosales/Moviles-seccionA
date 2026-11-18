@@ -26,6 +26,8 @@ private fun tienePermiso(contexto: Context): Boolean =
 @Composable
 fun PantallaMapa(vm: MapaViewModel) {
     val estado by vm.estado.collectAsState()
+    val lugares by vm.lugares.collectAsState()
+    val seleccionado by vm.seleccionado.collectAsState()
     val contexto = LocalContext.current
 
     val lanzador = rememberLauncherForActivityResult(
@@ -55,24 +57,32 @@ fun PantallaMapa(vm: MapaViewModel) {
             )
         }
     ) { padding ->
-        Column(
-            modifier = Modifier.padding(padding).fillMaxSize().padding(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Button(
-                onClick = { alPulsar() },
-                enabled = estado !is UbicacionUi.Buscando
+        Column(modifier = Modifier.padding(padding).fillMaxSize()) {
+            MapaUbicacion(
+                estado = estado,
+                lugares = lugares,
+                seleccionado = seleccionado,
+                modifier = Modifier.weight(1f).fillMaxWidth()
+            )
+            Column(
+                modifier = Modifier.fillMaxWidth().padding(16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Text(if (estado is UbicacionUi.Buscando) "Buscando..." else "Obtener mi ubicación")
-            }
-            Spacer(Modifier.height(12.dp))
-            when (val e = estado) {
-                is UbicacionUi.Lista -> Text(
-                    "Lat: %.5f   Lon: %.5f".format(e.posicion.latitud, e.posicion.longitud)
-                )
-                is UbicacionUi.Error -> Text(e.mensaje, color = MaterialTheme.colorScheme.error)
-                UbicacionUi.Buscando -> CircularProgressIndicator()
-                UbicacionUi.Inicial -> Text("Pulsa el botón para buscar tu ubicación")
+                Button(
+                    onClick = { alPulsar() },
+                    enabled = estado !is UbicacionUi.Buscando
+                ) {
+                    Text(if (estado is UbicacionUi.Buscando) "Buscando..." else "Obtener mi ubicación")
+                }
+                Spacer(Modifier.height(8.dp))
+                when (val e = estado) {
+                    is UbicacionUi.Lista -> Text(
+                        "Lat: %.5f   Lon: %.5f".format(e.posicion.latitud, e.posicion.longitud)
+                    )
+                    is UbicacionUi.Error -> Text(e.mensaje, color = MaterialTheme.colorScheme.error)
+                    UbicacionUi.Buscando -> CircularProgressIndicator()
+                    UbicacionUi.Inicial -> Text("Pulsa el botón para buscar tu ubicación")
+                }
             }
         }
     }
