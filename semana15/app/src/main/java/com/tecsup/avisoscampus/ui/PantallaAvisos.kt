@@ -178,28 +178,26 @@ fun PantallaAvisos(
                         is PermisoUi.Denegado -> "Denegado" to Color(0xFFD32F2F)
                     }
 
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
+                    Text(
+                        text = "Estado: $textoPermiso",
+                        color = colorPermiso,
+                        fontWeight = FontWeight.Bold,
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Button(
+                        onClick = {
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                                launcher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                            } else {
+                                vm.permisoRespondido(true)
+                            }
+                        },
+                        enabled = permiso !is PermisoUi.Concedido
                     ) {
                         Text(
-                            text = "Estado: $textoPermiso",
-                            color = colorPermiso,
-                            fontWeight = FontWeight.Bold,
-                            style = MaterialTheme.typography.bodyMedium
+                            text = if (permiso is PermisoUi.Concedido) "Notificaciones permitidas" else "Permitir notificaciones"
                         )
-                        Button(
-                            onClick = {
-                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                                    launcher.launch(Manifest.permission.POST_NOTIFICATIONS)
-                                } else {
-                                    vm.permisoRespondido(true)
-                                }
-                            }
-                        ) {
-                            Text("Permitir notificaciones")
-                        }
                     }
                 }
             }
