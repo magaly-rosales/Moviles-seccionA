@@ -148,6 +148,12 @@ fun PantallaAvisos(
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold
                     )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Button(
+                        onClick = { vm.avisarAhora() }
+                    ) {
+                        Text("Mostrar aviso")
+                    }
                 }
             }
 
