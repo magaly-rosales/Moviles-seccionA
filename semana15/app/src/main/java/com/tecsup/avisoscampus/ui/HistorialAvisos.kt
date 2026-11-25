@@ -55,6 +55,7 @@ fun HistorialAvisos(
                             Origen.BOTON -> Color(0xFF1976D2)       // azul
                             Origen.RECORDATORIO -> Color(0xFFF57C00) // naranja
                             Origen.MODO_AVION -> Color(0xFF7B1FA2)   // morado
+                            Origen.CARGADOR -> Color(0xFF388E3C)     // verde
                         }
 
                         Surface(
