@@ -1,5 +1,6 @@
 package com.tecsup.murocampus.ui
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -14,6 +15,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -34,6 +36,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.tecsup.murocampus.model.Comentario
+import com.tecsup.murocampus.ui.theme.colorUsuario
 import com.tecsup.murocampus.viewmodel.PostsViewModel
 import com.tecsup.murocampus.viewmodel.UiState
 
@@ -83,6 +86,7 @@ fun PantallaDetalle(
             is UiState.Exito -> {
                 val post = curr.datos.post
                 val comentarios = curr.datos.comentarios
+                val (userContainer, userContent) = colorUsuario(post.userId)
 
                 LazyColumn(
                     modifier = Modifier.fillMaxSize(),
@@ -92,9 +96,13 @@ fun PantallaDetalle(
                     item {
                         Card(
                             modifier = Modifier.fillMaxWidth(),
+                            shape = RoundedCornerShape(16.dp),
                             colors = CardDefaults.cardColors(
-                                containerColor = MaterialTheme.colorScheme.surfaceVariant
-                            )
+                                containerColor = userContainer,
+                                contentColor = MaterialTheme.colorScheme.onSurface
+                            ),
+                            border = BorderStroke(1.5.dp, userContent.copy(alpha = 0.4f)),
+                            elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
                         ) {
                             Column(modifier = Modifier.padding(16.dp)) {
                                 Row(
@@ -104,8 +112,9 @@ fun PantallaDetalle(
                                 ) {
                                     Text(
                                         text = "Usuario ${post.userId}",
-                                        style = MaterialTheme.typography.labelMedium,
-                                        color = MaterialTheme.colorScheme.primary
+                                        style = MaterialTheme.typography.titleMedium,
+                                        color = userContent,
+                                        fontWeight = FontWeight.Bold
                                     )
                                     val estaBorrando = estadoBorrado is UiState.Cargando
                                     Button(
