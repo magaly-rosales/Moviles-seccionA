@@ -18,15 +18,22 @@ import com.tecsup.avisoscampus.model.Aviso
 
 object Notificador {
     const val CANAL = "avisos"
+    const val CANAL_URGENTE = "urgentes"
 
     fun crearCanal(context: Context) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val notificationManager =
+                context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+
             val nombre = "Avisos"
             val importancia = NotificationManager.IMPORTANCE_DEFAULT
             val canal = NotificationChannel(CANAL, nombre, importancia)
-            val notificationManager =
-                context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
             notificationManager.createNotificationChannel(canal)
+
+            val nombreUrgente = "Urgentes"
+            val importanciaUrgente = NotificationManager.IMPORTANCE_HIGH
+            val canalUrgente = NotificationChannel(CANAL_URGENTE, nombreUrgente, importanciaUrgente)
+            notificationManager.createNotificationChannel(canalUrgente)
         }
     }
 
@@ -55,11 +62,14 @@ object Notificador {
             PendingIntent.FLAG_IMMUTABLE
         )
 
-        val builder = NotificationCompat.Builder(context, CANAL)
+        val canalId = if (aviso.urgente) CANAL_URGENTE else CANAL
+        val prioridad = if (aviso.urgente) NotificationCompat.PRIORITY_HIGH else NotificationCompat.PRIORITY_DEFAULT
+
+        val builder = NotificationCompat.Builder(context, canalId)
             .setSmallIcon(R.drawable.ic_notificacion)
             .setContentTitle(aviso.titulo)
             .setContentText(aviso.texto)
-            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+            .setPriority(prioridad)
             .setContentIntent(pendiente)
             .setAutoCancel(true)
 

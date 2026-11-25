@@ -63,7 +63,8 @@ class AvisosViewModel(private val repository: AvisosRepository) : ViewModel() {
                 val aviso = repository.registrar(
                     "Recordatorio",
                     "Revisa tu laboratorio pendiente",
-                    Origen.RECORDATORIO
+                    Origen.RECORDATORIO,
+                    urgente = true
                 )
                 _eventos.emit(aviso)
             } finally {

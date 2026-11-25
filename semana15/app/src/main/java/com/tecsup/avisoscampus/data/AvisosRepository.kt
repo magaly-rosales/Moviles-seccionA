@@ -11,7 +11,7 @@ import java.util.Locale
 
 interface AvisosRepository {
     val avisos: StateFlow<List<Aviso>>
-    fun registrar(titulo: String, texto: String, origen: Origen): Aviso
+    fun registrar(titulo: String, texto: String, origen: Origen, urgente: Boolean = false): Aviso
 }
 
 class AvisosRepositoryMemoria : AvisosRepository {
@@ -21,14 +21,15 @@ class AvisosRepositoryMemoria : AvisosRepository {
     private var siguienteId = 1
     private val formatoHora = SimpleDateFormat("HH:mm:ss", Locale.getDefault())
 
-    override fun registrar(titulo: String, texto: String, origen: Origen): Aviso {
+    override fun registrar(titulo: String, texto: String, origen: Origen, urgente: Boolean): Aviso {
         val horaActual = formatoHora.format(Date())
         val nuevoAviso = Aviso(
             id = siguienteId++,
             titulo = titulo,
             texto = texto,
             origen = origen,
-            hora = horaActual
+            hora = horaActual,
+            urgente = urgente
         )
         _avisos.value = listOf(nuevoAviso) + _avisos.value
         return nuevoAviso
