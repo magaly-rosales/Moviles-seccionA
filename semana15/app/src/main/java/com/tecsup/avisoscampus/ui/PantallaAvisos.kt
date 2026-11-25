@@ -1,6 +1,8 @@
 package com.tecsup.avisoscampus.ui
 
 import android.Manifest
+import android.content.Intent
+import android.content.IntentFilter
 import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -21,10 +23,12 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -34,9 +38,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.tecsup.avisoscampus.model.PermisoUi
 import com.tecsup.avisoscampus.notificacion.Notificador
+import com.tecsup.avisoscampus.receiver.ModoAvionReceiver
 import com.tecsup.avisoscampus.viewmodel.AvisosViewModel
 import com.tecsup.avisoscampus.viewmodel.AvisosViewModelFactory
 
@@ -48,6 +54,24 @@ fun PantallaAvisos(
     val contexto = LocalContext.current
     val permiso by vm.permiso.collectAsState()
     val faltan by vm.faltan.collectAsState()
+    val escuchando by vm.escuchandoAvion.collectAsState()
+
+    DisposableEffect(escuchando) {
+        if (escuchando) {
+            val receptor = ModoAvionReceiver { vm.alCambiarModoAvion(it) }
+            ContextCompat.registerReceiver(
+                contexto,
+                receptor,
+                IntentFilter(Intent.ACTION_AIRPLANE_MODE_CHANGED),
+                ContextCompat.RECEIVER_NOT_EXPORTED
+            )
+            onDispose {
+                contexto.unregisterReceiver(receptor)
+            }
+        } else {
+            onDispose { }
+        }
+    }
 
     val launcher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission()
@@ -212,6 +236,21 @@ fun PantallaAvisos(
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold
                     )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = "Escuchar el modo avión",
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                        Switch(
+                            checked = escuchando,
+                            onCheckedChange = { vm.cambiarEscucha(it) }
+                        )
+                    }
                 }
             }
 
