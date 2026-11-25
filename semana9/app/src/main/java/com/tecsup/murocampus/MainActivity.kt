@@ -24,6 +24,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import com.tecsup.murocampus.data.PostRepositoryRemote
 import com.tecsup.murocampus.data.remote.RetrofitClient
+import com.tecsup.murocampus.ui.PantallaCrear
 import com.tecsup.murocampus.ui.PantallaDetalle
 import com.tecsup.murocampus.ui.PantallaLista
 import com.tecsup.murocampus.ui.theme.MuroCampusTheme
@@ -43,21 +44,35 @@ class MainActivity : ComponentActivity() {
         setContent {
             MuroCampusTheme {
                 var idSeleccionado by rememberSaveable { mutableStateOf<Int?>(null) }
+                var creando by rememberSaveable { mutableStateOf(false) }
 
-                BackHandler(enabled = idSeleccionado != null) {
-                    idSeleccionado = null
+                BackHandler(enabled = idSeleccionado != null || creando) {
+                    if (idSeleccionado != null) {
+                        idSeleccionado = null
+                    } else if (creando) {
+                        creando = false
+                    }
+                }
+
+                val tituloAppBar = when {
+                    idSeleccionado != null -> "Detalle de publicación"
+                    creando -> "Nueva publicación"
+                    else -> "MuroCampus"
                 }
 
                 Scaffold(
                     modifier = Modifier.fillMaxSize(),
                     topBar = {
                         TopAppBar(
-                            title = {
-                                Text(if (idSeleccionado != null) "Detalle de publicación" else "MuroCampus")
-                            },
+                            title = { Text(tituloAppBar) },
                             navigationIcon = {
-                                if (idSeleccionado != null) {
-                                    IconButton(onClick = { idSeleccionado = null }) {
+                                if (idSeleccionado != null || creando) {
+                                    IconButton(
+                                        onClick = {
+                                            idSeleccionado = null
+                                            creando = false
+                                        }
+                                    ) {
                                         Text(
                                             text = "←",
                                             fontSize = 24.sp,
@@ -75,20 +90,30 @@ class MainActivity : ComponentActivity() {
                     }
                 ) { innerPadding ->
                     val id = idSeleccionado
-                    if (id != null) {
-                        PantallaDetalle(
-                            vm = viewModel,
-                            id = id,
-                            onAtras = { idSeleccionado = null },
-                            modifier = Modifier.padding(innerPadding)
-                        )
-                    } else {
-                        PantallaLista(
-                            vm = viewModel,
-                            onPostClick = { idClicked -> idSeleccionado = idClicked },
-                            onCrear = { /* Implementación en Paso 9 */ },
-                            modifier = Modifier.padding(innerPadding)
-                        )
+                    when {
+                        id != null -> {
+                            PantallaDetalle(
+                                vm = viewModel,
+                                id = id,
+                                onAtras = { idSeleccionado = null },
+                                modifier = Modifier.padding(innerPadding)
+                            )
+                        }
+                        creando -> {
+                            PantallaCrear(
+                                vm = viewModel,
+                                onVolver = { creando = false },
+                                modifier = Modifier.padding(innerPadding)
+                            )
+                        }
+                        else -> {
+                            PantallaLista(
+                                vm = viewModel,
+                                onPostClick = { idClicked -> idSeleccionado = idClicked },
+                                onCrear = { creando = true },
+                                modifier = Modifier.padding(innerPadding)
+                            )
+                        }
                     }
                 }
             }
