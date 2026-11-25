@@ -3,7 +3,9 @@ package com.tecsup.avisoscampus.ui
 import android.Manifest
 import android.content.Intent
 import android.content.IntentFilter
+import android.net.Uri
 import android.os.Build
+import android.provider.Settings
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
@@ -56,6 +58,7 @@ fun PantallaAvisos(
     val faltan by vm.faltan.collectAsState()
     val escuchando by vm.escuchandoAvion.collectAsState()
     val avisos by vm.avisos.collectAsState()
+    val mensaje by vm.mensaje.collectAsState()
 
     DisposableEffect(escuchando) {
         if (escuchando) {
@@ -85,9 +88,10 @@ fun PantallaAvisos(
             vm.permisoRespondido(true)
         }
         vm.eventos.collect { aviso ->
-            @Suppress("UNUSED_VARIABLE")
             val mostrado = Notificador.mostrar(contexto, aviso)
-            /* TODO Paso 8 */
+            if (!mostrado) {
+                vm.noSePudoMostrar()
+            }
         }
     }
 
@@ -117,6 +121,43 @@ fun PantallaAvisos(
                 .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
+            // Recuadro de mensaje de error (si no es null)
+            if (mensaje != null) {
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.errorContainer
+                    )
+                ) {
+                    Column(
+                        modifier = Modifier.padding(16.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Text(
+                            text = mensaje!!,
+                            color = MaterialTheme.colorScheme.onErrorContainer,
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                        Button(
+                            onClick = {
+                                val intent = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                                    Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS).apply {
+                                        putExtra(Settings.EXTRA_APP_PACKAGE, contexto.packageName)
+                                    }
+                                } else {
+                                    Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                                        data = Uri.fromParts("package", contexto.packageName, null)
+                                    }
+                                }
+                                contexto.startActivity(intent)
+                            }
+                        ) {
+                            Text("Abrir ajustes")
+                        }
+                    }
+                }
+            }
+
             // Tarjeta 1: Permiso de notificaciones
             Card(
                 modifier = Modifier.fillMaxWidth(),

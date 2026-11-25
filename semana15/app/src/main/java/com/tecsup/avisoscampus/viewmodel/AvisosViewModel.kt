@@ -37,7 +37,12 @@ class AvisosViewModel(private val repository: AvisosRepository) : ViewModel() {
     val escuchandoAvion: StateFlow<Boolean> = _escuchandoAvion.asStateFlow()
 
     fun permisoRespondido(concedido: Boolean) {
-        _permiso.value = if (concedido) PermisoUi.Concedido else PermisoUi.Denegado
+        if (concedido) {
+            _permiso.value = PermisoUi.Concedido
+            _mensaje.value = null
+        } else {
+            _permiso.value = PermisoUi.Denegado
+        }
     }
 
     fun avisarAhora() {
@@ -87,5 +92,7 @@ class AvisosViewModel(private val repository: AvisosRepository) : ViewModel() {
         }
     }
 
-    // TODO Paso 8: noSePudoMostrar()
+    fun noSePudoMostrar() {
+        _mensaje.value = "Sin permiso: el aviso se guardó en el historial, pero no se mostró"
+    }
 }
