@@ -30,7 +30,8 @@ com.tecsup.avisoscampus/
 ├── notificacion/
 │   └── Notificador.kt            canal, permiso y mostrar
 ├── receiver/
-│   └── ModoAvionReceiver.kt      escucha ACTION_AIRPLANE_MODE_CHANGED
+│   ├── ModoAvionReceiver.kt      escucha ACTION_AIRPLANE_MODE_CHANGED
+│   └── CargadorReceiver.kt       escucha POWER_CONNECTED / DISCONNECTED
 ├── viewmodel/
 │   ├── AvisosViewModel.kt
 │   └── AvisosViewModelFactory.kt
@@ -46,7 +47,7 @@ com.tecsup.avisoscampus/
  View (PantallaAvisos)
    │  eventos: botones, switch          ▲ collectAsState()
    ▼                                    │
- ViewModel (AvisosViewModel) ── StateFlow (avisos, permiso, faltan, escuchandoAvion, mensaje)
+ ViewModel (AvisosViewModel) ── StateFlow (avisos, permiso, faltan, escuchandoAvion, escuchandoCargador, mensaje)
    │  registra el aviso                 │ emite: eventos (SharedFlow<Aviso>)
    ▼                                    ▼
  AvisosRepository (interface)        View recibe el evento y llama a
@@ -104,3 +105,21 @@ Corre en el hilo principal y si tarda congela la app (ANR); hay que quitarlo en 
 
 **5. ¿En qué casos usarías una notificación local y en cuáles una push de Firebase?**
 Local cuando el aviso nace en el propio celular (recordatorios, eventos del sistema); push cuando viene de un servidor (mensajes, anuncios del docente) y debe llegar aunque la app esté cerrada.
+
+## Fase 2 · Mejoras con IA (rama mejora-ia-15)
+
+En esta fase se integraron 3 mejoras avanzadas de notificaciones y eventos de sistema asistidas por IA.
+
+### Resumen de Mejoras
+
+| Mejora | Qué logra | Capas que cambian | Cómo probarla |
+|---|---|---|---|
+| Canal Urgentes | Notificación emergente (Heads-Up) con prioridad alta para recordatorios. | Model, Data, Notificación, ViewModel | Desinstalar app, reinstalar, programar recordatorio en 10 s y observar el cartel emergente arriba. |
+| Texto completo con BigTextStyle | Permite expandir la notificación para leer mensajes largos de múltiples líneas. | Notificación, ViewModel | Enviar un recordatorio, abrir la cortina de notificaciones y deslizar la notificación hacia abajo. |
+| Receptor del cargador | Notifica en tiempo real cuando el celular se conecta o desconecta de la corriente. | Receiver, Model, Notificación, ViewModel, UI | Activar Switch 'Escuchar el cargador', ir a Extended Controls -> Battery -> Charger connection (AC charger / None). |
+
+### Captura adicional
+
+| Receptor del cargador |
+|---|
+| ![Receptor del cargador](capturas/cargador.png) |
