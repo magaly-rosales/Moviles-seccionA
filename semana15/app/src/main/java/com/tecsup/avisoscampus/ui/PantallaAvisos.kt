@@ -55,6 +55,7 @@ fun PantallaAvisos(
     val permiso by vm.permiso.collectAsState()
     val faltan by vm.faltan.collectAsState()
     val escuchando by vm.escuchandoAvion.collectAsState()
+    val avisos by vm.avisos.collectAsState()
 
     DisposableEffect(escuchando) {
         if (escuchando) {
@@ -255,19 +256,7 @@ fun PantallaAvisos(
             }
 
             // Tarjeta 5: Historial
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
-            ) {
-                Column(modifier = Modifier.padding(16.dp)) {
-                    Text(
-                        text = "Historial",
-                        color = blueColor,
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold
-                    )
-                }
-            }
+            HistorialAvisos(avisos = avisos)
         }
     }
 }
