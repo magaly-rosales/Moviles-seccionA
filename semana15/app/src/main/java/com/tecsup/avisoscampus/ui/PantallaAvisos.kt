@@ -19,6 +19,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -46,6 +47,7 @@ fun PantallaAvisos(
 ) {
     val contexto = LocalContext.current
     val permiso by vm.permiso.collectAsState()
+    val faltan by vm.faltan.collectAsState()
 
     val launcher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission()
@@ -169,6 +171,32 @@ fun PantallaAvisos(
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold
                     )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Button(
+                            onClick = { vm.recordarEn(10) },
+                            enabled = faltan == null
+                        ) {
+                            Text("Recordar en 10 s")
+                        }
+                        OutlinedButton(
+                            onClick = { vm.cancelarRecordatorio() },
+                            enabled = faltan != null
+                        ) {
+                            Text("Cancelar")
+                        }
+                    }
+                    if (faltan != null) {
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            text = "Faltan $faltan s",
+                            style = MaterialTheme.typography.bodyMedium,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
                 }
             }
 
