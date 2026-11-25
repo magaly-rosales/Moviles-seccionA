@@ -12,7 +12,9 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -34,12 +36,34 @@ fun PantallaLista(
 ) {
     val estado by vm.lista.collectAsStateWithLifecycle()
     val usuarioFiltro by vm.usuarioFiltro.collectAsStateWithLifecycle()
+    val textoBusqueda by vm.textoBusqueda.collectAsStateWithLifecycle()
 
     Box(modifier = modifier.fillMaxSize()) {
         Column(modifier = Modifier.fillMaxSize()) {
+            OutlinedTextField(
+                value = textoBusqueda,
+                onValueChange = vm::buscar,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 8.dp),
+                placeholder = { Text("Buscar por título…") },
+                singleLine = true,
+                trailingIcon = {
+                    if (textoBusqueda.isNotEmpty()) {
+                        IconButton(onClick = { vm.buscar("") }) {
+                            Text(
+                                text = "✕",
+                                fontSize = 14.sp,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
+                    }
+                }
+            )
+
             LazyRow(
                 modifier = Modifier.fillMaxWidth(),
-                contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
+                contentPadding = PaddingValues(horizontal = 16.dp, vertical = 4.dp),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 item {

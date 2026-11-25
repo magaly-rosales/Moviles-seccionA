@@ -10,8 +10,11 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 data class DetalleUi(
@@ -20,8 +23,29 @@ data class DetalleUi(
 )
 
 class PostsViewModel(private val repo: PostRepository) : ViewModel() {
-    private val _lista = MutableStateFlow<UiState<List<Post>>>(UiState.Cargando)
-    val lista: StateFlow<UiState<List<Post>>> = _lista.asStateFlow()
+    private val _rawLista = MutableStateFlow<UiState<List<Post>>>(UiState.Cargando)
+
+    private val _textoBusqueda = MutableStateFlow("")
+    val textoBusqueda: StateFlow<String> = _textoBusqueda.asStateFlow()
+
+    val lista: StateFlow<UiState<List<Post>>> = combine(_rawLista, _textoBusqueda) { state, query ->
+        if (state is UiState.Exito) {
+            if (query.isBlank()) {
+                state
+            } else {
+                val filtrados = state.datos.filter { post ->
+                    post.title.contains(query.trim(), ignoreCase = true)
+                }
+                UiState.Exito(filtrados)
+            }
+        } else {
+            state
+        }
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000),
+        initialValue = UiState.Cargando
+    )
 
     private val _detalle = MutableStateFlow<UiState<DetalleUi>>(UiState.Cargando)
     val detalle: StateFlow<UiState<DetalleUi>> = _detalle.asStateFlow()
@@ -39,6 +63,10 @@ class PostsViewModel(private val repo: PostRepository) : ViewModel() {
         cargar()
     }
 
+    fun buscar(texto: String) {
+        _textoBusqueda.value = texto
+    }
+
     fun filtrar(userId: Int?) {
         _usuarioFiltro.value = userId
         cargar()
@@ -46,7 +74,7 @@ class PostsViewModel(private val repo: PostRepository) : ViewModel() {
 
     fun cargar() {
         viewModelScope.launch {
-            _lista.value = UiState.Cargando
+            _rawLista.value = UiState.Cargando
             val filtro = _usuarioFiltro.value
             val resultado = if (filtro == null) {
                 repo.listar()
@@ -54,8 +82,8 @@ class PostsViewModel(private val repo: PostRepository) : ViewModel() {
                 repo.porUsuario(filtro)
             }
             resultado
-                .onSuccess { _lista.value = UiState.Exito(it) }
-                .onFailure { _lista.value = UiState.Error(mensajeDe(it)) }
+                .onSuccess { _rawLista.value = UiState.Exito(it) }
+                .onFailure { _rawLista.value = UiState.Error(mensajeDe(it)) }
         }
     }
 
